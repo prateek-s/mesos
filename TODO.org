@@ -1,0 +1,9 @@
+
+* Deploy
+
+** Install 
+:DONE: Compiling takes a long time (1 hour or so)
+
+** Docker
+
+Create cluster with containers running mesos nodes. Nested Containers? Cgroups-> libprocess or libcontainer.

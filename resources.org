@@ -1,0 +1,29 @@
+
+
+
+** Mini-mesos 
+http://container-solutions.com/mesos-usability-a-developers-perspective/
+
+https://github.com/ContainerSolutions/minimesos
+
+Mesos local https://github.com/ContainerSolutions/mesos-local
+
+
+** Writing new frameworks
+
+http://mesos.apache.org/documentation/latest/app-framework-development-guide/
+
+https://github.com/mesosphere/RENDLER
+
+https://mesos.apache.org/api/latest/c++/md_docs_app-framework-development-guide.html
+
+http://mesos.apache.org/documentation/latest/scheduler-http-api/
+
+
+** Docker 
+
+https://medium.com/@gargar454/deploy-a-mesos-cluster-with-7-commands-using-docker-57951e020586#.b8j99l50s
+
+http://blog.microscaling.com/2015/08/running-marathon-and-mini-mesos-as.html
+
+http://container-solutions.com/caveats-of-running-mesos-cluster-in-docker-containers/
