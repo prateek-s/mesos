@@ -2,3 +2,6 @@
 =addSlave= seems to add a server/slave/agent to the resource pool. 
 file:../src/master/allocator/mesos/allocator.hpp
 Called only once, in _registerSlave or _reregisterSlave in file:../src/master/master.cpp
+
+
+Can have an autoscaler module which does instance management and retains unused servers for 10 X start-up time, etc. 

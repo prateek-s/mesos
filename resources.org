@@ -32,3 +32,6 @@ http://container-solutions.com/caveats-of-running-mesos-cluster-in-docker-contai
 http://www.vapor.io/vapor-io-brings-currency-based-scheduler-to-mesosphere-led-dcos/ 
 
 Price accounting for mesos jobs. Could not find any code in dcos. Infact, cant find any dcos code at all.
+
+
+NetFLix Fenzo extensible mesos scheduler https://github.com/Netflix/Fenzo
