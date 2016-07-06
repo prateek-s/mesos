@@ -36,8 +36,8 @@ Jobs can arrive at any time. Get free resources first, then
 
 Spot instance startup times can be much higher---so keeping a cache around might be useful. 
 
-
-
+allocator modules can be used to implement some policies: http://mesos.apache.org/documentation/latest/modules/
+http://mesos.apache.org/documentation/latest/allocation-module/
 
 
 * Simulation
