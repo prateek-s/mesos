@@ -20,3 +20,46 @@ Requiring dynamic price-driven allocation is going to be hard because of these f
 3. If we support budgets (say max total hourly price over all instances), then we might have to check every time we decide to allocate a new node : while(total_prices < budget){..} . This check, if done with actual real time prices, might again take a long time to compute for all the markets (few hundred http calls). An alternative could be a price mirroring proxy which handles all these complexities for the mesos clusters. Presumably, this proxy can do the async gets, provide stale results if necessary, and also do efficient batched queries (return the prices of [mkt1, mkt2, ...]). 
 
 
+Handling dynamism would be hard. How often to update the correlation matrix? 
+
+
+*Question*: How do applications specify their resource requirements? In spark, number of cores and mem per core can be specified, as well as the coarse-grained/fine-grained option. Along with that, we can also specify the node attributes (such as "us-east-1"), which can be used to specify single/multiple failure domains.
+
+
+*Question*: Combining DRF with transiency aware allocation.
+
+Simplest case: single application. Infer/get application requirements-> create a cluster, and done. Some dynamism still required. Handle/pass revocations etc. 
+
+Multiple applications submitted at the same time : need to statically partition. Dynamic allocation not required. 
+
+Jobs can arrive at any time. Get free resources first, then 
+
+Spot instance startup times can be much higher---so keeping a cache around might be useful. 
+
+
+
+
+
+* Simulation
+
+
+
+* Architecture 
+
+Mesos -> EC2 layer 
+
+
+EC2 layer gets the servers, gets the prices, etc. What does mesos really want from the ec2 layer? What should the API be? 
+get_new_server()
+get_diff_market()
+
+State that mesos (core) has:
+Servers/Nodes
+Market mapping
+Correlation matrix - Required for creating the multi-market resource offers. 
+?Price info?
+?Avail info?
+
+
+
+
