@@ -1,0 +1,8 @@
+Resource offers can have arbitrary attributes as key-value pairs which it passes  along to the frameworks.
+
+*Question*: Stand-alone cluster (one per application), or multiple applications per cluster? With multiple applications, we may get better utilization, but at a higher complexity. 
+
+*Question*: How to handle elasticity in demands and due to job arrivals? When to request new nodes from EC2? Should we keep some idle resource capacity at all times to speed up the allocation? This seems like a classic cost vs. latency tradeoff. One policy could be to always request new resources on-demand only. Another one could be something like the "slab allocator", where we keep some ec2 servers in a "cache" and then fulfill the allocation when required. 
+
+
+*Question*: How to implement packing within mesos to reduce the costs?
