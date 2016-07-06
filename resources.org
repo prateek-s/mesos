@@ -27,3 +27,8 @@ https://medium.com/@gargar454/deploy-a-mesos-cluster-with-7-commands-using-docke
 http://blog.microscaling.com/2015/08/running-marathon-and-mini-mesos-as.html
 
 http://container-solutions.com/caveats-of-running-mesos-cluster-in-docker-containers/
+
+
+http://www.vapor.io/vapor-io-brings-currency-based-scheduler-to-mesosphere-led-dcos/ 
+
+Price accounting for mesos jobs. Could not find any code in dcos. Infact, cant find any dcos code at all.
