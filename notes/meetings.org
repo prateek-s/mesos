@@ -1,0 +1,24 @@
+
+* Jul 7
+
+The exo-cloud pitch is better than the "price and traniency aware cluster manager for the cloud". While the cluster management angle might be a useful feature with a lot of appeal to end-users, the research story with exo-cloud is more promising.
+
+
+** Can we still call it the exo-cloud?
+
+YES. In our setup, the exo-cloud does pool management on behalf of the applications. But the applications control their own behaviour on revocations, price changes etc. 
+
+** Knobs
+
+What knobs should applications be provided with? 
+
+- Binary multi/single market switch. This determines whether the application has any use of multiple markets or not. 
+
+An improved version of this is to have two knobs. 
+
+- Price sensitivity. This dictates how price sensitive the application is. *This is very similar to the bid price*. 
+
+- Resiliency. This tells the exo-cloud how resilient the application is to simultaenous failures. 
+
+** Virtual clusters
+The exo-cloud provides "virtual clusters" to applications which 
