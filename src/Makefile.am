@@ -797,6 +797,7 @@ libmesos_no_3rdparty_la_SOURCES +=					\
   master/http.cpp							\
   master/maintenance.cpp						\
   master/master.cpp							\
+  master/crm.cpp							\
   master/metrics.cpp							\
   master/quota.cpp							\
   master/quota_handler.cpp						\

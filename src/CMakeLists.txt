@@ -263,6 +263,7 @@ if (NOT WIN32)
     master/allocator/mesos/metrics.cpp
     master/allocator/sorter/drf/sorter.cpp
     master/contender/contender.cpp
+    master/crm.cpp
     )
 endif (NOT WIN32)
 
