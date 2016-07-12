@@ -1,0 +1,48 @@
+
+
+** Actor model
+
+Non-blocking send, blocking receive
+
+** Scheduling
+Co-operative, priority are the two defaults, or write own. 
+
+** Using 
+
+#+BEGIN_SRC cpp
+using namespace    process;
+
+class QueueProcess: public Process {}
+int main(int argc, char **argv) {
+  QueueProcess process;
+  spawn(process);
+  terminate(process);
+  wait(process);
+  return 0;
+}
+#+END_SRC
+
+** Dispatch
+
+Async function call. 
+
+** Futures/promises
+
+
+A *future* is an object that can retrieve a value from some provider object or function, properly synchronizing this access if in different threads.
+
+Read-side of a result which might be computer asynchronously. 
+
+A *promise* is an object that can store a value of typeT to be retrieved by a future object (possibly in another thread), offering a synchronization point.
+
+Promise- acts as the write-side container. 
+
+A Promise is not copyable or assignable, in order to encourage strict ownership rules between processes (i.e., it's hard to reason about multiple actors concurrently trying to complete a Promise, even if it's safe to do so concurrently).
+
+
+* Resources 
+
+http://osq10.pbworks.com/f/libprocess-osq-2010.pdf
+
+
+https://wxdublin.gitbooks.io/mesos-code-walk/content/libprocess.html
