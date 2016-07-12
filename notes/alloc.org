@@ -4,4 +4,22 @@ file:../src/master/allocator/mesos/allocator.hpp
 Called only once, in _registerSlave or _reregisterSlave in file:../src/master/master.cpp
 
 
+=Master::resourceRequest= handles requests from frameworks calls =request=, which calls the =allocator->requestResources()=. Strangely, resourceRequest is not called by anyone?
+
+*Presumably, I will have to call CRM->requestResources first to actually create and add slave nodes?*
+
+=allocator->requestResources()= is called from:
+sched.cpp - just a "send" message.
+AND NOWHERE ELSE REALLY!?
+
 Can have an autoscaler module which does instance management and retains unused servers for 10 X start-up time, etc. 
+
+
+Mesos ec2 auto-scaling from outside :
+https://github.com/thefactory/autoscale-python/blob/master/examples/mesos_ec2.py
+
+cpus_free = cluster.state['master/cpus_total'] - cluster.state['master/cpus_used']
+
+*Question: How to get application resource requirements??*
+
+Aurora has job resources http://aurora.apache.org/documentation/latest/getting-started/tutorial/

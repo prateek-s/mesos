@@ -542,8 +542,10 @@ int main(int argc, char** argv)
     slaveRemovalLimiter = new RateLimiter(permits.get(), duration.get());
   }
 
-  LOG(INFO) << "Starting Mesos master";
+  LOG(INFO) << "Place to start the CRM" ;
 
+  LOG(INFO) << "Starting Mesos master";
+  
   Master* master =
     new Master(
       allocator.get(),

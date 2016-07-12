@@ -1,0 +1,10 @@
+
+
+cd build/src
+
+# slave needs to be started as sudo 
+
+./mesos-master --work_dir=/tmp  --ip=0.0.0.0 &
+
+sudo ./mesos-slave --master=127.0.0.1:5050 --work_dir=.
+
