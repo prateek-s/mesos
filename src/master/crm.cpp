@@ -1,13 +1,12 @@
 #include <iostream>
 //#include <sstream>
 
-// #include <process/defer.hpp>
-// #include <process/dispatch.hpp>
-// #include <process/future.hpp>
-// #include <process/http.hpp>
+#include <process/defer.hpp>
+#include <process/dispatch.hpp>
+#include <process/future.hpp>
+#include <process/http.hpp>
 
-// #include <process/process.hpp>
-// #include <mesos/state/log.hpp>
+//#include <mesos/state/log.hpp>
 
 // #include <stout/check.hpp>
 // #include <stout/duration.hpp>
@@ -28,7 +27,8 @@
 
 //using std::string;
 
-using namespace process;
+//using namespace CloudRM ;
+
 
 CloudRM::CloudRM() {
     LOG(INFO) << "~~~ FROM CLOUD RM" ;
@@ -47,6 +47,16 @@ int CloudRM::bar()
     return 32; 
 }
 
+int CloudRM::init()
+{
+   LOG(INFO) << "~~~~~~~ INITIALIZED by master" ;
+   return 1; 
+}
 
 
+int CloudRM::new_framework(const mesos::FrameworkInfo& frameworkinfo)
+{
+   LOG(INFO) << "~~~~~~~ NEW FRAMEWORK" ;
+   return 1; 
 
+}

@@ -78,6 +78,7 @@
 #include "master/validation.hpp"
 
 #include "messages/messages.hpp"
+#include "master/crm.hpp"
 
 namespace process {
 class RateLimiter; // Forward declaration.
@@ -400,10 +401,11 @@ public:
          const Option<Authorizer*>& authorizer,
          const Option<std::shared_ptr<process::RateLimiter>>&
            slaveRemovalLimiter,
-         const Flags& flags = Flags());
+         const Flags& flags = Flags(),
+	 CloudRM* crm = nullptr);
 
   virtual ~Master();
-
+  CloudRM* crm ; 
   // Message handlers.
   void submitScheduler(
       const std::string& name);
@@ -1133,6 +1135,7 @@ private:
     void rescindOffers(const std::vector<WeightInfo>& weightInfos) const;
 
     Master* master;
+    CloudRM* crm ;
   };
 
   // Inner class used to namespace HTTP route handlers (see

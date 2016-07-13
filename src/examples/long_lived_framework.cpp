@@ -130,6 +130,7 @@ protected:
       process::defer(self(), &Self::disconnected),
       process::defer(self(), &Self::received, lambda::_1),
       credential));
+    this->askResources();
   }
 
   void connected()
@@ -167,6 +168,28 @@ protected:
     process::delay(Seconds(1), self(), &Self::doReliableRegistration);
   }
 
+  void askResources()
+  {
+      LOG(INFO) << "Asking Mesos for specified amount of resources" ;
+      //vector<Request> sent;
+      //Request request;
+
+      Call call ;
+      call.set_type(Call::REQUEST) ;
+      Call::Request* request = call.mutable_request() ;
+      request->add_requests() ;
+      mesos->send(call) ;
+      
+      LOG(INFO) << "Resource request SENT to mesos" ;
+      
+      
+      //call type is REQUEST
+      //request.mutable_slave_id()->set_value("test");
+      //sent.push_back(request);
+      //Future<vector<Request>> received;
+      //driver.requestResources(sent); //mesos scheduler driver
+      
+  }
   void received(queue<Event> events)
   {
     while (!events.empty()) {

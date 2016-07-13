@@ -1,32 +1,46 @@
-
-#include <process/defer.hpp>
-#include <process/dispatch.hpp>
-#include <process/future.hpp>
-#include <process/http.hpp>
-
+#ifndef __CRM_HPP__
+#define __CRM_HPP__
 #include <process/process.hpp>
-//#include <mesos/state/log.hpp>
-
-#include <stout/check.hpp>
-#include <stout/duration.hpp>
-#include <stout/exit.hpp>
-#include <stout/flags.hpp>
-#include <stout/nothing.hpp>
-#include <stout/option.hpp>
-#include <stout/os.hpp>
-#include <stout/path.hpp>
-#include <stout/stringify.hpp>
-#include <stout/strings.hpp>
-#include <stout/try.hpp>
-
-#include "logging/flags.hpp"
-#include "logging/logging.hpp"
 
 
-using namespace process;
+#include <mesos/mesos.hpp>
+#include <mesos/resources.hpp>
+#include <mesos/type_utils.hpp>
+
+#include <mesos/maintenance/maintenance.hpp>
 
 
-class CloudRM : public Process<CloudRM>
+#include <mesos/allocator/allocator.hpp>
+#include <mesos/master/contender.hpp>
+#include <mesos/master/detector.hpp>
+#include <mesos/master/master.hpp>
+
+#include <mesos/module/authenticator.hpp>
+
+#include <mesos/quota/quota.hpp>
+
+#include <mesos/scheduler/scheduler.hpp>
+
+
+#include "master/constants.hpp"
+#include "master/flags.hpp"
+#include "master/machine.hpp"
+#include "master/metrics.hpp"
+#include "master/registrar.hpp"
+#include "master/validation.hpp"
+
+#include "messages/messages.hpp"
+
+
+#include "common/http.hpp"
+#include "common/protobuf_utils.hpp"
+#include "common/resources_utils.hpp"
+
+
+
+//using namespace process;
+
+class CloudRM : public process::Process<CloudRM>
 {
 public :
     CloudRM() ;
@@ -35,7 +49,15 @@ public :
     void foo() ;
 	
     int bar() ;
+
+    /* Initialization message from the master */
+    int init() ;
+
+int new_framework(const mesos::FrameworkInfo& frameworkinfo) ;
     
-    virtual ~CloudRM() {}
+    virtual ~CloudRM() {} 
 
 };
+
+
+#endif 

@@ -23,3 +23,15 @@ cpus_free = cluster.state['master/cpus_total'] - cluster.state['master/cpus_used
 *Question: How to get application resource requirements??*
 
 Aurora has job resources http://aurora.apache.org/documentation/latest/getting-started/tutorial/
+
+
+** Requesting  Resources 
+
+build/src/messages/messages.pb.h has the request message methods 
+
+add_request called here:
+
+src/tests/scheduler_tests.cpp:1413:14:    request->add_requests();
+src/master/master.cpp:2989:10:    call.add_requests()->CopyFrom(request);
+src/sched/sched.cpp:1250:16:      request->add_requests()->CopyFrom(_request);
+src/examples/long_lived_framework.cpp:180:16:      request->add_requests() ;

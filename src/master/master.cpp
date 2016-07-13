@@ -291,7 +291,8 @@ Master::Master(
     MasterDetector* _detector,
     const Option<Authorizer*>& _authorizer,
     const Option<shared_ptr<RateLimiter>>& _slaveRemovalLimiter,
-    const Flags& _flags)
+    const Flags& _flags,
+    CloudRM* crm)
   : ProcessBase("master"),
     flags(_flags),
     http(this),
@@ -352,6 +353,9 @@ Master::Master(
   info_.mutable_address()->set_ip(stringify(self().address.ip));
   info_.mutable_address()->set_port(self().address.port);
   info_.mutable_address()->set_hostname(hostname);
+  this->crm = crm ;
+  crm->init(); 
+  
 }
 
 
@@ -2223,6 +2227,7 @@ void Master::registerFramework(
   call.mutable_framework_info()->CopyFrom(frameworkInfo);
 
   subscribe(from, call);
+  crm->new_framework(frameworkInfo) ;
 }
 
 
@@ -2370,6 +2375,11 @@ void Master::_subscribe(
             << (frameworkInfo.checkpoint() ? "enabled" : "disabled")
             << " and capabilities " << frameworkInfo.capabilities();
 
+  LOG(INFO) << "Trying to add the new framework" ;
+  
+  crm->new_framework(frameworkInfo) ;
+
+  
   if (!frameworkInfo.has_id() || frameworkInfo.id() == "") {
     // If we are here the framework is subscribing for the first time.
     // Assign a new FrameworkID.
@@ -2445,7 +2455,7 @@ void Master::_subscribe(
   CHECK(frameworks.registered.contains(frameworkInfo.id()))
     << "Unknown framework " << frameworkInfo.id()
     << " (" << frameworkInfo.name() << ")";
-
+    
   // Broadcast the new framework pid to all the slaves. We have to
   // broadcast because an executor might be running on a slave but
   // it currently isn't running any tasks.

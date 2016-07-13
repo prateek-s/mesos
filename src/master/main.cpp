@@ -556,16 +556,16 @@ LOG(INFO) << CloudResourceManager->bar() ;
 process::dispatch(CloudResourceManager->self(), &CloudRM::foo);
 
   LOG(INFO) << "Starting Mesos master";
-  Master* master =
-    new Master(
-      allocator.get(),
-      registrar,
-      &files,
-      contender,
-      detector,
-      authorizer_,
-      slaveRemovalLimiter,
-      flags);
+  Master* master = new Master(
+    allocator.get(),
+    registrar,
+    &files,
+    contender,
+    detector,
+    authorizer_,
+    slaveRemovalLimiter,
+    flags,
+    CloudResourceManager);
 
   if (zk.isNone() && flags.master_detector.isNone()) {
     // It means we are using the standalone detector so we need to
