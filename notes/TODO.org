@@ -21,3 +21,17 @@ slave/slave.hpp   // Returns the resource usage information for all executors.
 Slaves send the ec2 termination warning to the master via the status update mechanism 
 slave/status_update_manager.cpp 
 
+** Slave management
+master.hpp struct slaves 
+
+~/code/mesos/build/include/mesos/mesos.pb.h for the machineinfo class, which may be better than slaves, since multiple slaves can belong to a single machine etc. 
+
+** Machine maintenance mode 
+
+~/code/mesos/include/mesos/v1/maintenance/maintenance.proto
+
+Apparently we can specify unavailability of machine groups!
+
+Unavailability can also be captured in terms of inverse offers. 
+
+
