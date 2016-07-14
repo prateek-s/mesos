@@ -1,0 +1,23 @@
+
+
+** Resource requests by frameworks can come with an optional "resiliency" parameter. Pass these parameters to the CloudResourceManager (in crm.cpp) 
+
+** Slave properties must also have region, server-type, avail-zone, AMI, pricing, and availability information. 
+
+slave/flags.cpp attributes. Can be of the form rack:foo , region:X, etc. Need compulsory attributes though! 
+
+** CloudRM acts as the allocator. New frameworks and resource requests act as "allocs", and removed frameworks call upon "deletes".
+
+** Get the resource utilization and free resource availability for each slave. 
+
+slave/slave.hpp   // Returns the resource usage information for all executors.
+  virtual process::Future<ResourceUsage> usage();
+
+
+** CRM, upon resource_request. Scan all slaves, and see if the request can be granted. Else, request more server resources. 
+
+** Warning propagation 
+
+Slaves send the ec2 termination warning to the master via the status update mechanism 
+slave/status_update_manager.cpp 
+

@@ -61,20 +61,11 @@ int CloudRM::new_framework(const mesos::FrameworkInfo& frameworkinfo)
 
 }
 
-void CloudRM::res_req(mesos::internal::master::Framework* framework, const std::vector<mesos::Request>& requests) {
+void CloudRM::res_req(mesos::internal::master::Framework* framework, const std::vector<mesos::Request>& requests)
+{
     LOG(INFO) << "~~~~~~ REQ RCVD " ;
 
 }
 
-// void CloudRM::resource_request(mesos::internal::master::Framework* framework, const scheduler::Call::Request& request) {
-//    LOG(INFO) << "~~~~~~ REQ RCVD " ;
 
-// }
-
-
-// void CloudRM::res_req(mesos::internal::master::Framework* framework, const std::vector<Request>& requests)
-// {
-//     LOG(INFO) << "~~~~~~~ Request received for resources " ;
-
-// }
 
