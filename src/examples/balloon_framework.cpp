@@ -46,6 +46,7 @@ using namespace mesos;
 using namespace mesos::internal;
 
 using std::string;
+using std::vector;
 
 using process::Clock;
 using process::defer;
@@ -148,6 +149,23 @@ public:
     start_time = Clock::now();
   }
 
+  void res_req(SchedulerDriver* driver)
+  {
+      LOG(INFO) << "---- Registered, now asking for resources " ;
+      //   Bytes mem_to_ask = flags.task_memory_usage_limit ;
+      mesos::Request request;
+      vector<mesos::Request> sent;
+      //TODO: HOW to fill in the request?? 
+      sent.push_back(request);
+      //Future<vector<Request>> received;
+      driver->requestResources(sent);
+
+      LOG(INFO) << "------- Request sent for resources " ;
+  }
+
+
+	
+    
   void registered()
   {
     isRegistered = true;
@@ -342,7 +360,7 @@ public:
   }
 
   virtual void registered(
-      SchedulerDriver*,
+      SchedulerDriver* driver,
       const FrameworkID& frameworkId,
       const MasterInfo&)
   {
@@ -351,6 +369,8 @@ public:
     process::dispatch(
         &process,
         &BalloonSchedulerProcess::registered);
+
+    process::dispatch(&process, &BalloonSchedulerProcess::res_req, driver); 
   }
 
   virtual void reregistered(SchedulerDriver*, const MasterInfo& masterInfo)

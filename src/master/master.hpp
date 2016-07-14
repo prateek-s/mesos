@@ -78,6 +78,7 @@
 #include "master/validation.hpp"
 
 #include "messages/messages.hpp"
+
 #include "master/crm.hpp"
 
 namespace process {
@@ -89,6 +90,7 @@ namespace mesos {
 // Forward declarations.
 class Authorizer;
 
+  
 namespace internal {
 
 // Forward declarations.

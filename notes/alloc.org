@@ -35,3 +35,9 @@ src/tests/scheduler_tests.cpp:1413:14:    request->add_requests();
 src/master/master.cpp:2989:10:    call.add_requests()->CopyFrom(request);
 src/sched/sched.cpp:1250:16:      request->add_requests()->CopyFrom(_request);
 src/examples/long_lived_framework.cpp:180:16:      request->add_requests() ;
+
+test-case file is ~/code/mesos/src/tests/resource_offers_tests.cpp
+
+Presumably, resourceRequest in master.cpp is only called when using the protobuf API? 
+
+Other path is call::request, which processes one request at a time.

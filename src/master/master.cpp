@@ -2969,7 +2969,8 @@ void Master::resourceRequest(
     const vector<Request>& requests)
 {
   Framework* framework = getFramework(frameworkId);
-
+  LOG(INFO) << "Inside resourceRequest " ;
+  
   if (framework == nullptr) {
     LOG(WARNING)
       << "Ignoring resource request message from framework " << frameworkId
@@ -2988,6 +2989,9 @@ void Master::resourceRequest(
   foreach (const Request& request, requests) {
     call.add_requests()->CopyFrom(request);
   }
+  //This is usually not called? 
+  //LOG(INFO) << "~~~~~ Calling CRM res req" ; 
+  //crm->res_req(framework, requests) ;
 
   request(framework, call);
 }
@@ -3002,6 +3006,10 @@ void Master::request(
   LOG(INFO) << "Processing REQUEST call for framework " << *framework;
 
   ++metrics->messages_resource_request;
+
+  LOG(INFO) << "~~~~~ Calling CRM res req" ;
+
+  crm->res_req(framework, google::protobuf::convert(request.requests())) ;
 
   allocator->requestResources(
       framework->id(),
