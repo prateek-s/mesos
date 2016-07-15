@@ -62,7 +62,9 @@ class ServerOrder
 public:
   ServerOrder() {
   }
-  int num ;
+  int num ;  //number of servers that we are supposed to order
+  //Framework framework ; //Need it for keeping track of frameworks
+  //
 };  //End ServerOrder Class 
 
 
@@ -72,6 +74,8 @@ public :
   CloudRM() ;
   int p = 42 ;
   mesos::internal::master::Master* master ;
+
+  vector<ServerOrder> pendingOrders  ;
   
   void foo() ;
   
