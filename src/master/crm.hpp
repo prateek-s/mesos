@@ -57,26 +57,26 @@
 class CloudRM : public process::Process<CloudRM>
 {
 public :
-    CloudRM() ;
-    int p = 42 ;
+  CloudRM() ;
+  int p = 42 ;
+  mesos::internal::master::Master* master ;
 
-    void foo() ;
-	
-    int bar() ;
-
-    /* Initialization message from the master */
-    int init() ;
-
-    int new_framework(const mesos::FrameworkInfo& frameworkinfo) ;
-
-void res_req(mesos::internal::master::Framework* framework, const std::vector<mesos::Request>& requests) ;
-
+  void foo() ;
+  
+  int bar() ;
+  
+  /* Initialization message from the master */
+  int init(mesos::internal::master::Master* master) ;
+  
+  int new_framework(const mesos::FrameworkInfo& frameworkinfo) ;
+  
+  void res_req(mesos::internal::master::Framework* framework, const std::vector<mesos::Request>& requests) ;
+  
 //void resource_request(mesos::internal::master::Framework* framework, const scheduler::Call::Request& request) ;
-
-    
-    virtual ~CloudRM() {} 
-
+  
+  
+  virtual ~CloudRM() {} 
+  
 };
-
 
 #endif 

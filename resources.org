@@ -35,3 +35,8 @@ Price accounting for mesos jobs. Could not find any code in dcos. Infact, cant f
 
 
 NetFLix Fenzo extensible mesos scheduler https://github.com/Netflix/Fenzo
+
+
+** MPI
+
+https://github.com/nqn/gasc

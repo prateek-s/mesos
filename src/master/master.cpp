@@ -354,7 +354,7 @@ Master::Master(
   info_.mutable_address()->set_port(self().address.port);
   info_.mutable_address()->set_hostname(hostname);
   this->crm = crm ;
-  crm->init(); 
+  crm->init(this); 
   
 }
 

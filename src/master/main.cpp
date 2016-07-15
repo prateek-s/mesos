@@ -544,16 +544,17 @@ int main(int argc, char** argv)
     slaveRemovalLimiter = new RateLimiter(permits.get(), duration.get());
   }
 
-LOG(INFO) << "Starting the CRM from the main thread" ;
-CloudRM* CloudResourceManager = new CloudRM() ;
-//process::spawn(CloudResourceManager);
-//LOG(INFO) << "Cloud Resource manager SPAWNED" ;
-LOG(INFO) << CloudResourceManager->p ;
-LOG(INFO) << CloudResourceManager->bar() ;
 
 //CloudResourceManager->foo();
+  LOG(INFO) << "Starting the CRM from the main thread" ;
+  CloudRM* CloudResourceManager = new CloudRM() ;
+//process::spawn(CloudResourceManager);
+//LOG(INFO) << "Cloud Resource manager SPAWNED" ;
+  LOG(INFO) << CloudResourceManager->p ;
+  LOG(INFO) << CloudResourceManager->bar() ;
 
-process::dispatch(CloudResourceManager->self(), &CloudRM::foo);
+  process::dispatch(CloudResourceManager->self(), &CloudRM::foo);
+
 
   LOG(INFO) << "Starting Mesos master";
   Master* master = new Master(
@@ -574,6 +575,8 @@ process::dispatch(CloudResourceManager->self(), &CloudRM::foo);
   }
 
   process::spawn(master);
+
+
   process::wait(master->self());
 
   delete master;

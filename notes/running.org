@@ -8,3 +8,6 @@ cd build/src
 
 sudo ./mesos-slave --master=127.0.0.1:5050 --work_dir=.
 
+** Compiling
+with gold does not work by default. Use -ldl and --no-as-needed, otherwise it complains of missing dlopen, dlsym,... symbols .
+

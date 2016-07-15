@@ -30,7 +30,8 @@
 //using namespace CloudRM ;
 
 
-CloudRM::CloudRM() {
+CloudRM::CloudRM()
+{
     LOG(INFO) << "~~~ FROM CLOUD RM" ;
     std::cout << "  CLOUD RM \n" ;
 }
@@ -47,10 +48,11 @@ int CloudRM::bar()
     return 32; 
 }
 
-int CloudRM::init()
+int CloudRM::init(mesos::internal::master::Master* master)
 {
-   LOG(INFO) << "~~~~~~~ INITIALIZED by master" ;
-   return 1; 
+  this->master = master ;
+  LOG(INFO) << "~~~~~~~ INITIALIZED by master" ;
+  return 1; 
 }
 
 
@@ -61,6 +63,10 @@ int CloudRM::new_framework(const mesos::FrameworkInfo& frameworkinfo)
 
 }
 
+
+/**
+ * New frameworks should call in resource requests if 
+ */
 void CloudRM::res_req(mesos::internal::master::Framework* framework, const std::vector<mesos::Request>& requests)
 {
     LOG(INFO) << "~~~~~~ REQ RCVD " ;
