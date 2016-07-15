@@ -23,11 +23,10 @@
 
 //using mesos::log::Log;
 
-#include "crm.hpp"
+#include "master/crm.hpp"
 
 //using std::string;
 
-//using namespace CloudRM ;
 
 CloudRM::CloudRM()
 {
@@ -40,15 +39,13 @@ CloudRM::CloudRM()
 /* The frameworkinfo structure has a lot of metadata about the framework, which can be used by some policies eventually to directly allocate resources to it even if they dont ask for it explicitly. This can be some basic rule engine etc. 
 Return a vector of server orders here? 
  */
-int pDefaultFrameworkResources(const mesos::FrameworkInfo& frameworkinfo)
+ServerOrder* CloudRM::pDefaultFrameworkResources(const mesos::FrameworkInfo& frameworkinfo)
 {
   //add_to_pending_orders(frameworkinfo);
-  return 0 ;
+  ServerOrder* order = new ServerOrder() ;
+  //really should be a vector or a collection of orders. 
+  return order ;
 }
-
-
-
-
 
 void CloudRM::foo()
 {
@@ -76,14 +73,13 @@ int CloudRM::new_framework(const mesos::FrameworkInfo& frameworkinfo)
 {
    LOG(INFO) << "~~~~~~~ NEW FRAMEWORK" ;
 
-   int new_orders = pDefaultFrameworkResources(frameworkinfo) ;
+   ServerOrder* order = pDefaultFrameworkResources(frameworkinfo) ;
 
-   if(new_orders > 0) {
-     
-
+   if(order!=NULL) {
+     return 1 ;
    }
    
-   return 1; 
+   return 0; 
 }
 
 
@@ -95,5 +91,4 @@ void CloudRM::res_req(mesos::internal::master::Framework* framework, const std::
     LOG(INFO) << "~~~~~~ REQ RCVD " ;
 
 }
-
 

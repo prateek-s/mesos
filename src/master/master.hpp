@@ -81,6 +81,7 @@
 
 #include "master/crm.hpp"
 
+
 namespace process {
 class RateLimiter; // Forward declaration.
 }

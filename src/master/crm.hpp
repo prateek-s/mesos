@@ -53,6 +53,18 @@
 //using mesos::internal::slave::Slave;
 
 //using namespace process;
+using namespace std;
+
+
+/* This is a vector/collection of servers */
+class ServerOrder
+{
+public:
+  ServerOrder() {
+  }
+  int num ;
+};  //End ServerOrder Class 
+
 
 class CloudRM : public process::Process<CloudRM>
 {
@@ -60,13 +72,6 @@ public :
   CloudRM() ;
   int p = 42 ;
   mesos::internal::master::Master* master ;
-
-  class ServerOrder {
-    ServerOrder() {
-    }
-    int num ;
-  } ;
-
   
   void foo() ;
   
@@ -79,11 +84,14 @@ public :
   
   void res_req(mesos::internal::master::Framework* framework, const std::vector<mesos::Request>& requests) ;
   
-//void resource_request(mesos::internal::master::Framework* framework, const scheduler::Call::Request& request) ;
+  ServerOrder* pDefaultFrameworkResources(const mesos::FrameworkInfo& frameworkinfo) ;
   
+  virtual ~CloudRM() {}
+
   
-  virtual ~CloudRM() {} 
+
   
-};
+}; //end Class declaration
+
 
 #endif 
