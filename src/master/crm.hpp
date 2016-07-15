@@ -61,6 +61,13 @@ public :
   int p = 42 ;
   mesos::internal::master::Master* master ;
 
+  class ServerOrder {
+    ServerOrder() {
+    }
+    int num ;
+  } ;
+
+  
   void foo() ;
   
   int bar() ;

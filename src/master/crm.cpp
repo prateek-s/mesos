@@ -29,12 +29,26 @@
 
 //using namespace CloudRM ;
 
-
 CloudRM::CloudRM()
 {
     LOG(INFO) << "~~~ FROM CLOUD RM" ;
     std::cout << "  CLOUD RM \n" ;
 }
+
+
+
+/* The frameworkinfo structure has a lot of metadata about the framework, which can be used by some policies eventually to directly allocate resources to it even if they dont ask for it explicitly. This can be some basic rule engine etc. 
+Return a vector of server orders here? 
+ */
+int pDefaultFrameworkResources(const mesos::FrameworkInfo& frameworkinfo)
+{
+  //add_to_pending_orders(frameworkinfo);
+  return 0 ;
+}
+
+
+
+
 
 void CloudRM::foo()
 {
@@ -56,11 +70,20 @@ int CloudRM::init(mesos::internal::master::Master* master)
 }
 
 
+ /* A new framework has been registered with us. Most frameworks will subsequently ask for resources once they have been registered with the mesos master. We can put the framework on some sort of a pending list? 
+ */
 int CloudRM::new_framework(const mesos::FrameworkInfo& frameworkinfo)
 {
    LOG(INFO) << "~~~~~~~ NEW FRAMEWORK" ;
-   return 1; 
 
+   int new_orders = pDefaultFrameworkResources(frameworkinfo) ;
+
+   if(new_orders > 0) {
+     
+
+   }
+   
+   return 1; 
 }
 
 
@@ -72,6 +95,5 @@ void CloudRM::res_req(mesos::internal::master::Framework* framework, const std::
     LOG(INFO) << "~~~~~~ REQ RCVD " ;
 
 }
-
 
 
