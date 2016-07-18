@@ -1,5 +1,6 @@
-Cloud Resource Manager 
+#+TITLE: Cloud Resource Manager
 
+* Implementation
 Added crm.cpp file in CmakeLists.txt. Otherwise, get undefined reference error. Argh  
 
 run cmake .. from the build directory after modifying this file 
@@ -8,3 +9,4 @@ Apparently CMAKE is not the main build tool for the project, because it was not 
 
 Mesos still uses automake by default, so added the crm.cpp file in src/Makefile.am . Confirm that after running configure, it is also added in src/Makefile.in 
 
+* Design

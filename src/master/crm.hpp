@@ -63,7 +63,7 @@ public:
   CloudMachine() {
   }
   int type ;
-};
+}; //END CloudMachine class
 
 /* This is a vector/collection of servers */
 class ServerOrder
@@ -75,8 +75,11 @@ public:
   }
   int num ;  //number of servers that we are supposed to order
   //Framework framework ; //Need it for keeping track of frameworks
-  //
-  CloudMachine* machine ; 
+
+  //This is filled in by whoever actually acquires the cloud server to point to the cloud server/machine. Initialized to null. 
+  CloudMachine* machine ;
+
+  
 };  //End ServerOrder Class 
 
 
@@ -100,7 +103,8 @@ public :
   int new_framework(const mesos::FrameworkInfo& frameworkinfo) ;
   
   void res_req(mesos::internal::master::Framework* framework, const std::vector<mesos::Request>& requests) ;
-  
+
+  //Should really return a vector of orders. 
   ServerOrder* pDefaultFrameworkResources(const mesos::FrameworkInfo& frameworkinfo) ;
   
   virtual ~CloudRM() {}

@@ -6,7 +6,9 @@ The exo-cloud pitch is better than the "price and traniency aware cluster manage
 
 ** Can we still call it the exo-cloud?
 
-YES. In our setup, the exo-cloud does pool management on behalf of the applications. But the applications control their own behaviour on revocations, price changes etc. 
+YES. In our setup, the exo-cloud does pool management on behalf of the applications. 
+
+*The applications control their own behaviour on revocations, price changes etc.*
 
 ** Knobs
 
@@ -22,3 +24,9 @@ An improved version of this is to have two knobs.
 
 ** Virtual clusters
 The exo-cloud provides "virtual clusters" to applications which 
+
+
+** Price sensitive applications
+Atleast one price-sensitive application needed which rejects offers if they are too expensive. 
+
+

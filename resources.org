@@ -40,3 +40,10 @@ NetFLix Fenzo extensible mesos scheduler https://github.com/Netflix/Fenzo
 ** MPI
 
 https://github.com/nqn/gasc
+
+
+** CPP
+
+Interpolation using the tweening library http://libclaw.sourceforge.net/tweeners.html
+
+https://fbb-git.github.io/cppannotations/cppannotations/html/index.html
