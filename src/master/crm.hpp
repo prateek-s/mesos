@@ -105,12 +105,14 @@ public :
   void res_req(mesos::internal::master::Framework* framework, const std::vector<mesos::Request>& requests) ;
 
   //Should really return a vector of orders. 
-  ServerOrder* pDefaultFrameworkResources(const mesos::FrameworkInfo& frameworkinfo) ;
+  std::vector<ServerOrder> pDefaultFrameworkResources(const mesos::FrameworkInfo& frameworkinfo) ;
+
+  void add_to_pending_orders(std::vector<ServerOrder> orders) ;
+
   
   virtual ~CloudRM() {}
 
-  
-
+ 
   
 }; //end Class declaration
 

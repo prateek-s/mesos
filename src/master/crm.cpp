@@ -26,7 +26,7 @@
 #include "master/crm.hpp"
 
 //using std::string;
-
+using namespace std ;
 
 CloudRM::CloudRM()
 {
@@ -39,12 +39,14 @@ CloudRM::CloudRM()
 /* The frameworkinfo structure has a lot of metadata about the framework, which can be used by some policies eventually to directly allocate resources to it even if they dont ask for it explicitly. This can be some basic rule engine etc. 
 Return a vector of server orders here? 
  */
-ServerOrder* CloudRM::pDefaultFrameworkResources(const mesos::FrameworkInfo& frameworkinfo)
+vector<ServerOrder> CloudRM::pDefaultFrameworkResources(const mesos::FrameworkInfo& frameworkinfo)
 {
   //add_to_pending_orders(frameworkinfo);
   ServerOrder* order = new ServerOrder() ;
-  //really should be a vector or a collection of orders. 
-  return order ;
+  //really should be a vector or a collection of orders.
+  std::vector<ServerOrder> all_orders ;
+  all_orders.push_back(*order) ;
+  return all_orders ;
 }
 
 void CloudRM::foo()
@@ -72,16 +74,24 @@ int CloudRM::init(mesos::internal::master::Master* master)
 int CloudRM::new_framework(const mesos::FrameworkInfo& frameworkinfo)
 {
    LOG(INFO) << "~~~~~~~ NEW FRAMEWORK" ;
-
-   ServerOrder* order = pDefaultFrameworkResources(frameworkinfo) ;
-
-   if(order!=NULL) {
-     return 1 ;
-   }
+   /* Create the server order vector for the framework according to some rule engine*/
+   std::vector<ServerOrder> order = pDefaultFrameworkResources(frameworkinfo) ;
    
+   //add_to_pending_orders 
+   if(!order.empty()) {
+     LOG(INFO) << "Something in order " ;
+     add_to_pending_orders(order) ;
+     /* Now ask the cloud layer to fulfill this order for us */
+//     process:dispatch(AwsAgent, GetServers, order) ;
+   }
    return 0; 
 }
 
+void CloudRM::add_to_pending_orders(std::vector<ServerOrder> orders)
+{
+
+
+}
 
 /**
  * New frameworks should call in resource requests if 
