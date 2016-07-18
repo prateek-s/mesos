@@ -55,17 +55,30 @@
 //using namespace process;
 using namespace std;
 
+//ServerOrder should be ONE order, so that when acquiring the servers, we can fill in the details one at a time.
+
+class CloudMachine
+{
+public:
+  CloudMachine() {
+  }
+  int type ;
+};
 
 /* This is a vector/collection of servers */
 class ServerOrder
 {
 public:
   ServerOrder() {
+    this->num = 0 ;
+    this->machine = (CloudMachine*) NULL ;
   }
   int num ;  //number of servers that we are supposed to order
   //Framework framework ; //Need it for keeping track of frameworks
   //
+  CloudMachine* machine ; 
 };  //End ServerOrder Class 
+
 
 
 class CloudRM : public process::Process<CloudRM>
