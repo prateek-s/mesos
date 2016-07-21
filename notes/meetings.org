@@ -30,3 +30,37 @@ The exo-cloud provides "virtual clusters" to applications which
 Atleast one price-sensitive application needed which rejects offers if they are too expensive. 
 
 
+
+
+* Jul 21
+** Misc
+Micro-clouds and application level networking stacks to reduce the complexity of container live migration. 
+
+
+Application policies. Goal is to provide a common interface for applications to use transient cloud servers, which is what the exocloud seeks to provide. 
+
+Policy groups are:
+
+*** Revocation policies
+1. Replenish
+2. Die and restart
+3. Checkpoint
+
+
+
+*** Replenishment after warning 
+1. Eager replenishment
+2. Degraded mode 
+3. Lazy wait for lower prices
+
+*** Warning actions 
+1. Relinquish resources and "pause" 
+2. Relinquish and die
+3. Continue operating and use up the warning time 
+4. Checkpoint if deemed feasible 
+5. 
+
+
+*** Checkpointing 
+1. Eager checkpointing (periodic)
+2. Lazy, last-minute checkpointing 

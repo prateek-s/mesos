@@ -7,3 +7,19 @@
 ** Docker
 
 Create cluster with containers running mesos nodes. Nested Containers? Cgroups-> libprocess or libcontainer.
+
+* Abstractions
+1. Policy framework for running batch tasks on top of transient cloud instances. 
+
+* Design Tasks 
+
+1. Cloud Resource Manager (crm) scaling in response to framework requirements and changing market conditions etc. 
+2. Slaves must pass the warning signal to the master
+3. Warning treated as a maintenance window with an infinite duration (2nd parameter of Unavailability absent)
+4. Application framework modifications:
+   1. Request resources after registering
+   2. Handle information type messages (price and MTTF information, etc)
+   3. Handle eviction (Unavailability) messages by... 
+
+
+
