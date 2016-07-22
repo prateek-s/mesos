@@ -1247,6 +1247,11 @@ private:
         const process::http::Request& request,
         const Option<std::string>& principal) const;
 
+    // /master/machine/warning
+    process::Future<process::http::Response> machineWarning(
+        const process::http::Request& request,
+        const Option<std::string>& principal) const;
+    
     // /master/unreserve
     process::Future<process::http::Response> unreserve(
         const process::http::Request& request,

@@ -3142,6 +3142,36 @@ Future<Response> Master::Http::machineDown(
   return _startMaintenance(ids.get());
 }
 
+// /master/machine/warning endpoint handler.
+Future<Response> Master::Http::machineWarning(
+    const Request& request,
+    const Option<string>& /*principal*/) const
+{
+  // When current master is not the leader, redirect to the leading master.
+  if (!master->elected()) {
+    return redirect(request);
+  }
+
+  if (request.method != "POST") {
+    return MethodNotAllowed({"POST"}, request.method);
+  }
+
+  // Parse the POST body as JSON.
+  Try<JSON::Array> jsonIds = JSON::parse<JSON::Array>(request.body);
+  if (jsonIds.isError()) {
+    return BadRequest(jsonIds.error());
+  }
+
+  // Convert the machines to a protobuf.
+  auto ids = ::protobuf::parse<RepeatedPtrField<MachineID>>(jsonIds.get());
+  if (ids.isError()) {
+    return BadRequest(ids.error());
+  }
+  //XXX TODO. modify what we do once we get a warning
+  //Presumably need to to take some different actions apart from standard maintenance 
+  return _startMaintenance(ids.get());
+}
+
 
 Future<Response> Master::Http::_startMaintenance(
     const RepeatedPtrField<MachineID>& machineIds) const

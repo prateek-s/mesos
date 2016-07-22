@@ -1137,6 +1137,14 @@ void Master::initialize()
           Http::log(request);
           return http.machineDown(request, principal);
         });
+  route("/machine/warning",
+        DEFAULT_HTTP_AUTHENTICATION_REALM,
+        Http::MACHINE_DOWN_HELP(),
+        [this](const process::http::Request& request,
+               const Option<string>& principal) {
+          Http::log(request);
+          return http.machineWarning(request, principal);
+        });
   route("/machine/up",
         DEFAULT_HTTP_AUTHENTICATION_REALM,
         Http::MACHINE_UP_HELP(),
