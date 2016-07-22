@@ -57,6 +57,9 @@ message Event {
     // close the existing subscription connection and resubscribe
     // using a backoff strategy.
     HEARTBEAT = 8;
+    
+    //Provide price and availability/MTTF information
+    CLOUD_INFO = 11 ;
   }
 
   // First event received when the scheduler subscribes.
@@ -155,6 +158,16 @@ message Event {
     required string message = 1;
   }
 
+  // Received when the master provides pricing and availability/MTTF
+  // information to the application framework. Price sensitive applications etc
+  // can use such information to accept/reject offers. Thus, we essentially provide
+  // cloud information "as a service"
+  message CloudInfo {
+    required string message = 1 ;
+    // This will have to be a list of slaves
+    // Similar to how offers are granted
+  } 
+
   // Type of the event, indicates which optional field below should be
   // present if that type has a nested message definition.
   // Enum fields should be optional, see: MESOS-4997.
@@ -169,7 +182,9 @@ message Event {
   optional Message message = 6;
   optional Failure failure = 7;
   optional Error error = 8;
-}
+  optional CloudInfo info = 11 ;
+  
+} //End of Event "struct"
 
 
 /**

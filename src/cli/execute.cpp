@@ -491,7 +491,10 @@ protected:
         case Event::MESSAGE: {
           break;
         }
-
+        case Event::CLOUD_INFO: {
+	 // XXX: atleast print something here? 
+	  break;
+        }
         case Event::UNKNOWN: {
           LOG(WARNING) << "Received an UNKNOWN event and ignored";
           break;

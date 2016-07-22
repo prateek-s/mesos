@@ -43,24 +43,40 @@ Policy groups are:
 
 *** Revocation policies
 1. Replenish
+   Call RequestResources
 2. Die and restart
+   Self Kill and restart again? 
 3. Checkpoint
-
+   Internal operation
 
 
 *** Replenishment after warning 
 1. Eager replenishment
+   Call RequestResources
 2. Degraded mode 
+   Do Nothing 
 3. Lazy wait for lower prices
+   Call =RequestResourcesLazy=
 
 *** Warning actions 
 1. Relinquish resources and "pause" 
+   Give up all offers
 2. Relinquish and die
+   Give up all offers and die
 3. Continue operating and use up the warning time 
+   Continue using offers, carefully
 4. Checkpoint if deemed feasible 
-5. 
+   Internal operation
+
 
 
 *** Checkpointing 
 1. Eager checkpointing (periodic)
+   Internal operation
 2. Lazy, last-minute checkpointing 
+   Internal operation
+
+*** Application specific
+1. Price sensitive application
+   Monitor prices continuously
+2. 
