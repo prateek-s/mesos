@@ -162,11 +162,11 @@ message Event {
   // information to the application framework. Price sensitive applications etc
   // can use such information to accept/reject offers. Thus, we essentially provide
   // cloud information "as a service"
-  message CloudInfo {
-    required string message = 1 ;
+//  message CloudInfo {
+//    required string message = 1 ;
     // This will have to be a list of slaves
     // Similar to how offers are granted
-  } 
+//  } 
 
   // Type of the event, indicates which optional field below should be
   // present if that type has a nested message definition.

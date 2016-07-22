@@ -39,6 +39,7 @@ message InverseOfferStatus {
     // The framework wants to block the maintenance operation from happening. An
     // example would be that it can not meet its SLA by losing resources.
     DECLINE = 3;
+    // More status can be used here as a proxy for replenishment policy etc. 
   }
 
   required Status status = 1;
