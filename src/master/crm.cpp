@@ -49,17 +49,6 @@ vector<ServerOrder> CloudRM::pDefaultFrameworkResources(const mesos::FrameworkIn
   return all_orders ;
 }
 
-void CloudRM::foo()
-{
-  LOG(INFO) << "~~~~~~~ FOO " ;
-
-}
-
-int CloudRM::bar()
-{
-  LOG(INFO) << "~~~~~~~ BAR CALLED " ;
-  return 32; 
-}
 
 int CloudRM::init(mesos::internal::master::Master* master)
 {
@@ -94,10 +83,38 @@ void CloudRM::add_to_pending_orders(std::vector<ServerOrder> orders)
 }
 
 /**
- * New frameworks should call in resource requests if 
+ * Resource request made by a framework. Framework->offeredResources is partitioned by slaveId, and we do packing etc based off of that. 
  */
 void CloudRM::res_req(mesos::internal::master::Framework* framework, const std::vector<mesos::Request>& requests)
 {
   LOG(INFO) << "~~~~~~ REQ RCVD " ;
+  //1. Check if resources requested + totalUsedResources is within bounds or not?
+  //2. See if we can find some free resources on any machine to fill these demands
+  // find_free(framework, requests, constraints) ;
+  //3. Buy more cloud servers if required.
+  //4. Make this a Future/Promise thingy so that we know the execution context (the framework which actually requested these servers.
+  //5. Once the new servers are up, do we need to perform the packing again?
+  
 }
 
+/**
+ * How to represent constraints? It can either be just some alpha for now.
+ * Other locality constraints may be supported in the future. 
+ */
+void find_free(mesos::internal::master::Framework* framework, std::vector<mesos::Request>& requests, std::vector<int> constraints) {
+  //This is where the packing logic is implemented. 
+
+}
+
+
+void CloudRM::foo()
+{
+  LOG(INFO) << "~~~~~~~ FOO " ;
+
+}
+
+int CloudRM::bar()
+{
+  LOG(INFO) << "~~~~~~~ BAR CALLED " ;
+  return 32; 
+}
