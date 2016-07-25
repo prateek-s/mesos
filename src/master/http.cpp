@@ -3147,6 +3147,8 @@ Future<Response> Master::Http::machineWarning(
     const Request& request,
     const Option<string>& /*principal*/) const
 {
+  LOG(INFO) << "Machine termination warning" ;
+
   // When current master is not the leader, redirect to the leading master.
   if (!master->elected()) {
     return redirect(request);
