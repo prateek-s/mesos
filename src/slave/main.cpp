@@ -442,6 +442,10 @@ int main(int argc, char** argv)
       qosController.get(),
       authorizer_);
 
+  //XXX Spawn the WarningWatcher here.
+  //Parameters: Master NOT needed since we don't communicate directly with it.
+  //Slave does master detection for us, and forwards the warning to the master
+  
   process::spawn(slave);
   process::wait(slave->self());
 

@@ -30,8 +30,8 @@ using namespace std ;
 
 CloudRM::CloudRM()
 {
-    LOG(INFO) << "~~~ FROM CLOUD RM" ;
-    std::cout << "  CLOUD RM \n" ;
+  LOG(INFO) << "~~~ FROM CLOUD RM" ;
+  std::cout << "  CLOUD RM \n" ;
 }
 
 
@@ -51,14 +51,14 @@ vector<ServerOrder> CloudRM::pDefaultFrameworkResources(const mesos::FrameworkIn
 
 void CloudRM::foo()
 {
-    LOG(INFO) << "~~~~~~~ FOO " ;
+  LOG(INFO) << "~~~~~~~ FOO " ;
 
 }
 
 int CloudRM::bar()
 {
-    LOG(INFO) << "~~~~~~~ BAR CALLED " ;
-    return 32; 
+  LOG(INFO) << "~~~~~~~ BAR CALLED " ;
+  return 32; 
 }
 
 int CloudRM::init(mesos::internal::master::Master* master)
@@ -73,24 +73,24 @@ int CloudRM::init(mesos::internal::master::Master* master)
  */
 int CloudRM::new_framework(const mesos::FrameworkInfo& frameworkinfo)
 {
-   LOG(INFO) << "~~~~~~~ NEW FRAMEWORK" ;
-   /* Create the server order vector for the framework according to some rule engine*/
-   std::vector<ServerOrder> order = pDefaultFrameworkResources(frameworkinfo) ;
-   
-   //add_to_pending_orders 
-   if(!order.empty()) {
-     LOG(INFO) << "Something in order " ;
-     add_to_pending_orders(order) ;
-     /* Now ask the cloud layer to fulfill this order for us */
-//     process:dispatch(AwsAgent, GetServers, order) ;
-   }
-   return 0; 
+  LOG(INFO) << "~~~~~~~ NEW FRAMEWORK" ;
+  /* Create the server order vector for the framework according to some rule engine*/
+  std::vector<ServerOrder> order = pDefaultFrameworkResources(frameworkinfo) ;
+  
+  //add_to_pending_orders 
+  if(!order.empty()) {
+    LOG(INFO) << "Something in order " ;
+    add_to_pending_orders(order) ;
+    /* Now ask the cloud layer to fulfill this order for us */
+//     process:dispatch(AwsAgent, GetServers, order) 
+  }
+  return 0; 
 }
 
 void CloudRM::add_to_pending_orders(std::vector<ServerOrder> orders)
 {
-
-
+  
+  
 }
 
 /**
@@ -98,7 +98,6 @@ void CloudRM::add_to_pending_orders(std::vector<ServerOrder> orders)
  */
 void CloudRM::res_req(mesos::internal::master::Framework* framework, const std::vector<mesos::Request>& requests)
 {
-    LOG(INFO) << "~~~~~~ REQ RCVD " ;
-
+  LOG(INFO) << "~~~~~~ REQ RCVD " ;
 }
 
