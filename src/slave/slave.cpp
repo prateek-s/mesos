@@ -768,6 +768,14 @@ void Slave::initialize()
                const Option<string>& principal) {
           return http.statistics(request, principal);
         });
+   route("/relay_warning",
+        DEFAULT_HTTP_AUTHENTICATION_REALM,
+        Http::STATISTICS_HELP(),
+        [this](const process::http::Request& request,
+               const Option<string>& principal) {
+          return http.relay_warning(request, principal);
+        });
+ 
   route("/containers",
         DEFAULT_HTTP_AUTHENTICATION_REALM,
         Http::CONTAINERS_HELP(),
@@ -3593,6 +3601,9 @@ void Slave::___statusUpdate(
   }
 }
 
+//XXX Instead of a new API call, the status update mechanism can be more easily adapted? We are already creating and crafting a message to the master. Might as well piggyback and add a warning type and send that right here?
+
+// The names also match. relay_warning ~ forward. 
 
 // NOTE: An acknowledgement for this update might have already been
 // processed by the slave but not the status update manager.
@@ -3601,7 +3612,7 @@ void Slave::forward(StatusUpdate update)
   CHECK(state == RECOVERING || state == DISCONNECTED ||
         state == RUNNING || state == TERMINATING)
     << state;
-
+  
   if (state != RUNNING) {
     LOG(WARNING) << "Dropping status update " << update
                  << " sent by status update manager because the agent"
@@ -3656,6 +3667,7 @@ void Slave::forward(StatusUpdate update)
     }
   }
 
+  
   CHECK_SOME(master);
   LOG(INFO) << "Forwarding the update " << update << " to " << master.get();
 
@@ -3673,9 +3685,16 @@ void Slave::forward(StatusUpdate update)
   message.mutable_update()->MergeFrom(update);
   message.set_pid(self()); // The ACK will be first received by the slave.
 
-  send(master.get(), message);
+  send(master.get(), message);  //this is via the protobufs .
 }
 
+// void Slave::send_warning()
+// {
+  //http post easier to test, but requires slightly more paramters (header, content type etc) 
+//   message = WarningMessage ;
+//   send(master.get(), message) ;
+//   
+// }
 
 void Slave::executorMessage(
     const SlaveID& slaveId,

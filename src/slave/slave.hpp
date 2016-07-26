@@ -474,7 +474,13 @@ private:
     process::Future<process::http::Response> containers(
         const process::http::Request& request,
         const Option<std::string>& principal) const;
+    
+    // /slave/relay_warning 
+    process::Future<process::http::Response> relay_warning(
+      const process::http::Request& request,
+      const Option<std::string>& principal) const;
 
+    
     static std::string API_HELP();
     static std::string EXECUTOR_HELP();
     static std::string FLAGS_HELP();

@@ -3147,7 +3147,7 @@ Future<Response> Master::Http::machineWarning(
     const Request& request,
     const Option<string>& /*principal*/) const
 {
-  LOG(INFO) << "Machine termination warning" ;
+  LOG(INFO) << "Machine termination warning received" ;
 
   // When current master is not the leader, redirect to the leading master.
   if (!master->elected()) {
@@ -3163,7 +3163,9 @@ Future<Response> Master::Http::machineWarning(
   if (jsonIds.isError()) {
     return BadRequest(jsonIds.error());
   }
-
+  //Expect the slave to give its own identifier? Hostname? IP Address? Machine name?
+  LOG(INFO) << jsonIds.get() ;
+  
   // Convert the machines to a protobuf.
   auto ids = ::protobuf::parse<RepeatedPtrField<MachineID>>(jsonIds.get());
   if (ids.isError()) {

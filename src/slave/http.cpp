@@ -822,6 +822,52 @@ string Slave::Http::STATE_HELP() {
     AUTHENTICATION(true));
 }
 
+/**
+ * Send a warning to the master!
+ */
+Future<Response> Slave::Http::relay_warning(
+  const Request& request,
+  const Option<std::string>& principal) const 
+{
+  JSON::ObjectWriter* writer ;
+  
+  LOG(INFO) << "Starting to relay warning" ;
+  
+  string hname = slave->info.hostname() ;
+  
+  writer->field("hostname", hname ) ;
+
+  //writer->field("ip", slave->info.ip) ;
+  auto master_ip = slave->master.get().address.ip ;
+  //send this to /master/machine/warning endpoint registered at the master.
+  auto req_url = "/master/machine/warning" ;
+
+  //Request& relay_request ;
+  //relay_request.url = req_url ;
+  //relay_request.method = "POST" ;
+  //finally make the request with this json object?
+  const string contentType = "" ;
+  
+  process::http::Headers headers = process::http::Headers() ;
+  
+  headers["Accept"] = contentType ;
+  
+  auto msg = string(jsonify(writer)) ;
+  
+  // Future<Response> response = process::http::streaming::post(
+  //     master_ip,
+  //     req_url,
+  //     headers,
+  //     msg,
+  //     //serialize(msg, contentType),
+  //     contentType);
+  auto _master = slave->master.get() ;
+
+  
+  Future<Response> response2 = process::http::get(_master, req_url, msg); 
+  
+  return response2 ;  
+}
 
 Future<Response> Slave::Http::state(
     const Request& request,
