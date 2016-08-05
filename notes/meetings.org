@@ -81,3 +81,53 @@ Policy groups are:
    Monitor prices continuously
 2. 
 
+
+
+* Aug 2
+
+Differentiate between virtual clusters and derivative clouds 
+
+
+* Aug 5 (David)
+
+TR-Spark,  maybe does RDD repartitioning?
+
+Discussion on the background cluster workload transiency environment, which is also increasingly common. Thus transiency is now intrinsic to large scale computing environments. 
+
+Need to explore google internal credits system for borg/kubernetes. 
+
+Naiad fault tolerance could also be explored as an example application which can run on top of Exosphere. 
+
+One platform for multiple applications and multiple transiency scenarios (Spot, preemptible VMs, idle cluster resources). 
+
+Add more fault tolerance policies : checkpoint, replicate, migrate as possible mechanisms that the framework _can_ potentially provide. Its just that we dont necessarily provide the implementations of these yet. 
+
+
+** Exo-kernel design philosophy
+
+Policies are secondary. The whole point is to leave policies to the applications, and provide the mechanisms for the applications to use instead. 
+
+Thus, "good policies" are not a strict requirement! Instead, we can propose many token policies, and we are not necessarily required to show that they work amazingly well. 
+
+But the counterpoint is that the policy portfolio should be interesting and powerful! 
+
+For example, the garbage collection of idle/under-utilized servers is a good mechanism, but may not have to be fully implemented. 
+
+Another example is the over-subscription feature. Its fine to mention it as a policy, but we are not required to have a strong implementation or evaluation.
+
+** APIs
+
+Coming up with good experiments is indeed difficult for such papers (whew). That's because we are proposing this common API for applications, and the contribution is the API, and performance is not the highlight. 
+
+Given this, it is important to explain the API and the upcalls in the paper (for a change!) 
+
+
+
+** Proportional sharing of volatility. 
+
+The main idea is that in clusters with background 
+
+Either add stability a DRF resource (stability defined as inverse of volatility).
+
+Or modify the allocation to do proportional sharing for volatility and then run DRF.
+

@@ -676,7 +676,7 @@ Future<Response> Master::Http::scheduler(
   } else if (contentType.get() == APPLICATION_JSON) {
     Try<JSON::Value> value = JSON::parse(request.body);
 
-    if (value.isError()) {
+    if (value.isError()) { 
       return BadRequest("Failed to parse body into JSON: " + value.error());
     }
 
@@ -3147,7 +3147,7 @@ Future<Response> Master::Http::machineWarning(
     const Request& request,
     const Option<string>& /*principal*/) const
 {
-  LOG(INFO) << "Machine termination warning received" ;
+  LOG(INFO) << "~~~~~~~~~ Machine termination warning received" ;
 
   // When current master is not the leader, redirect to the leading master.
   if (!master->elected()) {

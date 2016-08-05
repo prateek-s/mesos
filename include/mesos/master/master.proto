@@ -85,6 +85,8 @@ message Call {
     GET_QUOTA = 28;
     SET_QUOTA = 29;          // See 'SetQuota' below.
     REMOVE_QUOTA = 30;
+
+    //XXX SLAVE_WARNING = 31 ;
   }
 
   // Provides a snapshot of the current metrics tracked by the master.
@@ -176,6 +178,8 @@ message Call {
   message StopMaintenance {
     repeated MachineID machines = 1;
   }
+
+  //XXX Slave Warning message here? SlaveID agent_id ; float warn_time ;
 
   message SetQuota {
     required quota.QuotaRequest quota_request = 1;

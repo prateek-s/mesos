@@ -846,27 +846,30 @@ Future<Response> Slave::Http::relay_warning(
   //relay_request.url = req_url ;
   //relay_request.method = "POST" ;
   //finally make the request with this json object?
-  const string contentType = "" ;
+  const string contentType = "application/json" ; //"json" ? 
+  //stringify(ContentType::JSON) 
   
   process::http::Headers headers = process::http::Headers() ;
   
-  headers["Accept"] = contentType ;
+  //headers["Accept"] = contentType ;  //accept a json response only. Hmm
   
-  auto msg = string(jsonify(writer)) ;
-  
-  // Future<Response> response = process::http::streaming::post(
-  //     master_ip,
-  //     req_url,
-  //     headers,
-  //     msg,
-  //     //serialize(msg, contentType),
-  //     contentType);
-  auto _master = slave->master.get() ;
+  auto msg = string(jsonify(writer)) ; //or stringify? 
 
+  auto _master = slave->master.get() ;
+  Future<Response> response = process::http::post(
+      _master,
+      req_url, /* path*/
+      headers, 
+      msg, /* body */
+      //serialize(msg, contentType),
+      contentType);
   
+  
+
   Future<Response> response2 = process::http::get(_master, req_url, msg); 
+  //Nah this has to be a post!
   
-  return response2 ;  
+  return response ;  
 }
 
 Future<Response> Slave::Http::state(
