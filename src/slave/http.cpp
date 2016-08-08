@@ -823,24 +823,30 @@ string Slave::Http::STATE_HELP() {
 }
 
 /**
- * Send a warning to the master!
+ * Send a warning to the master! /slave/relay_warning
  */
 Future<Response> Slave::Http::relay_warning(
   const Request& request,
   const Option<std::string>& principal) const 
 {
-  JSON::ObjectWriter* writer ;
+  //JSON::ObjectWriter* writer ;
+  JSON::Object warn_json ;
   
   LOG(INFO) << "Starting to relay warning" ;
   
   string hname = slave->info.hostname() ;
+  LOG(INFO) << "Host name is: " << hname ;
+  warn_json.values["hostname"] = hname ;
+  warn_json.values["slave_id"] = slave->info.id().value() ;
+  warn_json.values["countdown"] = 120 ;
   
-  writer->field("hostname", hname ) ;
+  // writer->field("hostname", hname) ;
+  // writer->field("countdown", 120) ;
 
   //writer->field("ip", slave->info.ip) ;
   auto master_ip = slave->master.get().address.ip ;
   //send this to /master/machine/warning endpoint registered at the master.
-  auto req_url = "/master/machine/warning" ;
+  auto req_url = "machine/warning" ;
 
   //Request& relay_request ;
   //relay_request.url = req_url ;
@@ -853,9 +859,19 @@ Future<Response> Slave::Http::relay_warning(
   
   //headers["Accept"] = contentType ;  //accept a json response only. Hmm
   
-  auto msg = string(jsonify(writer)) ; //or stringify? 
+  //auto msg = string(jsonify(writer)) ; 
+  auto msg = stringify(warn_json) ; 
+  
 
+  
   auto _master = slave->master.get() ;
+  LOG(INFO) << "Master is " << _master ;
+  LOG(INFO) << "master ip " << master_ip ;
+  
+  LOG(INFO) << "URL: " << req_url ;
+  LOG(INFO) << "JSON RESPONSE IS GOING TO BE : " ;
+  LOG(INFO) << msg ;  
+  
   Future<Response> response = process::http::post(
       _master,
       req_url, /* path*/
@@ -863,11 +879,10 @@ Future<Response> Slave::Http::relay_warning(
       msg, /* body */
       //serialize(msg, contentType),
       contentType);
-  
-  
 
-  Future<Response> response2 = process::http::get(_master, req_url, msg); 
+  //Future<Response> response2 = process::http::get(_master, req_url, msg); 
   //Nah this has to be a post!
+  //LOG(INFO) << "Response from master" << response ;
   
   return response ;  
 }

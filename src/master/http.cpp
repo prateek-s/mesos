@@ -3151,29 +3151,34 @@ Future<Response> Master::Http::machineWarning(
 
   // When current master is not the leader, redirect to the leading master.
   if (!master->elected()) {
+    LOG(INFO) << "Redirected" ;
     return redirect(request);
   }
 
   if (request.method != "POST") {
+    LOG(INFO) << "SHould be POST Only" ;
     return MethodNotAllowed({"POST"}, request.method);
   }
 
   // Parse the POST body as JSON.
-  Try<JSON::Array> jsonIds = JSON::parse<JSON::Array>(request.body);
-  if (jsonIds.isError()) {
-    return BadRequest(jsonIds.error());
-  }
+  Try<JSON::Object> warn_obj = JSON::parse<JSON::Object>(request.body) ;
+  JSON::Object real_obj = warn_obj.get() ;
+  // Try<JSON::Array> jsonIds = JSON::parse<JSON::Array>(request.body);
+  // if (jsonIds.isError()) {
+  //   LOG(INFO) << "Error during json parsing? " ;
+  //   return BadRequest(jsonIds.error());
+  // }
   //Expect the slave to give its own identifier? Hostname? IP Address? Machine name?
-  LOG(INFO) << jsonIds.get() ;
+  LOG(INFO) << "WARNING PARSED AS " << stringify(real_obj) ;
+  std::string hostname = real_obj.find<JSON::String>("hostname").get().value ;
+  LOG(INFO) << "~~~~~" << hostname ;
+  //JSON::String slave_id = real_obj.find<JSON::String>("slave_id") ;
+  int countdown = real_obj.find<JSON::Number>("countdown").get().as<int64_t>() ;
+  LOG(INFO) << "~~~~~" << countdown ; 
+
+  //handle_warning(real_obj) ; //All the parsing. Relay to CRM, etc.
   
-  // Convert the machines to a protobuf.
-  auto ids = ::protobuf::parse<RepeatedPtrField<MachineID>>(jsonIds.get());
-  if (ids.isError()) {
-    return BadRequest(ids.error());
-  }
-  //XXX TODO. modify what we do once we get a warning
-  //Presumably need to to take some different actions apart from standard maintenance 
-  return _startMaintenance(ids.get());
+  return OK() ;
 }
 
 
