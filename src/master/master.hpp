@@ -436,6 +436,15 @@ public:
       const FrameworkID& frameworkId,
       const std::vector<Request>& requests);
 
+
+  Slave* get_slave_by_id(std::string slave_id) ;
+
+  std::vector<SlaveID> get_affected_slaves(std::string slave_id) ;
+  
+  std::vector<Framework*> get_affected_frameworks(std::vector<SlaveID>) ;
+  
+  void handle_warning(std::string hostname, std::string slave_id, int countdown) ;
+  
   void launchTasks(
       const process::UPID& from,
       const FrameworkID& frameworkId,
@@ -2108,6 +2117,11 @@ struct Framework
     inverseOffers.erase(inverseOffer);
   }
 
+  bool hasExecutor(const SlaveID& slaveId)
+  {
+    return executors.contains(slaveId) ;
+  }
+  
   bool hasExecutor(const SlaveID& slaveId,
                    const ExecutorID& executorId)
   {

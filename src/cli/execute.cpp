@@ -495,6 +495,12 @@ protected:
 	 // XXX: atleast print something here? 
 	  break;
         }
+      case Event::TERMINATION_WARNING: {
+	// XXX. Print the termination warning inverse offer passed to frameworks here
+	break ;
+      }
+
+	  
         case Event::UNKNOWN: {
           LOG(WARNING) << "Received an UNKNOWN event and ignored";
           break;

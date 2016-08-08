@@ -3172,16 +3172,19 @@ Future<Response> Master::Http::machineWarning(
   LOG(INFO) << "WARNING PARSED AS " << stringify(real_obj) ;
   std::string hostname = real_obj.find<JSON::String>("hostname").get().value ;
   LOG(INFO) << "~~~~~" << hostname ;
-  //JSON::String slave_id = real_obj.find<JSON::String>("slave_id") ;
+  std::string slave_id = real_obj.find<JSON::String>("slave_id").get().value ;
   int countdown = real_obj.find<JSON::Number>("countdown").get().as<int64_t>() ;
   LOG(INFO) << "~~~~~" << countdown ; 
 
-  //handle_warning(real_obj) ; //All the parsing. Relay to CRM, etc.
+  master->handle_warning(hostname, slave_id, countdown) ;
   
   return OK() ;
 }
 
-
+/** 
+ * Ask the affected slaves to shutdown. Slaves send TASK_LOST messages to frameworks.
+ *
+ */
 Future<Response> Master::Http::_startMaintenance(
     const RepeatedPtrField<MachineID>& machineIds) const
 {

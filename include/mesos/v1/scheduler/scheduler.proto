@@ -60,6 +60,9 @@ message Event {
     
     //Provide price and availability/MTTF information
     CLOUD_INFO = 11 ;
+
+    //Pass the cloud revocation warning
+    TERMINATION_WARNING = 12 ;
   }
 
   // First event received when the scheduler subscribes.
@@ -89,6 +92,14 @@ message Event {
   message InverseOffers {
     repeated InverseOffer inverse_offers = 1;
   }
+
+  // Transient server revocation warning passed to the framework.
+  // Use the inverse offers infrastructure.
+  // Also give the warning time
+  message TerminationWarning {
+    repeated InverseOffer inverse_offers = 1;
+    required double warning_time_seconds = 2 ;
+  } 
 
   // Received when a particular offer is no longer valid (e.g., the
   // agent corresponding to the offer has been removed) and hence
@@ -215,6 +226,8 @@ message Call {
     REQUEST = 11;    // See 'Request' below.
     SUPPRESS = 12;   // Inform master to stop sending offers to the framework.
 
+    REPAIR = 15;     // Repair cluster after termination.
+    
     // TODO(benh): Consider adding an 'ACTIVATE' and 'DEACTIVATE' for
     // already subscribed frameworks as a way of stopping offers from
     // being generated and other events from being sent by the master.
@@ -360,6 +373,10 @@ message Call {
     repeated mesos.v1.Request requests = 1;
   }
 
+  message Repair {
+    required string repair_type = 1 ;
+  }
+  
   // Identifies who generated this call. Master assigns a framework id
   // when a new scheduler subscribes for the first time. Once assigned,
   // the scheduler must set the 'framework_id' here and within its
@@ -384,4 +401,6 @@ message Call {
   optional Reconcile reconcile = 9;
   optional Message message = 10;
   optional Request request = 11;
+  //Do we need this?
+//  optional Repair repair = 13 ;
 }

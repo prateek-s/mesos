@@ -3004,6 +3004,56 @@ void Master::resourceRequest(
   request(framework, call);
 }
 
+Slave* Master::get_slave_by_id(std::string slave_id)
+{
+  Slave* this_slave = slaves.registered.get(slave_id) ;
+  return this_slave ;
+}
+
+/* Same market etc */
+std::vector<SlaveID> Master::get_affected_slaves(std::string slave_id)
+{
+  std::vector<SlaveID> out ;
+  SlaveID s ;
+  s.set_value(slave_id) ;
+  out.push_back(s) ;
+
+  return out ;
+}
+  
+  
+std::vector<Framework*> Master::get_affected_frameworks(std::vector<SlaveID> all_slaves)
+{
+  std::vector<Framework*> out ; //TODO: Use set instead of vector
+  SlaveID s ;
+  
+  hashmap<FrameworkID, Framework*> registered = frameworks.registered ;
+  
+  foreachvalue(Framework* Framework, registered) {
+    for(auto s : all_slaves) {
+      if(Framework->hasExecutor(s)) {
+	out.push_back(Framework) ;
+      }
+    }
+  }
+  return out ;
+}
+
+  
+void Master::handle_warning(std::string hostname, std::string slave_id, int countdown)
+{
+  LOG(INFO) << "Received termination warning from " << slave_id << " for " << countdown << " seconds" ;
+  Slave* affected_slave = get_slave_by_id(slave_id) ;
+  CHECK_NOTNULL(affected_slave) ;
+
+  std::vector<SlaveID> all_slaves = get_affected_slaves(slave_id) ;
+  
+  get_affected_frameworks(all_slaves) ;
+  //Broadcast the termination warning to the frameworks
+  //Framework status -> warned
+  
+}
+  
 
 void Master::request(
     Framework* framework,
