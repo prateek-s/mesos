@@ -109,7 +109,7 @@ v1::scheduler::Event evolve(const LostSlaveMessage& message);
 v1::scheduler::Event evolve(const ExitedExecutorMessage& message);
 v1::scheduler::Event evolve(const ExecutorToFrameworkMessage& message);
 v1::scheduler::Event evolve(const FrameworkErrorMessage& message);
-
+v1::scheduler::Event evolve(const TerminationWarningMessage& message) ;
 
 v1::executor::Event evolve(const mesos::executor::Event& event);
 

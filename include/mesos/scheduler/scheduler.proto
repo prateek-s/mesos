@@ -57,6 +57,11 @@ message Event {
     // close the existing subscription connection and resubscribe
     // using a backoff strategy.
     HEARTBEAT = 8;
+    //Provide price and availability/MTTF information
+    CLOUD_INFO = 11 ;
+
+    //Pass the cloud revocation warning
+    TERMINATION_WARNING = 12 ;
   }
 
   // First event received when the scheduler subscribes.
@@ -154,6 +159,13 @@ message Event {
   message Error {
     required string message = 1;
   }
+
+  message TerminationWarning {
+    repeated InverseOffer inverse_offers = 1;
+    required double warning_time_seconds = 2;
+  }
+
+
 
   // Type of the event, indicates which optional field below should be
   // present if that type has a nested message definition.
@@ -354,6 +366,8 @@ message Call {
   message Request {
     repeated mesos.Request requests = 1;
   }
+
+
 
   // Identifies who generated this call. Master assigns a framework id
   // when a new scheduler subscribes for the first time. Once assigned,

@@ -3048,9 +3048,19 @@ void Master::handle_warning(std::string hostname, std::string slave_id, int coun
 
   std::vector<SlaveID> all_slaves = get_affected_slaves(slave_id) ;
   
-  get_affected_frameworks(all_slaves) ;
+  std::vector<Framework*> to_warn = get_affected_frameworks(all_slaves) ;
+  
+  for(auto f : to_warn) {
+    TerminationWarningMessage message ;
+    f->send(message) ;
+  }
   //Broadcast the termination warning to the frameworks
   //Framework status -> warned
+
+  // RescindInverseOfferMessage message;
+  // message.mutable_inverse_offer_id()->CopyFrom(inverseOffer->id());
+  // framework->send(message);
+
   
 }
   

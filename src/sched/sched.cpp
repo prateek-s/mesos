@@ -687,7 +687,12 @@ protected:
       case Event::HEARTBEAT: {
         break;
       }
-
+case Event::TERMINATION_WARNING: {
+        break;
+      }
+  case Event::CLOUD_INFO: {
+        break;
+      }
       case Event::UNKNOWN: {
         drop(event, "Unknown event");
         break;

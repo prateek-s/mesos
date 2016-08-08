@@ -93,14 +93,6 @@ message Event {
     repeated InverseOffer inverse_offers = 1;
   }
 
-  // Transient server revocation warning passed to the framework.
-  // Use the inverse offers infrastructure.
-  // Also give the warning time
-  message TerminationWarning {
-    repeated InverseOffer inverse_offers = 1;
-    required double warning_time_seconds = 2 ;
-  } 
-
   // Received when a particular offer is no longer valid (e.g., the
   // agent corresponding to the offer has been removed) and hence
   // needs to be rescinded. Any future calls ('Accept' / 'Decline') made
@@ -178,6 +170,17 @@ message Event {
     // This will have to be a list of slaves
     // Similar to how offers are granted
 //  } 
+
+
+
+  // Transient server revocation warning passed to the framework.
+  // Use the inverse offers infrastructure.
+  // Also give the warning time
+  message TerminationWarning {
+    repeated InverseOffer inverse_offers = 1;
+    required double warning_time_seconds = 2;
+  }
+
 
   // Type of the event, indicates which optional field below should be
   // present if that type has a nested message definition.

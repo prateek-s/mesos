@@ -280,6 +280,38 @@ v1::scheduler::Event evolve(const RescindInverseOfferMessage& message)
   return event;
 }
 
+// v1::scheduler::Event evolve(const TerminationWarningMessage& message)
+// {
+//   v1::scheduler::Event event;
+//   event.set_type(v1::scheduler::Event::TERMINATION_WARNING);
+
+//   v1::scheduler::Event::TerminationWarning* terminationWarning =
+//     event.mutable_termination_warning();
+
+//   terminationWarning->mutable_inverse_offers()->CopyFrom(evolve<v1::InverseOffer>(
+//       message.inverse_offers()));
+  
+//    terminationWarning->mutable_warning_time_seconds()->CopyFrom(message.warning_time_seconds());
+
+//   return event;
+// }
+
+v1::scheduler::Event evolve(const TerminationWarningMessage& message)
+{
+  v1::scheduler::Event event;
+  event.set_type(v1::scheduler::Event::TERMINATION_WARNING);
+
+  // v1::scheduler::Event::TerminationWarning* terminationWarning =
+  //   event.mutable_termination_warning();
+
+  // terminationWarning->mutable_inverse_offers()->CopyFrom(evolve<v1::InverseOffer>(
+  //     message.inverse_offers()));
+  
+  //  terminationWarning->mutable_warning_time_seconds()->CopyFrom(message.warning_time_seconds());
+
+  return event;
+}
+
 
 v1::scheduler::Event evolve(const StatusUpdateMessage& message)
 {

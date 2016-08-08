@@ -251,6 +251,11 @@ message RescindResourceOfferMessage {
   required OfferID offer_id = 1;
 }
 
+message TerminationWarningMessage {
+  repeated InverseOffer inverse_offers = 1;
+  required double warning_time_seconds = 2 ;
+} 
+
 
 /**
  * Notifies the scheduler that a particular inverse offer is not longer
