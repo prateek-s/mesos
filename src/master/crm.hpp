@@ -61,6 +61,8 @@ public:
   
   hashmap<std::string, int> res_vec ;
   /* TODO. Operators < > == . Will be useful for packing */
+
+  /* From the mesos request vector, get the CPU and memory requirements, convert them to numbers (Cores, MB memory, etc). Handle empty cases, etc. */
   void extract_resource_vector(const std::vector<mesos::Request>& requests) {
     //TODO
 
@@ -170,6 +172,11 @@ public :
   std::vector<ServerOrder> get_servers(mesos::internal::master::Framework* framework, ResourceVector& req, PlacementConstraint& placement, std::string packing_policy) ;
 
   hashmap<CloudMachine, int> get_portfolio_wts(double alpha) ;
+
+  ServerOrder get_min_servers(double wt, const CloudMachine& cm, ResourceVector& req) ;
+
+  std::vector<ServerOrder> compute_server_order(hashmap<CloudMachine, int> & portfolio_wts, ResourceVector& req, std::string packing_policy) ;
+
   
   /**************************************/
   virtual ~CloudRM() {}
