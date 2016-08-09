@@ -55,11 +55,17 @@
 //using namespace process;
 using namespace std;
 
-struct EC2_machine_resource
+struct
 {
 hashmap<std::string, std::pair<int,int>> ec2 ={ {"m1.small",  std::make_pair(1,1)} }  ;
-
-} ;
+  int get_cpu(std::string type){
+    return ec2[type].first ;
+  }
+  int get_mem(std::string type){
+    return ec2[type].second ;
+  }
+  
+} EC2_machines;
 
 class ResourceVector
 {
@@ -73,6 +79,14 @@ public:
     //TODO
 
   }
+
+  int get_cpu() {
+    return res_vec["cpu"] ;
+  }
+  int get_mem() {
+    return res_vec["mem"];
+  }
+  
 };
 
 class PlacementConstraint
@@ -123,7 +137,7 @@ class ServerOrder
 public:
   ServerOrder() {
     this->num = 0 ;
-    this->machine = (CloudMachine*) NULL ;
+//    this->machine = (CloudMachine&) NULL ;
   }
 
   mesos::FrameworkID owner_framework ; 
@@ -131,7 +145,7 @@ public:
   int num ;  //number of servers that we are supposed to order
 
   //This is filled in by whoever actually acquires the cloud server to point to the cloud server/machine. Initialized to null. 
-  CloudMachine* machine ;
+  CloudMachine machine ;
 };  //End ServerOrder Class 
 
 

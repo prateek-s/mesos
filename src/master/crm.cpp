@@ -111,9 +111,29 @@ hashmap<CloudMachine, int> CloudRM::get_portfolio_wts(double alpha)
 ServerOrder CloudRM::get_min_servers(double wt, const CloudMachine& cm, ResourceVector& req)
 {
   ServerOrder out ;
+  std::string type = cm.type ;
+  LOG(INFO) << "Finding servers of type " << type ;
+  
+  //1. Multiply the resource vector by weight to get
+  double req_cpu = req.get_cpu() * wt ; 
+  double req_mem = req.get_mem() * wt ;
+  
+  //2. Get CPU and mem capacity of the given server type
+  int cap_cpu = EC2_machines.get_cpu(type) ;
+  int cap_mem = EC2_machines.get_mem(type) ;
+  
+  //3. Compute min numbers here?
+  double min_for_cpu = req_cpu/cap_cpu ;
+  double min_for_mem = req_mem/cap_mem ;
+  
+  int order_count = ceil(std::max(min_for_mem, min_for_cpu)) ;
+
+  out.num = order_count ;
+  out.machine = cm ;
   return out ;
 }
 
+/********************************************************************************/
 
 /* Translates portfolio weights to actual servers. The wts indicate what fraction of the application should be running on servers in that market. If wt=1, then simply determine how many servers we need from this market to satisfy the cpu AND memory resources. In fact lets do this. 
  */
@@ -175,7 +195,9 @@ void CloudRM::res_req(mesos::internal::master::Framework* framework, const std::
   PlacementConstraint placement ;
   placement.extract_placement_constraint(requests) ;
 
-  get_servers(framework, req, placement, packing_policy) ;
+  std::vector<ServerOrder>to_buy = get_servers(framework, req, placement, packing_policy) ;
+  //TODO: tag all these orders with the framework and AMI? 
+  //Actually ask amazon for these servers? 
   
 }
 
