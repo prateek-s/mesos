@@ -91,6 +91,26 @@ void CloudRM::add_to_pending_orders(std::vector<ServerOrder> orders)
   
 }
 
+hashmap<CloudMachine, int> CloudRM::get_portfolio_wts(double alpha)
+{
+  hashmap<CloudMachine, int> out ;
+  return out ;
+}
+
+std::vector<ServerOrder> CloudRM::get_servers(mesos::internal::master::Framework* framework, ResourceVector& req, PlacementConstraint& placement, std::string packing_policy)
+{
+  std::vector<ServerOrder> out ;
+  if(packing_policy!="none") {
+    LOG(INFO) << "Packing policy " << packing_policy << " is NOT supported " ;
+    return out ;
+  }
+
+  //1. Find the portfolio-vector for the given alpha first.
+  hashmap<CloudMachine, int> portfolio_wts = get_portfolio_wts(placement.alpha) ;
+  
+  return out ;
+}
+
 /**
  * Resource request made by a framework. Framework->offeredResources is partitioned by slaveId, and we do packing etc based off of that. 
  */
@@ -104,7 +124,12 @@ void CloudRM::res_req(mesos::internal::master::Framework* framework, const std::
   //4. Make this a Future/Promise thingy so that we know the execution context (the framework which actually requested these servers.
   //5. Once the new servers are up, do we need to perform the packing again?
 
+  ResourceVector req ;
+  req.extract_resource_vector(requests) ;
+  PlacementConstraint placement ;
+  placement.extract_placement_constraint(requests) ;
 
+  get_servers(framework, req, placement, packing_policy) ;
   
 }
 

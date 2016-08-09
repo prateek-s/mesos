@@ -55,16 +55,59 @@
 //using namespace process;
 using namespace std;
 
-//ServerOrder should be ONE order, so that when acquiring the servers, we can fill in the details one at a time.
+class ResourceVector
+{
+public:
+  
+  hashmap<std::string, int> res_vec ;
+  /* TODO. Operators < > == . Will be useful for packing */
+  void extract_resource_vector(const std::vector<mesos::Request>& requests) {
+    //TODO
+
+  }
+};
+
+class PlacementConstraint
+{
+public:
+  PlacementConstraint() {
+    alpha = 0.2 ;
+  }
+  double alpha ; //Risk tolerance 
+  void extract_placement_constraint(const std::vector<mesos::Request>& requests) {
+    //TODO
+  }
+  
+  virtual ~PlacementConstraint() {}
+};
 
 class CloudMachine
 {
 public:
   CloudMachine() {
   }
-  std::string az ;
-  std::string type ;
+  std::string az ; //Availability Zone 
+  std::string type ; // Machine type
+
+  
+  bool operator==(const CloudMachine &other) const
+  {
+    return az==other.az && type==other.type ;
+  }
+
+  
 }; //END CloudMachine class
+namespace std {
+template <>
+struct hash<CloudMachine>
+{
+  std::size_t operator()(const CloudMachine& c) const
+  {
+    return (std::hash<string>() (c.az)) ^  (std::hash<string>() (c.type)) ;
+  }
+} ;
+} //namespace std 
+//ServerOrder should be ONE order, so that when acquiring the servers, we can fill in the details one at a time.
 
 /* This is a vector/collection of servers */
 class ServerOrder
@@ -123,6 +166,11 @@ public :
 
   void add_to_pending_orders(std::vector<ServerOrder> orders) ;
 
+
+  std::vector<ServerOrder> get_servers(mesos::internal::master::Framework* framework, ResourceVector& req, PlacementConstraint& placement, std::string packing_policy) ;
+
+  hashmap<CloudMachine, int> get_portfolio_wts(double alpha) ;
+  
   /**************************************/
   virtual ~CloudRM() {}
   
