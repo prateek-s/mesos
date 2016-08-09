@@ -1,0 +1,6 @@
+#~/bin/bash
+
+echo "Starting framework"
+
+sudo ./balloon-framework --master='127.0.0.1:5050' --task_memory_usage_limit=2800MB --task_memory=10MB
+

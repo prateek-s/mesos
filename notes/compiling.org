@@ -1,0 +1,5 @@
+
+** Etags and cscope
+cd build ; make tags ; make cscope ;
+
+TAGS is in build/src , cscope.out is in build 
