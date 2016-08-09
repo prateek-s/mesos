@@ -55,6 +55,12 @@
 //using namespace process;
 using namespace std;
 
+struct EC2_machine_resource
+{
+hashmap<std::string, std::pair<int,int>> ec2 ={ {"m1.small",  std::make_pair(1,1)} }  ;
+
+} ;
+
 class ResourceVector
 {
 public:
@@ -96,9 +102,9 @@ public:
   {
     return az==other.az && type==other.type ;
   }
-
   
 }; //END CloudMachine class
+
 namespace std {
 template <>
 struct hash<CloudMachine>
