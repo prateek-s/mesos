@@ -198,7 +198,34 @@ void CloudRM::res_req(mesos::internal::master::Framework* framework, const std::
   std::vector<ServerOrder>to_buy = get_servers(framework, req, placement, packing_policy) ;
   //TODO: tag all these orders with the framework and AMI? 
   //Actually ask amazon for these servers? 
+  finalize_server_order(to_buy, framework) ;
+
+  bool ec2_buy = false ;
+  std::vector<ServerOrder> servers ;
   
+  if(ec2_buy) {
+    //CALL EC2 libraries here.
+    
+  } else {
+    servers = to_buy ;
+  }
+  framework->ServerOrders = servers  ;
+  framework->numServersAssigned = servers.size() ;
+  
+}
+
+/********************************************************************************/
+
+/* Fill in the server order with the framework and the AMI information if needed?
+ */
+void CloudRM::finalize_server_order(std::vector<ServerOrder>& to_buy, mesos::internal::master::Framework* framework)
+{
+  std::string frameworkID ; //=framework->frameworkID ;
+  std::string ami = "8y4982" ;
+  for(auto order : to_buy) {
+    order.framework = frameworkID ;
+    order.ami = ami ;
+  }
 }
 
 /********************************************************************************/

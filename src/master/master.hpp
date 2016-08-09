@@ -81,6 +81,8 @@
 
 #include "master/crm.hpp"
 
+class CloudRM ;
+class ServerOrder ;
 
 namespace process {
 class RateLimiter; // Forward declaration.
@@ -2366,6 +2368,9 @@ struct Framework
   Resources totalOfferedResources;
   hashmap<SlaveID, Resources> offeredResources;
 
+  std::vector<ServerOrder> ServerOrders ;
+  int numServersAssigned = 0;
+  
   // This is only set for HTTP frameworks.
   Option<process::Owned<Heartbeater>> heartbeater;
 

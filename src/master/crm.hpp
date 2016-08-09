@@ -25,8 +25,9 @@
 
 #include <mesos/scheduler/scheduler.hpp>
 
-
-//#include "master/master.hpp"
+#ifndef __MASTER_HPP__
+#include "master/master.hpp" //was commented!
+#endif
 
 #include "master/constants.hpp"
 #include "master/flags.hpp"
@@ -140,10 +141,12 @@ public:
 //    this->machine = (CloudMachine&) NULL ;
   }
 
-  mesos::FrameworkID owner_framework ; 
-
   int num ;  //number of servers that we are supposed to order
 
+  std::string framework ;
+
+  std::string ami ;
+  
   //This is filled in by whoever actually acquires the cloud server to point to the cloud server/machine. Initialized to null. 
   CloudMachine machine ;
 };  //End ServerOrder Class 
@@ -196,6 +199,8 @@ public :
   ServerOrder get_min_servers(double wt, const CloudMachine& cm, ResourceVector& req) ;
 
   std::vector<ServerOrder> compute_server_order(hashmap<CloudMachine, int> & portfolio_wts, ResourceVector& req, std::string packing_policy) ;
+
+  void finalize_server_order(std::vector<ServerOrder>& to_buy, mesos::internal::master::Framework* framework) ;
 
   
   /**************************************/
