@@ -27,3 +27,57 @@ http://169.254.169.254/latest/dynamic/instance-identity/document
 
 Termination warning via http://169.254.169.254/latest/meta-data/spot/termination-time 
 This needs polling though! Had written a script for this --- where is it? Spark?
+
+** AWS API
+
+The CPP SDK is undocumented, but something like this should work!
+
+#+BEGIN_SRC cpp
+
+#include <iostream>
+#include <aws/core/Aws.h>
+#include <aws/ec2/model/RunInstancesRequest.h>
+#include <aws/ec2/EC2Client.h>
+//#include <aws/client/ClientConfiguration.h>
+
+/* Compile using g++ -std=c++11 1.cpp  -laws-cpp-sdk-core -laws-cpp-sdk-ec2 */
+
+
+int main()
+{
+  Aws::SDKOptions options;
+  Aws::InitAPI(options);
+  //make your SDK calls in here.
+  std::cout << " AWS library loaded \n" ;
+
+  Aws::EC2::Model::RunInstancesRequest request ;
+  Aws::String ami = "fsdfsd" ;
+  int count = 2 ;
+  Aws::String Framework = "3423423" ;
+  
+  Aws::String keyname = "prateeks" ;
+  Aws::String user_data = "Framework=78245637856343 ; master=127.0.0.1:5050" ;
+  Aws::EC2::Model::InstanceType type ;
+  request.SetImageId(ami) ;
+  request.SetMinCount(count) ;
+  request.SetKeyName(keyname) ;
+  request.SetUserData(user_data) ;
+  request.SetInstanceType(type) ;
+  request.SetClientToken(Framework) ;
+  //Terminate instead of stopping!!
+//  request.SetInstanceInitiatedShutdownBehavior 
+
+/* Availability zone field is absent for on-demand instances, but seems to be present for spot instances. */
+  //SpotInstanceRequest.SetAvailabilityZoneGroup     SetLaunchedAvailabilityZone   SetSpotPrice 
+  Aws::Client::ClientConfiguration cconfig () ;
+  Aws::EC2::EC2Client client ;
+  
+//  RunInstancesAsync (const Model::RunInstancesRequest &request, const RunInstancesResponseReceivedHandler &handler, const std::shared_ptr< const Aws::Client::AsyncCallerContext > &context=nullptr) const 
+
+  Aws::EC2::Model::RunInstancesOutcome outcome = client.RunInstances(request) ;
+  
+  Aws::ShutdownAPI(options);
+
+  
+}
+#+END_SRC
