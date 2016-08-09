@@ -63,6 +63,15 @@ int CloudRM::init(mesos::internal::master::Master* master)
 int CloudRM::new_framework(const mesos::FrameworkInfo& frameworkinfo)
 {
   LOG(INFO) << "~~~~~~~ NEW FRAMEWORK" ;
+  std::string fid ;
+  
+  if(frameworkinfo.has_id()) {
+    fid = frameworkinfo.id().value() ;
+  }
+  if(new_framework_starter_nodes==0){
+    return 0;
+  }
+    
   /* Create the server order vector for the framework according to some rule engine*/
   std::vector<ServerOrder> order = pDefaultFrameworkResources(frameworkinfo) ;
   
@@ -73,7 +82,7 @@ int CloudRM::new_framework(const mesos::FrameworkInfo& frameworkinfo)
     /* Now ask the cloud layer to fulfill this order for us */
 //     process:dispatch(AwsAgent, GetServers, order) 
   }
-  return 0; 
+  return 1; 
 }
 
 void CloudRM::add_to_pending_orders(std::vector<ServerOrder> orders)
@@ -94,6 +103,8 @@ void CloudRM::res_req(mesos::internal::master::Framework* framework, const std::
   //3. Buy more cloud servers if required.
   //4. Make this a Future/Promise thingy so that we know the execution context (the framework which actually requested these servers.
   //5. Once the new servers are up, do we need to perform the packing again?
+
+
   
 }
 

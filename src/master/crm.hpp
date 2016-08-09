@@ -62,7 +62,8 @@ class CloudMachine
 public:
   CloudMachine() {
   }
-  int type ;
+  std::string az ;
+  std::string type ;
 }; //END CloudMachine class
 
 /* This is a vector/collection of servers */
@@ -73,13 +74,13 @@ public:
     this->num = 0 ;
     this->machine = (CloudMachine*) NULL ;
   }
+
+  mesos::FrameworkID owner_framework ; 
+
   int num ;  //number of servers that we are supposed to order
-  //Framework framework ; //Need it for keeping track of frameworks
 
   //This is filled in by whoever actually acquires the cloud server to point to the cloud server/machine. Initialized to null. 
   CloudMachine* machine ;
-
-  
 };  //End ServerOrder Class 
 
 
@@ -88,18 +89,31 @@ class CloudRM : public process::Process<CloudRM>
 {
 public :
   CloudRM() ;
+  /***************** Fields **************/
+  
   int p = 42 ;
+  
   mesos::internal::master::Master* master ;
 
   vector<ServerOrder> pendingOrders  ;
+
+  /****** Policy flags **********/
+  int new_framework_starter_nodes = 0 ;
+
+  std::string packing_policy = "none" ;
+
+  std::string replenish_policy = "none" ;
+
   
+  /************* Methods **************/
   void foo() ;
   
   int bar() ;
   
   /* Initialization message from the master */
   int init(mesos::internal::master::Master* master) ;
-  
+
+  /* Newly registered framework */
   int new_framework(const mesos::FrameworkInfo& frameworkinfo) ;
   
   void res_req(mesos::internal::master::Framework* framework, const std::vector<mesos::Request>& requests) ;
@@ -109,10 +123,8 @@ public :
 
   void add_to_pending_orders(std::vector<ServerOrder> orders) ;
 
-  
+  /**************************************/
   virtual ~CloudRM() {}
-
- 
   
 }; //end Class declaration
 
