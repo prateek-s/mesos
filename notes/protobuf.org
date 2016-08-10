@@ -1,0 +1,8 @@
+
+** Adding an entry in the protobuf 
+
+Add matching definitions in include/mesos/scheduler/scheduler.proto *and* include/mesos/v1/scheduler/scheduler.proto 
+
+Add CloudInfoMessage in src/messages/messages.proto 
+
+Add evolve defintion in src/internal/evolve.cpp and hpp 

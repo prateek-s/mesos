@@ -172,6 +172,14 @@ message Event {
 //  } 
 
 
+  // Pass the cost and mttf information
+  message CloudInfo {
+    required double e_cost = 1;
+    required double e_mttf = 2;
+    optional double current_cost = 3;
+    optional double current_mttf = 4;
+  }
+  
 
   // Transient server revocation warning passed to the framework.
   // Use the inverse offers infrastructure.

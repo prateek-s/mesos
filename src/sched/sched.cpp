@@ -687,11 +687,13 @@ protected:
       case Event::HEARTBEAT: {
         break;
       }
-case Event::TERMINATION_WARNING: {
-        break;
-      }
-  case Event::CLOUD_INFO: {
-        break;
+    case Event::TERMINATION_WARNING: {
+      LOG(INFO) << "TTTTermination warning recvd ";
+      break;
+    }
+    case Event::CLOUD_INFO: {
+      LOG(INFO) << "CCCCCloud Info recvd" ;
+      break;
       }
       case Event::UNKNOWN: {
         drop(event, "Unknown event");

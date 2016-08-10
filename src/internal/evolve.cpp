@@ -296,6 +296,14 @@ v1::scheduler::Event evolve(const RescindInverseOfferMessage& message)
 //   return event;
 // }
 
+v1::scheduler::Event evolve(const CloudInfoMessage& message)
+{
+  v1::scheduler::Event event;
+  event.set_type(v1::scheduler::Event::CLOUD_INFO);
+
+  return event ;
+}
+  
 v1::scheduler::Event evolve(const TerminationWarningMessage& message)
 {
   v1::scheduler::Event event;

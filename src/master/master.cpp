@@ -3053,6 +3053,9 @@ void Master::handle_warning(std::string hostname, std::string slave_id, int coun
   for(auto f : to_warn) {
     TerminationWarningMessage message ;
     f->send(message) ;
+    
+    CloudInfoMessage m2 ;
+    f->send(m2) ;
   }
   //Broadcast the termination warning to the frameworks
   //Framework status -> warned

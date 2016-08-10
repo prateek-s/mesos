@@ -160,13 +160,23 @@ message Event {
     required string message = 1;
   }
 
+  // Pass the cost and mttf information
+  message CloudInfo {
+    required double e_cost = 1;
+    required double e_mttf = 2;
+    optional double current_cost = 3;
+    optional double current_mttf = 4;
+  }
+  
+  // Pass the transient server termination warning.
+  // Use the inverse offer message type---it captures slave-id and unavail
+  // Warning_time_seconds could be achieved by playing with unavailability
   message TerminationWarning {
     repeated InverseOffer inverse_offers = 1;
     required double warning_time_seconds = 2;
   }
 
-
-
+  
   // Type of the event, indicates which optional field below should be
   // present if that type has a nested message definition.
   // Enum fields should be optional, see: MESOS-4997.

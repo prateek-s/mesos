@@ -251,6 +251,13 @@ message RescindResourceOfferMessage {
   required OfferID offer_id = 1;
 }
 
+message CloudInfoMessage {
+    required double e_cost = 1;
+    required double e_mttf = 2;
+    optional double current_cost = 3;
+    optional double current_mttf = 4;
+}
+
 message TerminationWarningMessage {
   repeated InverseOffer inverse_offers = 1;
   required double warning_time_seconds = 2 ;
