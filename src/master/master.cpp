@@ -3052,9 +3052,25 @@ void Master::handle_warning(std::string hostname, std::string slave_id, int coun
   
   for(auto f : to_warn) {
     TerminationWarningMessage message ;
+    InverseOffer* inverseOffer = new InverseOffer() ;
+    
+    inverseOffer->mutable_id()->CopyFrom(newOfferId());
+    inverseOffer->mutable_framework_id()->CopyFrom(f->id());
+    
+    inverseOffer->mutable_slave_id()->CopyFrom(affected_slave->id);
+
+    //inverseOffer->mutable_url()->CopyFrom(url);
+      //inverseOffer->mutable_unavailability()->CopyFrom(unavailableResources.unavailability);
+    message.add_inverse_offers()->CopyFrom(*inverseOffer);
+    
+    message.set_warning_time_seconds(120.0) ;
     f->send(message) ;
     
     CloudInfoMessage m2 ;
+    m2.set_e_cost(10) ;
+    m2.set_e_mttf(1212.1) ;
+    m2.set_current_cost(12) ;
+    m2.set_current_mttf(9999.1) ;
     f->send(m2) ;
   }
   //Broadcast the termination warning to the frameworks
