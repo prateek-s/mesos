@@ -1,0 +1,64 @@
+
+* Common
+
+Can implement a common Mesos scheduler which can also send checkpoint signals to frameworks. Easy to do in Spark---attach a master endpoint. Will also work for MPI. 
+
+Common Framework which supports:
+
+- Price sensitive applications. Edge triggered, forecast-driven, etc.
+- Periodic checkpointing signals 
+- Automatic replenishment upon revocation warning 
+- Simple configuration for policies---packing, replenishment, etc. 
+
+Instead of modifying each and every application, a common scheduler (like Marathon) can be used to do all this. Infact this could possibly be integrated into Marathon itself---not studied the feasibility of it yet. 
+
+
+* Spark
+Flint 
+
+** Apache Torree (Spark kernel for Jupyter) 
+
+Jobs are new notebooks, which need a fast spin-up time, but are long-lasting. 
+
+
+* MPI
+
+OpenMPI Checkpointing.
+
+Marathe paper shows effectiveness of various MPI Checkpointing policies (rising edge, periodic, Daly) for different volatility scenarios. Surprisingly, Daly does quite poorly!
+
+* Jenkins 
+
+
+* BOINC 
+
+** BOINC suspend/Resume 
+
+Looks like the suspend images are stored on disk. 
+/var/lib/boinc-client/slots/0/<pid>
+
+Upon suspension, the a binary file is generated, which seems to be the suspended task image. For EC2, we can point it to some S3 bucket using S3-fuse FS?
+
+If BOINC is compiled from source, then the home directory is the default place to save task/job data. Change that to some S3 path or something. Mount S3 using fuse maybe.
+
+boinccmd gives text-based statistics about job completion time. Use that when designing the mesos-scheduler for BOINC???
+
+
+Apparently it is necessary to shut BOINC down before turning the machine off
+ https://boinc.berkeley.edu/dev/forum_thread.php?id=10984
+
+*** Implementaion
+- Configure default directory to some path
+- S3fs to write to S3
+- Test that tasks can be resumed afterwards
+- Mesos scheduler which is price-sensitive and checkpoints 
+
+
+
+* MIsc
+Google cloudperfkit https://github.com/cdelimitrou?tab=repositories
+
+Charmander scheduler inspired by Quasar. Simple Mesos scheduler written in Go. 
+https://github.com/att-innovate/charmander-scheduler
+
+
