@@ -6,3 +6,5 @@ Add matching definitions in include/mesos/scheduler/scheduler.proto *and* includ
 Add CloudInfoMessage in src/messages/messages.proto 
 
 Add evolve defintion in src/internal/evolve.cpp and hpp 
+
+QUESTION: Why is there a mutable_info() and not a mutable_cloudinfo() ? How did the protocol buffer compiler smartly pick info (and warning) from cloudinfo and terminationWarning? 

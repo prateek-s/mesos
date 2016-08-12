@@ -3047,7 +3047,8 @@ void Master::send_cloud_info(Framework* f)
   m2.set_e_mttf(1212.1) ;
   m2.set_current_cost(12) ;
   m2.set_current_mttf(9999.1) ;
-  LOG(INFO) << "Sending Cloud_info to framework" ;
+  
+  LOG(INFO) << "Sending Cloud_info to framework, " << m2.e_cost()  ;
   f->send(m2) ;
 }
   

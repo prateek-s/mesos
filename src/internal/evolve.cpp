@@ -301,6 +301,14 @@ v1::scheduler::Event evolve(const CloudInfoMessage& message)
   v1::scheduler::Event event;
   event.set_type(v1::scheduler::Event::CLOUD_INFO);
 
+  v1::scheduler::Event::CloudInfo* info = event.mutable_info();
+
+  info->set_e_cost(message.e_cost()) ;
+  info->set_e_mttf(message.e_mttf()) ;
+
+  info->set_current_cost(message.current_cost()) ;
+  info->set_current_mttf(message.current_mttf()) ;
+  
   return event ;
 }
   
@@ -309,12 +317,13 @@ v1::scheduler::Event evolve(const TerminationWarningMessage& message)
   v1::scheduler::Event event;
   event.set_type(v1::scheduler::Event::TERMINATION_WARNING);
 
-  // v1::scheduler::Event::TerminationWarning* terminationWarning =
-  //   event.mutable_termination_warning();
+  v1::scheduler::Event::TerminationWarning* terminationWarning = event.mutable_warning();
+  // ACHTUNG. Protobufs smartly shortened to mutable_warning. HOW!?
 
-  // terminationWarning->mutable_inverse_offers()->CopyFrom(evolve<v1::InverseOffer>(
-  //     message.inverse_offers()));
-  
+   terminationWarning->mutable_inverse_offers()->CopyFrom(evolve<v1::InverseOffer>(
+							   message.inverse_offers()));
+   
+   terminationWarning->set_warning_time_seconds(message.warning_time_seconds());
   //  terminationWarning->mutable_warning_time_seconds()->CopyFrom(message.warning_time_seconds());
 
   return event;

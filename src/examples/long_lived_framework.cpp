@@ -222,6 +222,7 @@ protected:
     double e_mttf = info.e_mttf() ;
     double current_cost = info.current_cost() ;
     double current_mttf = info.current_mttf() ;
+    LOG(INFO) << e_cost ;
     LOG(INFO) << e_mttf << e_cost << current_cost << current_mttf ;
   }
   
