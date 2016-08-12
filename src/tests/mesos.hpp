@@ -1029,6 +1029,15 @@ public:
       case Event::HEARTBEAT:
         heartbeat(mesos);
         break;
+    case Event::CLOUD_INFO: {
+      LOG(WARNING) << " CLOUD INFO EVENT RECVD " ;
+      break;
+    }
+    case Event::TERMINATION_WARNING: {
+      LOG(WARNING) << "TERMINATION WARNING EVENT RECVD " ;
+      break;
+    }
+
       case Event::UNKNOWN:
         LOG(FATAL) << "Received unexpected UNKNOWN event";
         break;

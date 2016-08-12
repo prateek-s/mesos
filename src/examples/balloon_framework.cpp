@@ -149,6 +149,7 @@ public:
     start_time = Clock::now();
   }
 
+  /* For exosphere, we need to request resources explicitly. */
   void res_req(SchedulerDriver* driver)
   {
       LOG(INFO) << "---- Registered, now asking for resources " ;

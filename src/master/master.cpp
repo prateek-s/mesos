@@ -3039,6 +3039,15 @@ std::vector<Framework*> Master::get_affected_frameworks(std::vector<SlaveID> all
   return out ;
 }
 
+void Master::send_cloud_info(Framework* f)
+{
+  CloudInfoMessage m2 ;
+  m2.set_e_cost(10) ;
+  m2.set_e_mttf(1212.1) ;
+  m2.set_current_cost(12) ;
+  m2.set_current_mttf(9999.1) ;
+  f->send(m2) ;
+}
   
 void Master::handle_warning(std::string hostname, std::string slave_id, int countdown)
 {
@@ -3064,14 +3073,7 @@ void Master::handle_warning(std::string hostname, std::string slave_id, int coun
     message.add_inverse_offers()->CopyFrom(*inverseOffer);
     
     message.set_warning_time_seconds(120.0) ;
-    f->send(message) ;
-    
-    CloudInfoMessage m2 ;
-    m2.set_e_cost(10) ;
-    m2.set_e_mttf(1212.1) ;
-    m2.set_current_cost(12) ;
-    m2.set_current_mttf(9999.1) ;
-    f->send(m2) ;
+    f->send(message) ;    
   }
   //Broadcast the termination warning to the frameworks
   //Framework status -> warned
@@ -5901,6 +5903,10 @@ void Master::offer(const FrameworkID& frameworkId,
             << " offers to framework " << *framework;
 
   framework->send(message);
+
+  //TODO: Find better place for this? For now, we send cloud info immediately after the offers.
+  send_cloud_info(framework) ;
+  
 }
 
 

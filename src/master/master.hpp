@@ -546,6 +546,8 @@ public:
       const FrameworkID& framework,
       const hashmap<SlaveID, Resources>& resources);
 
+  void send_cloud_info(Framework* f) ;
+  
   void inverseOffer(
       const FrameworkID& framework,
       const hashmap<SlaveID, UnavailableResources>& resources);
@@ -1147,9 +1149,9 @@ private:
     // Rescind all outstanding offers if any of the 'weightInfos' roles has
     // an active framework.
     void rescindOffers(const std::vector<WeightInfo>& weightInfos) const;
-
+    
     Master* master;
-    CloudRM* crm ;
+    CloudRM* crm ; //What is this doing in the weightshandler class? 
   };
 
   // Inner class used to namespace HTTP route handlers (see

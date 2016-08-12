@@ -247,7 +247,15 @@ protected:
         case Event::MESSAGE: {
           break;
         }
-
+      case Event::CLOUD_INFO: {
+	LOG(WARNING) << " CLOUD INFO EVENT RECVD " ;
+	break;
+      }
+      case Event::TERMINATION_WARNING: {
+	LOG(WARNING) << "TERMINATION WARNING EVENT RECVD " ;
+	break;
+      }
+	
         case Event::UNKNOWN: {
           LOG(WARNING) << "Received an UNKNOWN event and ignored";
           break;
