@@ -56,6 +56,8 @@
 //using namespace process;
 using namespace std;
 
+class CloudRM ;
+
 struct
 {
 hashmap<std::string, std::pair<int,int>> ec2 ={ {"m1.small",  std::make_pair(1,1)} }  ;
@@ -72,20 +74,54 @@ class ResourceVector
 {
 public:
   
-  hashmap<std::string, int> res_vec ;
+  hashmap<std::string, double> res_vec ;
   /* TODO. Operators < > == . Will be useful for packing */
 
-  /* From the mesos request vector, get the CPU and memory requirements, convert them to numbers (Cores, MB memory, etc). Handle empty cases, etc. */
-  void extract_resource_vector(const std::vector<mesos::Request>& requests) {
-    //TODO
+  static  double get_scalar_value(const std::vector<mesos::Request>& requests, std::string res_name)
+  {
+    for(auto req: requests) {
 
+      const std::vector<mesos::Resource>& resources = google::protobuf::convert(req.resources()) ;
+      for(auto res: resources) {
+	//Each resource is still a protocol buffer?
+	if(res.has_name()) {
+	  LOG(INFO) << "~~~ Res req of type: "  << res.name() ;
+					 
+	  if(res_name == res.name() && res.has_scalar()) {
+	    mesos::Value_Scalar val = res.scalar() ;
+	    if(val.has_value()){
+	      double dval = val.value() ;
+	      LOG(INFO) << "~~~ Res req of type: "  << dval ;
+	      return dval ;
+	    } //value exists 
+	  } //if CPU and scalar
+	} //if resource has name
+      } // for each resource 
+    } // for each request
+    return 0.0 ;
+  }
+
+  
+  /* From the mesos request vector, get the CPU and memory requirements, convert them to numbers (Cores, MB memory, etc). Handle empty cases, etc. */
+  void extract_resource_vector(const std::vector<mesos::Request>& requests)
+  {
+    //Although we get only one request in the vector, may get multiple, so process all!
+    std::vector<std::string> types = {"cpu", "mem"} ;
+    double dval ;
+    
+    for(auto t : types) {      
+      dval = get_scalar_value(requests, t) ;
+      if(dval != 0.0) {
+	res_vec[t] = dval ;
+      }
+    }
   }
 
   int get_cpu() {
-    return res_vec["cpu"] ;
+    return int(res_vec["cpu"]) ;
   }
   int get_mem() {
-    return res_vec["mem"];
+    return int(res_vec["mem"]) ;
   }
   
 };
@@ -201,6 +237,7 @@ public :
   std::vector<ServerOrder> compute_server_order(hashmap<CloudMachine, int> & portfolio_wts, ResourceVector& req, std::string packing_policy) ;
 
   void finalize_server_order(std::vector<ServerOrder>& to_buy, mesos::internal::master::Framework* framework) ;
+
 
   
   /**************************************/

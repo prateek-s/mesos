@@ -130,7 +130,7 @@ protected:
       process::defer(self(), &Self::disconnected),
       process::defer(self(), &Self::received, lambda::_1),
       credential));
-    this->askResources();
+    
   }
 
   void connected()
@@ -176,8 +176,27 @@ protected:
 
       Call call ;
       call.set_type(Call::REQUEST) ;
-      Call::Request* request = call.mutable_request() ;
-      request->add_requests() ;
+      call.mutable_framework_id()->CopyFrom(framework.id());
+      
+      Call::Request* call_request = call.mutable_request() ; //this is standard 
+
+      //mesos::v1::Request* a_request = request->mutable_requests() ;
+      mesos::v1::Request* a_request = call_request->add_requests();
+      
+      //OR call_request->add_requests->CopyFrom(a_request) 
+      mesos::v1::Resource cpus;
+      cpus.set_name("cpu");
+      cpus.set_type(mesos::v1::Value::SCALAR);
+      cpus.mutable_scalar()->set_value(2);
+      
+      //This is gonna core dump like crazy
+      a_request->add_resources()->CopyFrom(cpus) ;
+
+      //mesos::v1::Value_Scalar* val = resource->mutable_scalar() ;
+      //val->set_value(90) ;      
+      //resource->set_allocated_scalar(val) ;
+      
+      //request->CopyFrom(a_request) ; //always the last step? 
       mesos->send(call) ;
       
       LOG(INFO) << "Resource request SENT to mesos" ;
@@ -190,6 +209,22 @@ protected:
       //driver.requestResources(sent); //mesos scheduler driver
       
   }
+
+  void handleWarning(const Event::TerminationWarning& warning)
+  {
+    
+
+  }
+
+  void processCloudInfo(const Event::CloudInfo& info)
+  {
+    double e_cost = info.e_cost() ;
+    double e_mttf = info.e_mttf() ;
+    double current_cost = info.current_cost() ;
+    double current_mttf = info.current_mttf() ;
+    LOG(INFO) << e_mttf << e_cost << current_cost << current_mttf ;
+  }
+  
   void received(queue<Event> events)
   {
     while (!events.empty()) {
@@ -206,6 +241,7 @@ protected:
           LOG(INFO) << "Subscribed with ID '" << framework.id() << "'";
 
           state = SUBSCRIBED;
+	  askResources() ;
           break;
         }
 
@@ -247,11 +283,15 @@ protected:
         case Event::MESSAGE: {
           break;
         }
+	  
       case Event::CLOUD_INFO: {
+	processCloudInfo(event.info()) ; //class Event in scheduler.pb.h
 	LOG(WARNING) << " CLOUD INFO EVENT RECVD " ;
 	break;
       }
       case Event::TERMINATION_WARNING: {
+	//TODO, why no termination_warning event getter?
+	handleWarning(event.warning()) ;
 	LOG(WARNING) << "TERMINATION WARNING EVENT RECVD " ;
 	break;
       }

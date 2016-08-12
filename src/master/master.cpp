@@ -3042,10 +3042,12 @@ std::vector<Framework*> Master::get_affected_frameworks(std::vector<SlaveID> all
 void Master::send_cloud_info(Framework* f)
 {
   CloudInfoMessage m2 ;
+  
   m2.set_e_cost(10) ;
   m2.set_e_mttf(1212.1) ;
   m2.set_current_cost(12) ;
   m2.set_current_mttf(9999.1) ;
+  LOG(INFO) << "Sending Cloud_info to framework" ;
   f->send(m2) ;
 }
   

@@ -191,6 +191,8 @@ message Event {
   optional Message message = 6;
   optional Failure failure = 7;
   optional Error error = 8;
+  optional CloudInfo info = 11 ;
+  optional TerminationWarning warning = 12;
 }
 
 
