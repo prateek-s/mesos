@@ -1,0 +1,10 @@
+
+
+Registry --- for master failovers (Zookeeper etc) . Stores slave information. Protocol buffers, aargh. 
+
+** Adding allocator functions 
+To add allocator functions, need to add it in 3 places in allocator.hpp, and once again in hierarchical.hpp .
+*THEN* add in include/mesos/allocator/allocator.hpp 
+
+Finally actually define the function in hierarchical.cpp 
+
