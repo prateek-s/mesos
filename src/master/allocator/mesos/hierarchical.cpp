@@ -209,10 +209,24 @@ void HierarchicalAllocatorProcess::recover(
 }
 
 
+//Find free resources in a given market, and return how many CPUs and
+//memory can be allocated on the current cluster. We dont want to
+//actually allocate these resources just yet, but just tell the
+//master/cloud-resource-manager how many servers we would need.
+  
 process::Future<int> HierarchicalAllocatorProcess::packServers(
 const double cpu, const double mem, const CloudMachine& cm,
 const std::string packing_policy)
 {
+  //1. Get all slaves in the market
+  //std::vector<SlaveID> slaves_mkt = get_slaves_of_market(slaves, cm) ;
+  //Above fn is just hashmap iteration  plus filtering 
+  //
+  //2. Get their free resources
+  //remainingclusterresources in allocate()
+  
+  //3. Return? Do we need fitness calculation? 
+  
   return  0;
 }
 
@@ -459,7 +473,10 @@ void HierarchicalAllocatorProcess::addSlave(
   slaves[slaveId].allocated = Resources::sum(used);
   slaves[slaveId].activated = true;
   slaves[slaveId].hostname = slaveInfo.hostname();
+  //XXX
+//  slaves[slaveId].market = slaveInfo.CloudMachine ;
 
+  
   // NOTE: We currently implement maintenance in the allocator to be able to
   // leverage state and features such as the FrameworkSorter and OfferFilter.
   if (unavailability.isSome()) {

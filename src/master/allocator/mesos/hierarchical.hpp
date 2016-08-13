@@ -387,6 +387,9 @@ protected:
 
   hashmap<SlaveID, Slave> slaves;
 
+  //hashmap<SlaveID, CloudMachine> slave_market_mapping ;
+  //Populated by the master when slaves register? 
+  
   // Number of registered frameworks for each role. When a role's active
   // count drops to zero, it is removed from this map; the role is also
   // removed from `roleSorter` and its `frameworkSorter` is deleted.
