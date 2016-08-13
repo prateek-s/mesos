@@ -25,6 +25,7 @@
 
 #include <stout/hashmap.hpp>
 #include <stout/try.hpp>
+#include <master/crm.hpp>
 
 namespace mesos {
 namespace internal {
@@ -45,7 +46,8 @@ public:
   static Try<mesos::allocator::Allocator*> create();
 
   ~MesosAllocator();
-
+  CloudMachine cm ;
+  
   void initialize(
       const Duration& allocationInterval,
       const lambda::function<
