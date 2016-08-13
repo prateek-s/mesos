@@ -204,7 +204,7 @@ public :
   /****** Policy flags **********/
   int new_framework_starter_nodes = 0 ;
 
-  std::string packing_policy = "none" ;
+  std::string packing_policy = "private" ; //"private", "binpack", "any", "offline"
 
   std::string replenish_policy = "none" ;
 
@@ -232,7 +232,7 @@ public :
 
   hashmap<CloudMachine, int> get_portfolio_wts(double alpha) ;
 
-  ServerOrder get_min_servers(double wt, const CloudMachine& cm, ResourceVector& req) ;
+  ServerOrder get_min_servers(double wt, const CloudMachine& cm, ResourceVector& req, std::string packing_policy) ;
 
   std::vector<ServerOrder> compute_server_order(hashmap<CloudMachine, int> & portfolio_wts, ResourceVector& req, std::string packing_policy) ;
 

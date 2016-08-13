@@ -36,9 +36,12 @@ CloudRM::CloudRM()
 
 /********************************************************************************/
 
-/* The frameworkinfo structure has a lot of metadata about the framework, which can be used by some policies eventually to directly allocate resources to it even if they dont ask for it explicitly. This can be some basic rule engine etc. 
-Return a vector of server orders here? 
- */
+// The frameworkinfo structure has a lot of metadata about the
+// framework, which can be used by some policies eventually to directly
+// allocate resources to it even if they dont ask for it explicitly. This
+// can be some basic rule engine etc.  Return a vector of server orders
+// here?
+
 vector<ServerOrder> CloudRM::pDefaultFrameworkResources(const mesos::FrameworkInfo& frameworkinfo)
 {
   //add_to_pending_orders(frameworkinfo);
@@ -88,7 +91,7 @@ int CloudRM::new_framework(const mesos::FrameworkInfo& frameworkinfo)
 
 /********************************************************************************/
 
-void CloudRM::add_to_pending_orders(std::vector<ServerOrder> orders)
+void CloudRM::add_to_pending_orders (std::vector<ServerOrder> orders)
 {
   
   
@@ -106,27 +109,49 @@ hashmap<CloudMachine, int> CloudRM::get_portfolio_wts(double alpha)
 
 /********************************************************************************/
 
-/* Determine number of servers to satisfy w*cpu and w*memory from a given market. Depends only on the type. Servers might end up being too small for an application, in which case we cant do anything now! 
-*/
-ServerOrder CloudRM::get_min_servers(double wt, const CloudMachine& cm, ResourceVector& req)
+//Determine number of servers to satisfy w*cpu and w*memory from a
+//given market. Depends only on the type. Servers might end up being
+//too small for an application, in which case we cant do anything now!
+
+ServerOrder CloudRM::get_min_servers(double wt, const CloudMachine& cm, ResourceVector& req, std::string packing_policy)
 {
   ServerOrder out ;
   std::string type = cm.type ;
   LOG(INFO) << "Finding servers of type " << type ;
   
-  //1. Multiply the resource vector by weight to get
+  //Resources required in this market.
   double req_cpu = req.get_cpu() * wt ; 
   double req_mem = req.get_mem() * wt ;
   
   //2. Get CPU and mem capacity of the given server type
   int cap_cpu = EC2_machines.get_cpu(type) ;
   int cap_mem = EC2_machines.get_mem(type) ;
-  
-  //3. Compute min numbers here?
-  double min_for_cpu = req_cpu/cap_cpu ;
-  double min_for_mem = req_mem/cap_mem ;
-  
-  int order_count = ceil(std::max(min_for_mem, min_for_cpu)) ;
+
+  //Number of additional servers of this type we will need. 
+  int order_count ;
+
+  // In private allocation, there is no sharing of servers, so no need
+  // to do packing
+  if(packing_policy == "private") {
+    
+    LOG(INFO) << "Private packing policy in operation" ;
+    //3. Compute min numbers here?
+    double min_for_cpu = req_cpu/cap_cpu ;
+    double min_for_mem = req_mem/cap_mem ;
+
+    order_count = ceil(std::max(min_for_mem, min_for_cpu)) ;
+  } //IF PRIVATE 
+
+  //Ask allocator how many servers we will need. 
+  else if(packing_policy == "binpack") {
+    //How many servers we will need AFTER packing 
+    int deficit = 0.0;
+
+    //deficit = allocator->try_allocate(req_cpu, req_mem, cm, packing_policy);
+
+    order_count = deficit ;
+  } //IF BINPACK
+
 
   out.num = order_count ;
   out.machine = cm ;
@@ -143,9 +168,10 @@ std::vector<ServerOrder> CloudRM::compute_server_order(hashmap<CloudMachine, int
   //1. For each market, determine min servers to satisfy w*cpu and w*memory
   foreachkey(const CloudMachine& cm, portfolio_wts) {
     double wt = portfolio_wts[cm] ;
-    ServerOrder in_market = get_min_servers(wt, cm, req) ;
     
-    if(in_market.num==0) {
+    ServerOrder in_market = get_min_servers(wt, cm, req, packing_policy) ;
+    
+    if(in_market.num == 0) {
       //Server type too small maybe?
       LOG(INFO) << "Cannot meet server order requirement, too small" ;
     }
@@ -163,7 +189,8 @@ std::vector<ServerOrder> CloudRM::compute_server_order(hashmap<CloudMachine, int
 std::vector<ServerOrder> CloudRM::get_servers(mesos::internal::master::Framework* framework, ResourceVector& req, PlacementConstraint& placement, std::string packing_policy)
 {
   std::vector<ServerOrder> out ;
-  if(packing_policy!="none") {
+  
+  if(packing_policy!="private") {
     LOG(INFO) << "Packing policy " << packing_policy << " is NOT supported " ;
     return out ;
   }
