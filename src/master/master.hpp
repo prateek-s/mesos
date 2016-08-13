@@ -81,6 +81,7 @@
 
 #include "master/crm.hpp"
 
+
 class CloudRM ;
 class ServerOrder ;
 
@@ -424,6 +425,9 @@ public:
       const FrameworkInfo& frameworkInfo,
       bool failover);
 
+  //Coz allocator is private, aargh. 
+  mesos::allocator::Allocator* get_allocator() ;
+  
   void unregisterFramework(
       const process::UPID& from,
       const FrameworkID& frameworkId);

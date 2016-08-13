@@ -37,6 +37,7 @@
 #include <stout/lambda.hpp>
 #include <stout/option.hpp>
 #include <stout/try.hpp>
+#include <mesos/master/crm.hpp>
 
 namespace mesos {
 namespace allocator {
@@ -112,6 +113,9 @@ public:
       const int expectedAgentCount,
       const hashmap<std::string, Quota>& quotas) = 0;
 
+  virtual process::Future<int> packServers(const double cpu, const double mem, const CloudMachine& cm, const std::string packing_policy) = 0;
+
+  
   /**
    * Adds a framework to the Mesos cluster. The allocator is invoked when
    * a new framework joins the Mesos cluster and is entitled to participate

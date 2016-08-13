@@ -2814,6 +2814,9 @@ void Master::_subscribe(
   }
 }
 
+mesos::allocator::Allocator* Master::get_allocator() {
+  return allocator ;
+}
 
 void Master::unregisterFramework(
     const UPID& from,

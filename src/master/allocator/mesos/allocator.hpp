@@ -25,7 +25,13 @@
 
 #include <stout/hashmap.hpp>
 #include <stout/try.hpp>
-#include <master/crm.hpp>
+
+//#ifndef __CRM_HPP__
+//#define __CRM_HPP__
+#include "master/crm.hpp"
+//#endif
+
+class CloudMachine ;
 
 namespace mesos {
 namespace internal {
@@ -34,6 +40,7 @@ namespace allocator {
 
 class MesosAllocatorProcess;
 
+  
 // A wrapper for Process-based allocators. It redirects all function
 // invocations to the underlying AllocatorProcess and manages its
 // lifetime. We ensure the template parameter AllocatorProcess
@@ -46,7 +53,7 @@ public:
   static Try<mesos::allocator::Allocator*> create();
 
   ~MesosAllocator();
-  CloudMachine cm ;
+  //CloudMachine cm ;
   
   void initialize(
       const Duration& allocationInterval,
@@ -63,6 +70,8 @@ public:
       const int expectedAgentCount,
       const hashmap<std::string, Quota>& quotas);
 
+  process::Future<int> packServers(const double cpu, const double mem, const CloudMachine& cm, const std::string packing_policy) ;
+  
   void addFramework(
       const FrameworkID& frameworkId,
       const FrameworkInfo& frameworkInfo,
@@ -191,6 +200,9 @@ public:
       const int expectedAgentCount,
       const hashmap<std::string, Quota>& quotas) = 0;
 
+  virtual process::Future<int> packServers(const double cpu, const double mem, const CloudMachine& cm, const std::string packing_policy) = 0 ;
+
+  
   virtual void addFramework(
       const FrameworkID& frameworkId,
       const FrameworkInfo& frameworkInfo,
@@ -343,6 +355,20 @@ inline void MesosAllocator<AllocatorProcess>::recover(
       &MesosAllocatorProcess::recover,
       expectedAgentCount,
       quotas);
+}
+
+template <typename AllocatorProcess>
+inline process::Future<int> MesosAllocator<AllocatorProcess>::packServers(
+  const double cpu, const double mem, const CloudMachine& cm,
+  const std::string packing_policy)
+{
+  return process::dispatch(
+      process,
+      &MesosAllocatorProcess::packServers,
+      cpu,
+      mem,
+      cm,
+      packing_policy) ;
 }
 
 

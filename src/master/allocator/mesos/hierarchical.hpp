@@ -38,6 +38,13 @@
 
 #include "master/constants.hpp"
 
+//#ifndef __CRM_HPP__
+//#define __CRM_HPP__
+#include "master/crm.hpp"
+//#endif
+
+class CloudMachine ;
+
 namespace mesos {
 namespace internal {
 namespace master {
@@ -106,6 +113,9 @@ public:
       const int _expectedAgentCount,
       const hashmap<std::string, Quota>& quotas);
 
+  process::Future<int> packServers(const double cpu, const double mem, const CloudMachine& cm, const std::string packing_policy) ;
+
+  
   void addFramework(
       const FrameworkID& frameworkId,
       const FrameworkInfo& frameworkInfo,

@@ -209,6 +209,13 @@ void HierarchicalAllocatorProcess::recover(
 }
 
 
+process::Future<int> HierarchicalAllocatorProcess::packServers(
+const double cpu, const double mem, const CloudMachine& cm,
+const std::string packing_policy)
+{
+  return  0;
+}
+
 void HierarchicalAllocatorProcess::addFramework(
     const FrameworkID& frameworkId,
     const FrameworkInfo& frameworkInfo,

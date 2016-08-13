@@ -146,9 +146,11 @@ ServerOrder CloudRM::get_min_servers(double wt, const CloudMachine& cm, Resource
   else if(packing_policy == "binpack") {
     //How many servers we will need AFTER packing 
     int deficit = 0.0;
-
-    //deficit = allocator->try_allocate(req_cpu, req_mem, cm, packing_policy);
-
+    
+    mesos::allocator::Allocator* allocator = master->get_allocator();
+    
+    deficit = allocator->packServers(req_cpu, req_mem, cm, packing_policy).get();
+    //allocator->activateFramework(framework->id());
     order_count = deficit ;
   } //IF BINPACK
 

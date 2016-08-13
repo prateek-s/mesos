@@ -15,6 +15,7 @@
 
 
 #include <mesos/allocator/allocator.hpp>
+
 #include <mesos/master/contender.hpp>
 #include <mesos/master/detector.hpp>
 #include <mesos/master/master.hpp>
@@ -38,6 +39,7 @@
 
 #include "messages/messages.hpp"
 
+#include "master/allocator/mesos/hierarchical.hpp"
 
 #include "common/http.hpp"
 #include "common/protobuf_utils.hpp"
@@ -57,6 +59,7 @@
 using namespace std;
 
 class CloudRM ;
+class CloudMachine ;
 
 struct
 {
@@ -140,21 +143,21 @@ public:
   virtual ~PlacementConstraint() {}
 };
 
-class CloudMachine
-{
-public:
-  CloudMachine() {
-  }
-  std::string az ; //Availability Zone 
-  std::string type ; // Machine type
+// class CloudMachine
+// {
+// public:
+//   CloudMachine() {
+//   }
+//   std::string az ; //Availability Zone 
+//   std::string type ; // Machine type
 
   
-  bool operator==(const CloudMachine &other) const
-  {
-    return az==other.az && type==other.type ;
-  }
+//   bool operator==(const CloudMachine &other) const
+//   {
+//     return az==other.az && type==other.type ;
+//   }
   
-}; //END CloudMachine class
+// }; //END CloudMachine class
 
 namespace std {
 template <>
