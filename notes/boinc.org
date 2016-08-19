@@ -1,0 +1,6 @@
+
+
+BOINC suspend/Resume 
+
+Apparently it is necessary to shut BOINC down before turning the machine off
+ https://boinc.berkeley.edu/dev/forum_thread.php?id=10984

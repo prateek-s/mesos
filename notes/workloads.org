@@ -1,0 +1,15 @@
+Yahoo GridMix
+
+https://alexpucher.com/blog/2015/06/29/cloud-traces-and-production-workloads-for-your-research/
+
+Number of map and reduce tasks for every hadoop job. 
+http://ftp.pdl.cmu.edu/pub/datasets/hla/dataset.html
+
+
+
+Eucalyptus. Number of nodes and cores/node. Seems SUPER useful. Stop/start times for each instance. YES .
+
+Nodes are actual physical machines, and instance-ids are the VMs. Core-count is the number of CPU cores that the VM requests. 
+
+ https://www.cs.ucsb.edu/~rich/workload/TRACE-README.txt
+

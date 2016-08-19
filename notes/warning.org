@@ -1,0 +1,12 @@
+
+How to react to warnings?
+
+slave updates master.
+- Status update mechanism
+- explicit HTTP call machine/pending_termination
+
+1. WarningWatcher makes http call to slave 
+   Why cant warning watcher directly call the master? Being routed from the slave/agent makes more sense, since it is essentially an agent event, not a clusterwide event that the master should know of first. 
+2. Slave immediately sends machine termination warning message to master 
+3. Master creates set of affected machines and sends inverse offers to all affected frameworks.
+

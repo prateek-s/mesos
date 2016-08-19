@@ -1,0 +1,6 @@
+
+TerminationWarning
+
+CLoudInfo
+
+InverseOfferStatus -> recover, replenish etc? In mesos/allocator/allocator.proto

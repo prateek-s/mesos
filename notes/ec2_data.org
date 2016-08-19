@@ -1,0 +1,123 @@
+| type        | cpus |    mem |
+|-------------+------+--------|
+| t2.nano     |    1 |    0.5 |
+| t2.micro    |    1 |    1.0 |
+| t2.small    |    1 |    2.0 |
+| m3.medium   |    1 |   3.75 |
+| m1.small    |    1 |    1.7 |
+| m1.medium   |    1 |   3.75 |
+| t1.micro    |    1 |  0.613 |
+| t2.medium   |    2 |    4.0 |
+| t2.large    |    2 |    8.0 |
+| m4.large    |    2 |    8.0 |
+| c4.large    |    2 |   3.75 |
+| r3.large    |    2 |  15.25 |
+| m3.large    |    2 |    7.5 |
+| c3.large    |    2 |   3.75 |
+| m1.large    |    2 |    7.5 |
+| c1.medium   |    2 |    1.7 |
+| m2.xlarge   |    2 |   17.1 |
+| m4.xlarge   |    4 |   16.0 |
+| c4.xlarge   |    4 |    7.5 |
+| r3.xlarge   |    4 |   30.5 |
+| i2.xlarge   |    4 |   30.5 |
+| d2.xlarge   |    4 |   30.5 |
+| m3.xlarge   |    4 |   15.0 |
+| c3.xlarge   |    4 |    7.5 |
+| m1.xlarge   |    4 |   15.0 |
+| m2.2xlarge  |    4 |   34.2 |
+| m4.2xlarge  |    8 |   32.0 |
+| c4.2xlarge  |    8 |   15.0 |
+| g2.2xlarge  |    8 |   15.0 |
+| r3.2xlarge  |    8 |   61.0 |
+| i2.2xlarge  |    8 |   61.0 |
+| d2.2xlarge  |    8 |   61.0 |
+| m3.2xlarge  |    8 |   30.0 |
+| c3.2xlarge  |    8 |   15.0 |
+| c1.xlarge   |    8 |    7.0 |
+| m2.4xlarge  |    8 |   68.4 |
+| cg1.4xlarge |   16 |   22.5 |
+| m4.4xlarge  |   16 |   64.0 |
+| c4.4xlarge  |   16 |   30.0 |
+| r3.4xlarge  |   16 |  122.0 |
+| i2.4xlarge  |   16 |  122.0 |
+| d2.4xlarge  |   16 |  122.0 |
+| hi1.4xlarge |   16 |   60.5 |
+| hs1.8xlarge |   16 |  117.0 |
+| c3.4xlarge  |   16 |   30.0 |
+| cc2.8xlarge |   32 |   60.5 |
+| g2.8xlarge  |   32 |   60.0 |
+| r3.8xlarge  |   32 |  244.0 |
+| i2.8xlarge  |   32 |  244.0 |
+| c3.8xlarge  |   32 |   60.0 |
+| cr1.8xlarge |   32 |  244.0 |
+| c4.8xlarge  |   36 |   60.0 |
+| d2.8xlarge  |   36 |  244.0 |
+| m4.10xlarge |   40 |  160.0 |
+| x1.32xlarge |  128 | 1952.0 |
+
+cat ec2_data.txt | awk '{printf("\"%s\": (%s, %s) , ", $1, $2, $3)}'
+
+ec2_instances = { "t2.nano": (1, 0.5) , "t2.micro": (1, 1.0) , "t2.small": (1, 2.0) , "m3.medium": (1, 3.75) , "m1.small": (1, 1.7) , "m1.medium": (1, 3.75) , "t1.micro": (1, 0.613) , "t2.medium": (2, 4.0) , "t2.large": (2, 8.0) , "m4.large": (2, 8.0) , "c4.large": (2, 3.75) , "r3.large": (2, 15.25) , "m3.large": (2, 7.5) , "c3.large": (2, 3.75) , "m1.large": (2, 7.5) , "c1.medium": (2, 1.7) , "m2.xlarge": (2, 17.1) , "m4.xlarge": (4, 16.0) , "c4.xlarge": (4, 7.5) , "r3.xlarge": (4, 30.5) , "i2.xlarge": (4, 30.5) , "d2.xlarge": (4, 30.5) , "m3.xlarge": (4, 15.0) , "c3.xlarge": (4, 7.5) , "m1.xlarge": (4, 15.0) , "m2.2xlarge": (4, 34.2) , "m4.2xlarge": (8, 32.0) , "c4.2xlarge": (8, 15.0) , "g2.2xlarge": (8, 15.0) , "r3.2xlarge": (8, 61.0) , "i2.2xlarge": (8, 61.0) , "d2.2xlarge": (8, 61.0) , "m3.2xlarge": (8, 30.0) , "c3.2xlarge": (8, 15.0) , "c1.xlarge": (8, 7.0) , "m2.4xlarge": (8, 68.4) , "cg1.4xlarge": (16, 22.5) , "m4.4xlarge": (16, 64.0) , "c4.4xlarge": (16, 30.0) , "r3.4xlarge": (16, 122.0) , "i2.4xlarge": (16, 122.0) , "d2.4xlarge": (16, 122.0) , "hi1.4xlarge": (16, 60.5) , "hs1.8xlarge": (16, 117.0) , "c3.4xlarge": (16, 30.0) , "cc2.8xlarge": (32, 60.5) , "g2.8xlarge": (32, 60.0) , "r3.8xlarge": (32, 244.0) , "i2.8xlarge": (32, 244.0) , "c3.8xlarge": (32, 60.0) , "cr1.8xlarge": (32, 244.0) , "c4.8xlarge": (36, 60.0) , "d2.8xlarge": (36, 244.0) , "m4.10xlarge": (40, 160.0) ,
+                 "x1.32xlarge": (128, 1952.0)
+}
+
+
+| type        |   cost |
+|-------------+--------|
+| t2.nano     |  0.006 |
+| t2.micro    |  0.013 |
+| t2.small    |  0.026 |
+| m3.medium   |  0.067 |
+| m1.small    |  0.044 |
+| m1.medium   |  0.087 |
+| t1.micro    |  0.020 |
+| t2.medium   |  0.052 |
+| t2.large    |  0.104 |
+| m4.large    |  0.120 |
+| c4.large    |  0.105 |
+| r3.large    |  0.166 |
+| m3.large    |  0.133 |
+| c3.large    |  0.105 |
+| m1.large    |  0.175 |
+| c1.medium   |  0.130 |
+| m2.xlarge   |  0.245 |
+| m4.xlarge   |  0.239 |
+| c4.xlarge   |  0.209 |
+| r3.xlarge   |  0.333 |
+| i2.xlarge   |  0.853 |
+| d2.xlarge   |  0.690 |
+| m3.xlarge   |  0.266 |
+| c3.xlarge   |  0.210 |
+| m1.xlarge   |  0.350 |
+| m2.2xlarge  |  0.490 |
+| m4.2xlarge  |  0.479 |
+| c4.2xlarge  |  0.419 |
+| g2.2xlarge  |  0.650 |
+| r3.2xlarge  |  0.665 |
+| i2.2xlarge  |  1.705 |
+| d2.2xlarge  |  1.380 |
+| m3.2xlarge  |  0.532 |
+| c3.2xlarge  |  0.420 |
+| c1.xlarge   |  0.520 |
+| m2.4xlarge  |  0.980 |
+| cg1.4xlarge |  2.100 |
+| m4.4xlarge  |  0.958 |
+| c4.4xlarge  |  0.838 |
+| r3.4xlarge  |  1.330 |
+| i2.4xlarge  |  3.410 |
+| d2.4xlarge  |  2.760 |
+| hi1.4xlarge |  3.100 |
+| hs1.8xlarge |  4.600 |
+| c3.4xlarge  |  0.840 |
+| cc2.8xlarge |  2.000 |
+| g2.8xlarge  |  2.600 |
+| r3.8xlarge  |  2.660 |
+| i2.8xlarge  |  6.820 |
+| c3.8xlarge  |  1.680 |
+| cr1.8xlarge |  3.500 |
+| c4.8xlarge  |  1.675 |
+| d2.8xlarge  |  5.520 |
+| m4.10xlarge |  2.394 |
+| x1.32xlarge | 13.338 |
+|             |        |

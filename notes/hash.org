@@ -1,0 +1,6 @@
+
+Adding hash functions to be able to use hashmap and unordered maps.
+template<> and namespace std surrounding it is required.
+
+http://stackoverflow.com/questions/17016175/c-unordered-map-using-a-custom-class-type-as-the-key
+
