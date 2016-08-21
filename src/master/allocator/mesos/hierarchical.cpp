@@ -221,7 +221,7 @@ const hashset<SlaveID> get_slaves_of_market(CloudMachine& cm)
 //master/cloud-resource-manager how many additional servers we would
 //need.
 
-  
+
 process::Future<int> HierarchicalAllocatorProcess::packServers(
 const double cpu, const double mem, const CloudMachine& cm, 
 const std::string packing_policy)
@@ -233,6 +233,8 @@ const std::string packing_policy)
   vector<SlaveID> candidate_slaves ;
 
   Resources required ; //construct out of given CPU and memory? Or take as argument?
+
+  Resources deficit = required ;
   
   //1. Get all slaves in the market
   const hashset<SlaveID> mkt_slaves = get_slaves_of_market(cm) ;
@@ -249,16 +251,22 @@ const std::string packing_policy)
 
     if(!allocatable(available)) {
       LOG(INFO) << "Cannot allocate Resources" ;
+      break ;
     }
 
     //Put this into the offer.
-    offerable[slaveId] += resources;
-    slaves[slaveId].allocated += resources;  //Wow this is optimistic assignment
 
+    offerable[slaveId] += resources ;
+    slaves[slaveId].allocated += resources ;  //Wow this is optimistic assignment
+    deficit -= resources ;
+
+    if(deficit < 0) {
+      LOG(INFO) << "All resources found, no deficit" ;
+      break ;
+    }
     
     //roleSorter->allocated(role, slaveId, resources);
     //quotaRoleSorter->allocated(role, slaveId, resources);
-
     
     
   } //emd foreach candidate slave
@@ -269,7 +277,8 @@ const std::string packing_policy)
   //remainingclusterresources in allocate()
   
   //3. Return? Do we need fitness calculation? 
-  
+
+  //return deficit ;
   return  0;
 }
 
