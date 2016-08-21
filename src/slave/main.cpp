@@ -443,6 +443,9 @@ int main(int argc, char** argv)
       authorizer_);
 
   //XXX Spawn the WarningWatcher here.
+  //process::spawn(warningwatcher) ;
+  // Easier to have a slave/warning endpoint which the master/some-script can just pass?
+  // 
   //Parameters: Master NOT needed since we don't communicate directly with it.
   //Slave does master detection for us, and forwards the warning to the master
   

@@ -1,4 +1,60 @@
 
+<2016-08-21 Sun>
+
+* Slave
+** Read the role/default_owner in slave.cpp when registering slave 
+slave.cpp
+
+** Read the meta-data for instance-type and avail-zone via curl/http whatevs
+slave.cpp registering code in info again!
+
+** relay_warning
+::DONE::
+
+* CRM
+** Read the attributes from the slaves
+- type
+- owner_fmwk
+- avail zone 
+
+** Add cloudmachine information for all the slaves 
+
+** Parse the portfolio allocations
+   Python code should emit clean portflio allocations! One alpha per file? 
+   alpha, <instance-id+az: wt>, 
+
+** Add registered slaves to some list?
+
+** Call alloc_slave_to_fmwk
+
+** Policy switches 
+Better private/packing code-paths to ensure that private mode is independent of other policy options and works end-to-end 
+
+** Resource parsing 
+CPU/memory into one, and then do some vector arithmetic to see if we can pack? 
+Is using mesos::resources even the right way? Use our own resource vector? 
+
+** Handle framework termination
+- Note somewhere?
+- Deallocate its resources from slaves
+- Put slaves on some idle list? This is why having actual roles for slaves is not such a good idea. We want the owner_framework to mainly help in identification of the slave and which framework it should be actually allocated to. 
+
+** Repair
+
+::TODO:: 
+
+Doing this might be non-trivial, because we need to know how many resources the framework has lost, and then try acquiring those resources (from some different market) again. 
+
+* Allocator
+** Alloc slave to framework
+Check, create offer, and call offercallback
+
+** Parse resources here? 
+
+
+
+<2016-08-21 Sun>
+
 
 ** Resource requests by frameworks can come with an optional "resiliency" parameter. Pass these parameters to the CloudResourceManager (in crm.cpp) 
 
