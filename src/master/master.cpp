@@ -4853,7 +4853,8 @@ void Master::_registerSlave(
     message.mutable_slave_id()->CopyFrom(slave->id);
     message.mutable_connection()->CopyFrom(connection);
     send(slave->pid, message);
-    
+
+    //Also pass this? slave->info.attributes()
     crm->new_server(slave, slaveInfo) ;
     
     LOG(INFO) << "Registered agent " << *slave

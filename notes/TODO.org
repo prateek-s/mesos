@@ -5,8 +5,12 @@
 ** Read the role/default_owner in slave.cpp when registering slave 
 slave.cpp
 
+::STARTED::
+
 ** Read the meta-data for instance-type and avail-zone via curl/http whatevs
 slave.cpp registering code in info again!
+
+::STARTED::
 
 ** relay_warning
 ::DONE::
@@ -17,12 +21,16 @@ slave.cpp registering code in info again!
 - owner_fmwk
 - avail zone 
 
+::STARTED::
+
 ** Add cloudmachine information for all the slaves 
 ::DONE::
 
 ** Parse the portfolio allocations
    Python code should emit clean portflio allocations! One alpha per file? 
    alpha, <instance-id+az: wt>, 
+
+::STARTED:: USE JSON!
 
 ** Add registered slaves to some list?
 

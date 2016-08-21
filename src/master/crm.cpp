@@ -104,6 +104,9 @@ void CloudRM::add_to_pending_orders (std::vector<ServerOrder> orders)
 hashmap<CloudMachine, int> CloudRM::get_portfolio_wts(double alpha)
 {
   hashmap<CloudMachine, int> out ;
+  //XX Use the JSON parser instead of reading the CSV file by hand
+  // Even Boost.tokenizer would be HUGe pain to use and include (library linking etc)
+  
   return out ;
 }
 
@@ -284,13 +287,31 @@ int CloudRM::bar()
 
 /********************************************************************************/
 
-std::string CloudRM::get_owner_fmwk(SlaveInfo& sinfo)
-{
-  //sinfo.role.get()
-  //sinfo.owner_fmwk.get()
-  
-  return "" ;
 
+//Return a hashmap instead?? Vector? 
+std::string CloudRM::parse_slave_attributes(SlaveInfo& sinfo)
+{
+  std::string itype ;
+  std::string az ;
+  std::string owner_fmwk ;
+  
+  Attributes attr = sinfo.attributes() ;
+  int a_size = attr.size() ;
+  int i = 0 ;
+  
+  for(i = 0; i < a_size; i++) {
+    if(attr.get(i).name() == "instance-type") {
+      itype = attr.get(i).text().value() ;
+    }
+    else if(attr.get(i).name() == "az") {
+      az = attr.get(i).text().value() ;
+    }
+    else if(attr.get(i).name() == "owner_fmwk") {
+      owner_fmwk = attr.get(i).text().value() ;
+    }
+  }//end FOR loop across all attributes
+   
+  return "" ;
 }
 
 /** Called from _registerSlave from the master, after allocator has
@@ -301,9 +322,11 @@ void CloudRM::new_server(Slave* slave, SlaveInfo sinfo)
   //sinfo.get("role") ;
   //sinfo.get("owner_fmwk");
   //Find the owner framework out of the slaveInfo.
-  
-  std::string owner_framework = CloudRM::get_owner_fmwk(&sinfo) ;
-  
+  //Get some attributes first
+  //  slave->info.attributes()
+
+ 
+  parse_slave_attributes(&sinfo); 
   allocator->alloc_slave_to_fmwk(slave->id, owner_framework) ;
 
 
