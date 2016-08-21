@@ -58,6 +58,8 @@ public:
   std::string docker_volume_checkpoint_dir;
 
   std::string default_role;
+  //  std::string owner_framework ;
+  
   Option<std::string> attributes;
   Bytes fetcher_cache_size;
   std::string fetcher_cache_dir;

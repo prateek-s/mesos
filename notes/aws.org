@@ -1,5 +1,5 @@
 
-Integration with ec2
+** Metadata 
 
 Use aws intance identity documents: http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instance-identity-documents.html
 
@@ -25,8 +25,22 @@ http://169.254.169.254/latest/dynamic/instance-identity/document
 }	
 #+END_SRC
 
-Termination warning via http://169.254.169.254/latest/meta-data/spot/termination-time 
+** Instance-type 
+
+curl http://169.254.169.254/latest/meta-data/instance-type
+
+placement/availability-zone 
+
+** Termination warning
+
+via http://169.254.169.254/latest/meta-data/spot/termination-time 
 This needs polling though! Had written a script for this --- where is it? Spark?
+
+
+
+** User-data 
+http://169.254.169.254/latest/user-data to get the user-data 
+
 
 ** AWS API
 

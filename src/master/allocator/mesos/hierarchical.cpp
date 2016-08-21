@@ -277,6 +277,8 @@ const std::string packing_policy)
     //roleSorter->allocated(role, slaveId, resources);
     //quotaRoleSorter->allocated(role, slaveId, resources);
     
+    //ACtually make the offer to the framework via the callback
+    //offerCallback(frameworkId, offerable[frameworkId])
     
   } //emd foreach candidate slave
   
@@ -1597,6 +1599,7 @@ void HierarchicalAllocatorProcess::allocate(
     VLOG(1) << "No allocations performed";
   } else {
     // Now offer the resources to each framework.
+    //XXX THis is where offers are actually made to the frameworks
     foreachkey (const FrameworkID& frameworkId, offerable) {
       offerCallback(frameworkId, offerable[frameworkId]);
     }

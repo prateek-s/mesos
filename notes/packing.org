@@ -8,3 +8,15 @@ To add allocator functions, need to add it in 3 places in allocator.hpp, and onc
 
 Finally actually define the function in hierarchical.cpp 
 
+
+
+
+* Slave startup.
+** default slave AMI is started
+** Start the my-slave-starter script 
+*** Read the cloudinit owner_framework 
+*** pass as attribute to slave-starter script as --attribute=owner:"owner_fmwkid"
+
+** During registration, all flags.attributes are passed as slaveinfo
+   Already done by mesos 
+

@@ -157,6 +157,11 @@ mesos::internal::slave::Flags::Flags()
       "this role.",
       "*");
 
+  // add(&Flags::owner_framework,
+  //     "owner_framework",
+  //     "Default framework to assign the resources on this slave to",
+  //     "*");
+  
   add(&Flags::attributes,
       "attributes",
       "Attributes of the agent machine, in the form:\n"

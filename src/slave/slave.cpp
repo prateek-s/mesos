@@ -552,7 +552,8 @@ void Slave::initialize()
         << "Unsupported 'DiskInfo.Source.Type' in '" << resource << "'";
     }
   }
-
+  //std::string owner_fmkw = http_get_
+  
   Attributes attributes;
   if (flags.attributes.isSome()) {
     attributes = Attributes::parse(flags.attributes.get());
