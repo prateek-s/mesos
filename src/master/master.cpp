@@ -4787,6 +4787,7 @@ void Master::registerSlave(
   LOG(INFO) << "Registering agent at " << from << " ("
             << slaveInfo.hostname() << ") with id " << slaveInfo_.id();
 
+  
   registrar->apply(Owned<Operation>(new AdmitSlave(slaveInfo_)))
     .onAny(defer(self(),
                  &Self::_registerSlave,
@@ -4841,7 +4842,7 @@ void Master::_registerSlave(
 
     ++metrics->slave_registrations;
 
-    addSlave(slave);
+    addSlave(slave); //Calls the allocator->addSlave at the end
 
     Duration pingTimeout =
       flags.agent_ping_timeout * flags.max_agent_ping_timeouts;
@@ -4852,7 +4853,9 @@ void Master::_registerSlave(
     message.mutable_slave_id()->CopyFrom(slave->id);
     message.mutable_connection()->CopyFrom(connection);
     send(slave->pid, message);
-
+    
+    crm->new_server(slave, slaveInfo) ;
+    
     LOG(INFO) << "Registered agent " << *slave
               << " with " << slave->info.resources();
   }
@@ -6707,6 +6710,9 @@ void Master::addSlave(
 
   spawn(slave->observer);
 
+  //XXX Why is this done? Why will frameworks be running on a newly registered slave?
+  //This is because slaves can reregister with already running tasks.
+  
   // Add the slave's executors to the frameworks.
   foreachkey (const FrameworkID& frameworkId, slave->executors) {
     foreachvalue (const ExecutorInfo& executorInfo,
@@ -6778,6 +6784,11 @@ void Master::addSlave(
       unavailability,
       slave->totalResources,
       slave->usedResources);
+  
+  //Want to call the crm new_server only after the allocator has been informed!
+  
+
+  
 }
 
 

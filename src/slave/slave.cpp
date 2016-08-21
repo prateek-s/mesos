@@ -583,6 +583,11 @@ void Slave::initialize()
   info.set_hostname(hostname);
   info.set_port(self().address.port);
 
+  //XXX Slaveinfo role, owner_framework etc over here!
+  //Maybe better to use the slave attributes earlier?
+  //default_role flag seems useful. Add an owner_framework in the flags?
+  
+  
   info.mutable_resources()->CopyFrom(resources.get());
   if (HookManager::hooksAvailable()) {
     info.mutable_resources()->CopyFrom(
@@ -1400,7 +1405,8 @@ void Slave::doReliableRegistration(Duration maxBackoff)
     RegisterSlaveMessage message;
     message.set_version(MESOS_VERSION);
     message.mutable_slave()->CopyFrom(info);
-
+    //XXX Put something in the info? Where is it populated from?
+    
     // Include checkpointed resources.
     message.mutable_checkpointed_resources()->CopyFrom(checkpointedResources);
 

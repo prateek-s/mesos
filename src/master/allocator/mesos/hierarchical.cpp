@@ -215,13 +215,21 @@ const hashset<SlaveID> HierarchicalAllocatorProcess::get_slaves_of_market(CloudM
   return slaves.keys();
 }
 
+
+// Allocate all the resources on this slave to a framework
+void HierarchicalAllocatorProcess::alloc_slave_to_fmwk(std::string sid, std::string fmwk)
+{
+  //First check if slave is registered
+  //And if framework is registered
+  //What to do with idle/unassigned slaves
+  
+
+}
 //Find free resources in a given market, and return how many CPUs and
 //memory can be allocated on the current cluster. We also want to
 //actually allocate these resources, AND tell the
 //master/cloud-resource-manager how many additional servers we would
 //need.
-
-
 process::Future<int> HierarchicalAllocatorProcess::packServers(
 const double cpu, const double mem, const CloudMachine& cm, 
 const std::string packing_policy)

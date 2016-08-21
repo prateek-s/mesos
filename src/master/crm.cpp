@@ -283,3 +283,28 @@ int CloudRM::bar()
 }
 
 /********************************************************************************/
+
+std::string CloudRM::get_owner_fmwk(SlaveInfo& sinfo)
+{
+  //sinfo.role.get()
+  //sinfo.owner_fmwk.get()
+  
+  return "" ;
+
+}
+
+/** Called from _registerSlave from the master, after allocator has
+ *    been informed 
+ */
+void CloudRM::new_server(Slave* slave, SlaveInfo sinfo)
+{
+  //sinfo.get("role") ;
+  //sinfo.get("owner_fmwk");
+  //Find the owner framework out of the slaveInfo.
+  
+  std::string owner_framework = CloudRM::get_owner_fmwk(&sinfo) ;
+  
+  allocator->alloc_slave_to_fmwk(slave->id, owner_framework) ;
+
+
+}
