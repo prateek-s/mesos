@@ -33,3 +33,4 @@ missing
 .deps/
 .libs/
 *-stamp
+.cpp#

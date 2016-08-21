@@ -209,17 +209,60 @@ void HierarchicalAllocatorProcess::recover(
 }
 
 
+// Return all the slaves running in the given market. 
+const hashset<SlaveID> get_slaves_of_market(CloudMachine& cm)
+{
+  return slaves.keys();
+}
+
 //Find free resources in a given market, and return how many CPUs and
-//memory can be allocated on the current cluster. We dont want to
-//actually allocate these resources just yet, but just tell the
-//master/cloud-resource-manager how many servers we would need.
+//memory can be allocated on the current cluster. We also want to
+//actually allocate these resources, AND tell the
+//master/cloud-resource-manager how many additional servers we would
+//need.
+
   
 process::Future<int> HierarchicalAllocatorProcess::packServers(
-const double cpu, const double mem, const CloudMachine& cm,
+const double cpu, const double mem, const CloudMachine& cm, 
 const std::string packing_policy)
 {
+  FrameworkID fid ;
+
+  hashmap<SlaveID, Resources> offerable ;
+  
+  vector<SlaveID> candidate_slaves ;
+
+  Resources required ; //construct out of given CPU and memory? Or take as argument?
+  
   //1. Get all slaves in the market
-  //std::vector<SlaveID> slaves_mkt = get_slaves_of_market(slaves, cm) ;
+  const hashset<SlaveID> mkt_slaves = get_slaves_of_market(cm) ;
+  
+  foreach(const SlaveID& slaveId, mkt_slaves) {
+    if(isWhitelisted(slaveId) && slaves[slaveId].activated) {
+      candidate_slaves.push_back(slaveId) ;
+    }
+  } //end foreach slave
+
+  foreach(const SlaveID& slaveId, candidate_slaves) {
+    Resources available = slaves[slaveId].total - slaves[slaveId].allocated ;
+    //Thats it?
+
+    if(!allocatable(available)) {
+      LOG(INFO) << "Cannot allocate Resources" ;
+    }
+
+    //Put this into the offer.
+    offerable[slaveId] += resources;
+    slaves[slaveId].allocated += resources;  //Wow this is optimistic assignment
+
+    
+    //roleSorter->allocated(role, slaveId, resources);
+    //quotaRoleSorter->allocated(role, slaveId, resources);
+
+    
+    
+  } //emd foreach candidate slave
+  
   //Above fn is just hashmap iteration  plus filtering 
   //
   //2. Get their free resources
