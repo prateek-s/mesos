@@ -210,7 +210,7 @@ void HierarchicalAllocatorProcess::recover(
 
 
 // Return all the slaves running in the given market. 
-const hashset<SlaveID> get_slaves_of_market(CloudMachine& cm)
+const hashset<SlaveID> HierarchicalAllocatorProcess::get_slaves_of_market(CloudMachine& cm)
 {
   return slaves.keys();
 }
@@ -258,7 +258,8 @@ const std::string packing_policy)
 
     offerable[slaveId] += resources ;
     slaves[slaveId].allocated += resources ;  //Wow this is optimistic assignment
-    deficit -= resources ;
+//    deficit -= resources ;
+    //There is no corresponding subtraction operation!
 
     if(deficit < 0) {
       LOG(INFO) << "All resources found, no deficit" ;
