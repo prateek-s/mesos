@@ -197,6 +197,28 @@ void Slave::signaled(int signal, int uid)
   }
 }
 
+std::string Slave::get_cloud_server_data()
+{
+  std::string hname = "169.254.169.254";
+  std::string itype_path = "/latest/meta-data/instance-type" ;
+  std::string az_path = "/latest/meta-data/placement/availability-zone" ;
+  std::string userdata_path = "/latest/user-data" ;
+
+  // Will need to make THREE separate GET requests aargh. Use curl directly? Please!
+  //process::http::get(
+  //		     hname)
+  process::http::URL url = http::URL("http", hname, 80, itype_path);
+  
+  Future<Response> response = process::http::get(url) ;
+  //  AWAIT_READY(response); 		     //if Futures are not used?
+  //response->code == http::Status::OK && response->status == http::Status::OK
+  //Can we do JSON::parse(response->body)
+  
+  
+  return "" ;
+}
+    
+  
 
 void Slave::initialize()
 {

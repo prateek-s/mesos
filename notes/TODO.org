@@ -18,6 +18,7 @@ slave.cpp registering code in info again!
 - avail zone 
 
 ** Add cloudmachine information for all the slaves 
+::DONE::
 
 ** Parse the portfolio allocations
    Python code should emit clean portflio allocations! One alpha per file? 
@@ -51,6 +52,12 @@ Check, create offer, and call offercallback
 
 ** Parse resources here? 
 
+
+* Applications
+
+** Standalone C++ application job-manager 
+CloudInfo
+TerminationWarning
 
 
 <2016-08-21 Sun>
