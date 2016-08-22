@@ -5,6 +5,7 @@
 
 #include <mesos/mesos.hpp>
 #include <mesos/resources.hpp>
+#include <mesos/attributes.hpp>
 #include <mesos/type_utils.hpp>
 #include <mesos/executor.hpp>
 #include <mesos/scheduler.hpp>
@@ -63,8 +64,8 @@ class CloudMachine ;
 
 struct
 {
-hashmap<std::string, std::pair<int,int>> ec2 ={ { "t2.nano": std::make_pair(1, 0.5)} , { "t2.micro": std::make_pair(1, 1.0)} , { "t2.small": std::make_pair(1, 2.0)} , { "m3.medium": std::make_pair(1, 3.75)} , { "m1.small": std::make_pair(1, 1.7)} , { "m1.medium": std::make_pair(1, 3.75)} , { "t1.micro": std::make_pair(1, 0.613)} , { "t2.medium": std::make_pair(2, 4.0)} , { "t2.large": std::make_pair(2, 8.0)} , { "m4.large": std::make_pair(2, 8.0)} , { "c4.large": std::make_pair(2, 3.75)} , { "r3.large": std::make_pair(2, 15.25)} , { "m3.large": std::make_pair(2, 7.5)} , { "c3.large": std::make_pair(2, 3.75)} , { "m1.large": std::make_pair(2, 7.5)} , { "c1.medium": std::make_pair(2, 1.7)} , { "m2.xlarge": std::make_pair(2, 17.1)} , { "m4.xlarge": std::make_pair(4, 16.0)} , { "c4.xlarge": std::make_pair(4, 7.5)} , { "r3.xlarge": std::make_pair(4, 30.5)} , { "i2.xlarge": std::make_pair(4, 30.5)} , { "d2.xlarge": std::make_pair(4, 30.5)} , { "m3.xlarge": std::make_pair(4, 15.0)} , { "c3.xlarge": std::make_pair(4, 7.5)} , { "m1.xlarge": std::make_pair(4, 15.0)} , { "m2.2xlarge": std::make_pair(4, 34.2)} , { "m4.2xlarge": std::make_pair(8, 32.0)} , { "c4.2xlarge": std::make_pair(8, 15.0)} , { "g2.2xlarge": std::make_pair(8, 15.0)} , { "r3.2xlarge": std::make_pair(8, 61.0)} , { "i2.2xlarge": std::make_pair(8, 61.0)} , { "d2.2xlarge": std::make_pair(8, 61.0)} , { "m3.2xlarge": std::make_pair(8, 30.0)} , { "c3.2xlarge": std::make_pair(8, 15.0)} , { "c1.xlarge": std::make_pair(8, 7.0)} , { "m2.4xlarge": std::make_pair(8, 68.4)} , { "cg1.4xlarge": std::make_pair(16, 22.5)} , { "m4.4xlarge": std::make_pair(16, 64.0)} , { "c4.4xlarge": std::make_pair(16, 30.0)} , { "r3.4xlarge": std::make_pair(16, 122.0)} , { "i2.4xlarge": std::make_pair(16, 122.0)} , { "d2.4xlarge": std::make_pair(16, 122.0)} , { "hi1.4xlarge": std::make_pair(16, 60.5)} , { "hs1.8xlarge": std::make_pair(16, 117.0)} , { "c3.4xlarge": std::make_pair(16, 30.0)} , { "cc2.8xlarge": std::make_pair(32, 60.5)} , { "g2.8xlarge": std::make_pair(32, 60.0)} , { "r3.8xlarge": std::make_pair(32, 244.0)} , { "i2.8xlarge": std::make_pair(32, 244.0)} , { "c3.8xlarge": std::make_pair(32, 60.0)} , { "cr1.8xlarge": std::make_pair(32, 244.0)} , { "c4.8xlarge": std::make_pair(36, 60.0)} , { "d2.8xlarge": std::make_pair(36, 244.0)} , { "m4.10xlarge": std::make_pair(40, 160.0)} , { "x1.32xlarge": std::make_pair(128, 1952.0)}
-}  ;
+  hashmap<std::string, std::pair<int,int>> ec2 = 
+{ { "t2.nano", std::make_pair(1, 0.5)} , { "t2.micro", std::make_pair(1, 1.0)} , { "t2.small", std::make_pair(1, 2.0)} , { "m3.medium", std::make_pair(1, 3.75)} , { "m1.small", std::make_pair(1, 1.7)} , { "m1.medium", std::make_pair(1, 3.75)} , { "t1.micro", std::make_pair(1, 0.613)} , { "t2.medium", std::make_pair(2, 4.0)} , { "t2.large", std::make_pair(2, 8.0)} , { "m4.large", std::make_pair(2, 8.0)} , { "c4.large", std::make_pair(2, 3.75)} , { "r3.large", std::make_pair(2, 15.25)} , { "m3.large", std::make_pair(2, 7.5)} , { "c3.large", std::make_pair(2, 3.75)} , { "m1.large", std::make_pair(2, 7.5)} , { "c1.medium", std::make_pair(2, 1.7)} , { "m2.xlarge", std::make_pair(2, 17.1)} , { "m4.xlarge", std::make_pair(4, 16.0)} , { "c4.xlarge", std::make_pair(4, 7.5)} , { "r3.xlarge", std::make_pair(4, 30.5)} , { "i2.xlarge", std::make_pair(4, 30.5)} , { "d2.xlarge", std::make_pair(4, 30.5)} , { "m3.xlarge", std::make_pair(4, 15.0)} , { "c3.xlarge", std::make_pair(4, 7.5)} , { "m1.xlarge", std::make_pair(4, 15.0)} , { "m2.2xlarge", std::make_pair(4, 34.2)} , { "m4.2xlarge", std::make_pair(8, 32.0)} , { "c4.2xlarge", std::make_pair(8, 15.0)} , { "g2.2xlarge", std::make_pair(8, 15.0)} , { "r3.2xlarge", std::make_pair(8, 61.0)} , { "i2.2xlarge", std::make_pair(8, 61.0)} , { "d2.2xlarge", std::make_pair(8, 61.0)} , { "m3.2xlarge", std::make_pair(8, 30.0)} , { "c3.2xlarge", std::make_pair(8, 15.0)} , { "c1.xlarge", std::make_pair(8, 7.0)} , { "m2.4xlarge", std::make_pair(8, 68.4)} , { "cg1.4xlarge", std::make_pair(16, 22.5)} , { "m4.4xlarge", std::make_pair(16, 64.0)} , { "c4.4xlarge", std::make_pair(16, 30.0)} , { "r3.4xlarge", std::make_pair(16, 122.0)} , { "i2.4xlarge", std::make_pair(16, 122.0)} , { "d2.4xlarge", std::make_pair(16, 122.0)} , { "hi1.4xlarge", std::make_pair(16, 60.5)} , { "hs1.8xlarge", std::make_pair(16, 117.0)} , { "c3.4xlarge", std::make_pair(16, 30.0)} , { "cc2.8xlarge", std::make_pair(32, 60.5)} , { "g2.8xlarge", std::make_pair(32, 60.0)} , { "r3.8xlarge", std::make_pair(32, 244.0)} , { "i2.8xlarge", std::make_pair(32, 244.0)} , { "c3.8xlarge", std::make_pair(32, 60.0)} , { "cr1.8xlarge", std::make_pair(32, 244.0)} , { "c4.8xlarge", std::make_pair(36, 60.0)} , { "d2.8xlarge", std::make_pair(36, 244.0)} , { "m4.10xlarge", std::make_pair(40, 160.0)} , { "x1.32xlarge", std::make_pair(128, 1952.0)}  }  ;
   
   int get_cpu(std::string type){
     return ec2[type].first ;
@@ -243,7 +244,9 @@ public :
 
   void finalize_server_order(std::vector<ServerOrder>& to_buy, mesos::internal::master::Framework* framework) ;
 
-
+  hashmap<std::string, std::string> parse_slave_attributes(const mesos::SlaveInfo& sinfo) ;
+  
+  void new_server(mesos::internal::master::Slave* slave, const mesos::SlaveInfo&  sinfo) ;
   
   /**************************************/
   virtual ~CloudRM() {}

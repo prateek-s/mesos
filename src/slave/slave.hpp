@@ -297,6 +297,8 @@ public:
     TERMINATING,  // Slave is shutting down.
   } state;
 
+  hashmap<std::string, std::string> get_cloud_server_data() ;
+  
   // TODO(benh): Clang requires members to be public in order to take
   // their address which we do in tests (for things like
   // FUTURE_DISPATCH).

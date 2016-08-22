@@ -209,16 +209,16 @@ hashmap<std::string, std::string> Slave::get_cloud_server_data()
 
   // Will need to make THREE separate GET requests aargh. Use curl directly? Please!
 
-  Response http_response ;
+  process::http::Response http_response ;
   std::string body ;
   process::http::URL url ;
-  Future<Response> response ;
+  Future<process::http::Response> response ;
 
   url = process::http::URL("http", hname, 80, itype_path);
   
   response = process::http::get(url) ;
   http_response = response.get() ;
-  if(http_response.code == process::http:Status::OK) {
+  if(http_response.code == process::http::Status::OK) {
     body = http_response.body ;
     out["instance-type"]  = body ;
   }
@@ -227,7 +227,7 @@ hashmap<std::string, std::string> Slave::get_cloud_server_data()
   
   response = process::http::get(url) ;
   http_response = response.get() ;
-  if(http_response.code == process::http:Status::OK) {
+  if(http_response.code == process::http::Status::OK) {
     body = http_response.body ;
     out["az"] = body ;
   }
@@ -236,8 +236,9 @@ hashmap<std::string, std::string> Slave::get_cloud_server_data()
   
   response = process::http::get(url) ;
   http_response = response.get() ;
-  if(http_response.code == process::http:Status::OK) {
+  if(http_response.code == process::http::Status::OK) {
     body = http_response.body ;
+    //XXX JSON parse this!
     out["owner-fmwk"] = body ;
   }
 
@@ -622,7 +623,7 @@ void Slave::initialize()
   //Now add these to the attributes somehow? 
 
   foreachpair(const std::string& name, const std::string& val, cloud_data) {
-    attributes.add(Attributes::parse(name, value)) ;
+    attributes.add(Attributes::parse(name, val)) ;
   }
 
   // Determine our hostname or use the hostname provided.

@@ -210,21 +210,23 @@ void HierarchicalAllocatorProcess::recover(
 
 
 // Return all the slaves running in the given market. 
-const hashset<SlaveID> HierarchicalAllocatorProcess::get_slaves_of_market(CloudMachine& cm)
+hashset<SlaveID> HierarchicalAllocatorProcess::get_slaves_of_market(const CloudMachine& cm)
 {
   return slaves.keys();
 }
 
 
 // Allocate all the resources on this slave to a framework
-void HierarchicalAllocatorProcess::alloc_slave_to_fmwk(std::string sid, std::string fmwk)
-{
-  //First check if slave is registered
-  //And if framework is registered
-  //What to do with idle/unassigned slaves
+// void HierarchicalAllocatorProcess::alloc_slave_to_fmwk(std::string sid, std::string fmwk)
+// {
+//   //First check if slave is registered
+//   //And if framework is registered
+//   //What to do with idle/unassigned slaves
   
 
-}
+// }
+
+   
 //Find free resources in a given market, and return how many CPUs and
 //memory can be allocated on the current cluster. We also want to
 //actually allocate these resources, AND tell the
@@ -264,15 +266,17 @@ const std::string packing_policy)
 
     //Put this into the offer.
 
-    offerable[slaveId] += resources ;
-    slaves[slaveId].allocated += resources ;  //Wow this is optimistic assignment
+    offerable[slaveId] += available;  ;
+    slaves[slaveId].allocated += available ;  //Wow this is optimistic assignment
 //    deficit -= resources ;
     //There is no corresponding subtraction operation!
 
-    if(deficit < 0) {
-      LOG(INFO) << "All resources found, no deficit" ;
-      break ;
-    }
+    //XXX There is no < operator for resources yet
+    
+    // if(deficit < 0) {
+    //   LOG(INFO) << "All resources found, no deficit" ;
+    //   break ;
+    // }
     
     //roleSorter->allocated(role, slaveId, resources);
     //quotaRoleSorter->allocated(role, slaveId, resources);

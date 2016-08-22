@@ -113,6 +113,8 @@ public:
       const int _expectedAgentCount,
       const hashmap<std::string, Quota>& quotas);
 
+  hashset<SlaveID> get_slaves_of_market(const CloudMachine& cm) ;
+  
   process::Future<int> packServers(const double cpu, const double mem, const CloudMachine& cm, const std::string packing_policy) ;
 
   

@@ -289,7 +289,7 @@ int CloudRM::bar()
 
 
 //Return a hashmap instead?? Vector? 
-hashmap<std::string, std::string> CloudRM::parse_slave_attributes(mesos::SlaveInfo& sinfo)
+hashmap<std::string, std::string> CloudRM::parse_slave_attributes(const  mesos::SlaveInfo& sinfo)
 {
   hashmap<std::string, std::string> out ;
 
@@ -322,7 +322,7 @@ hashmap<std::string, std::string> CloudRM::parse_slave_attributes(mesos::SlaveIn
 /** Called from _registerSlave from the master, after allocator has
  *    been informed 
  */
-void CloudRM::new_server(mesos::internal::master::Slave* slave, mesos::SlaveInfo sinfo)
+void CloudRM::new_server(mesos::internal::master::Slave* slave, const mesos::SlaveInfo&  sinfo)
 {
   //sinfo.get("role") ;
   //sinfo.get("owner_fmwk");
@@ -331,10 +331,11 @@ void CloudRM::new_server(mesos::internal::master::Slave* slave, mesos::SlaveInfo
   //  slave->info.attributes()
 
  
-  hashmap<std::string, std::string> slave_attrs = parse_slave_attributes(&sinfo);  
+  hashmap<std::string, std::string> slave_attrs = parse_slave_attributes(sinfo);  
   //Store the attributes of the slave somewhere? In the master? Allocator? Here? 
   //extract the owner_framework
   auto owner_framework = slave_attrs.find("owner-fmwk") ;
+  
   if(owner_framework!=slave_attrs.end()) {
     if(packing_policy=="private" || packing_policy=="binpack") {
       //XXX decide whether to pass strings or SlaveID, FrameworkId 
