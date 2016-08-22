@@ -34,7 +34,10 @@ slave.cpp registering code in info again!
 
 ** Add registered slaves to some list?
 
+
+
 ** Call alloc_slave_to_fmwk
+::DONE::
 
 ** Policy switches 
 Better private/packing code-paths to ensure that private mode is independent of other policy options and works end-to-end 
@@ -45,10 +48,14 @@ Better private/packing code-paths to ensure that private mode is independent of 
 CPU/memory into one, and then do some vector arithmetic to see if we can pack? 
 Is using mesos::resources even the right way? Use our own resource vector? 
 
+
+
 ** Handle framework termination
 - Note somewhere?
 - Deallocate its resources from slaves
 - Put slaves on some idle list? This is why having actual roles for slaves is not such a good idea. We want the owner_framework to mainly help in identification of the slave and which framework it should be actually allocated to. 
+
+::TODO::
 
 ** Repair
 
@@ -57,8 +64,12 @@ Is using mesos::resources even the right way? Use our own resource vector?
 Doing this might be non-trivial, because we need to know how many resources the framework has lost, and then try acquiring those resources (from some different market) again. 
 
 * Allocator
-** Alloc slave to framework
-Check, create offer, and call offercallback
+
+** alloc_slave_to_fmwk implementation
+::TODO::
+
+** Tell allocator about the cloudmachine info
+::DONE::
 
 <2016-08-22 Mon>
 

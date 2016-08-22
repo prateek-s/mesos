@@ -217,13 +217,43 @@ hashset<SlaveID> HierarchicalAllocatorProcess::get_slaves_of_market(const CloudM
 
 
 //Allocate all the resources on this slave to a framework
-void HierarchicalAllocatorProcess::alloc_slave_to_fmwk(const SlaveID& slaveid, const std::string fmwk)
+void HierarchicalAllocatorProcess::alloc_slave_to_fmwk(const SlaveID& slaveId, const std::string fmwk)
 {
   //First check if slave is registered
   //And if framework is registered
   //What to do with idle/unassigned slaves
+  hashmap<SlaveID, Resources> offerable ;
   
+  if(! isWhitelisted(slaveId) || !slaves[slaveId].activated) {
+    LOG(INFO) << "Slave not activated " << slaveId ;
+    return ;
+  }
+  
+  FrameworkID fid ;
+  fid.set_value(fmwk) ;
 
+  if(! frameworks.contains(fid)) {
+    LOG(INFO) << "Framework is not registerd with allocator yet? " << fmwk ;
+    return ;
+  }
+  
+  Resources available = slaves[slaveId].total - slaves[slaveId].allocated ;
+  //Thats it?
+  
+  if(!allocatable(available)) {
+    LOG(INFO) << "Cannot allocate Resources for slave " << slaveId ;
+    return ;
+  }
+  
+  //Put this into the offer.
+  
+  offerable[slaveId] += available;  ;
+  slaves[slaveId].allocated += available ;  //Wow this is optimistic assignment
+
+  //Offercallback takes hashmap of slaveid and resources 
+  offerCallback(fid, offerable) ; //This actually makes the offer!
+  
+ 
 }
 
    
