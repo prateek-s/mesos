@@ -197,25 +197,58 @@ void Slave::signaled(int signal, int uid)
   }
 }
 
-std::string Slave::get_cloud_server_data()
+hashmap<std::string, std::string> Slave::get_cloud_server_data()
 {
+  hashmap<std::string ,std::string> out ;
+
   std::string hname = "169.254.169.254";
+
   std::string itype_path = "/latest/meta-data/instance-type" ;
   std::string az_path = "/latest/meta-data/placement/availability-zone" ;
-  std::string userdata_path = "/latest/user-data" ;
+  std::string userdata_path = "/latest/user-data" ; //This returns a json? How to parse?
 
   // Will need to make THREE separate GET requests aargh. Use curl directly? Please!
-  //process::http::get(
-  //		     hname)
-  process::http::URL url = http::URL("http", hname, 80, itype_path);
+
+  Response http_response ;
+  std::string body ;
+  process::http::URL url ;
+  Future<Response> response ;
+
+  url = process::http::URL("http", hname, 80, itype_path);
   
-  Future<Response> response = process::http::get(url) ;
+  response = process::http::get(url) ;
+  http_response = response.get() ;
+  if(http_response.code == process::http:Status::OK) {
+    body = http_response.body ;
+    out["instance-type"]  = body ;
+  }
+
+  url = process::http::URL("http", hname, 80, az_path);
+  
+  response = process::http::get(url) ;
+  http_response = response.get() ;
+  if(http_response.code == process::http:Status::OK) {
+    body = http_response.body ;
+    out["az"] = body ;
+  }
+
+  url = process::http::URL("http", hname, 80, userdata_path);
+  
+  response = process::http::get(url) ;
+  http_response = response.get() ;
+  if(http_response.code == process::http:Status::OK) {
+    body = http_response.body ;
+    out["owner-fmwk"] = body ;
+  }
+
+
+
+  //ASSERT_TRUE(response.isReady()) , or AWAIT_READY(response) ;
   //  AWAIT_READY(response); 		     //if Futures are not used?
   //response->code == http::Status::OK && response->status == http::Status::OK
   //Can we do JSON::parse(response->body)
-  
-  
-  return "" ;
+    
+  return out ;
 }
     
   
@@ -581,6 +614,17 @@ void Slave::initialize()
     attributes = Attributes::parse(flags.attributes.get());
   }
 
+  //XXX Slaveinfo role, owner_framework etc over here!
+  //Maybe better to use the slave attributes earlier?
+  //default_role flag seems useful. Add an owner_framework in the flags?
+
+  hashmap<std::string, std::string> cloud_data = get_cloud_server_data() ;
+  //Now add these to the attributes somehow? 
+
+  foreachpair(const std::string& name, const std::string& val, cloud_data) {
+    attributes.add(Attributes::parse(name, value)) ;
+  }
+
   // Determine our hostname or use the hostname provided.
   string hostname;
 
@@ -606,10 +650,6 @@ void Slave::initialize()
   info.set_hostname(hostname);
   info.set_port(self().address.port);
 
-  //XXX Slaveinfo role, owner_framework etc over here!
-  //Maybe better to use the slave attributes earlier?
-  //default_role flag seems useful. Add an owner_framework in the flags?
-  
   
   info.mutable_resources()->CopyFrom(resources.get());
   if (HookManager::hooksAvailable()) {

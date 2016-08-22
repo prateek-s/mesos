@@ -70,6 +70,9 @@ public:
       const int expectedAgentCount,
       const hashmap<std::string, Quota>& quotas);
 
+
+  //void alloc_slave_to_fmwk(const std::string& slaveid, const std::string frameworkId) ;
+
   process::Future<int> packServers(const double cpu, const double mem, const CloudMachine& cm, const std::string packing_policy) ;
   
   void addFramework(

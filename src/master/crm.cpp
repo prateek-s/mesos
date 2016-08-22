@@ -289,35 +289,40 @@ int CloudRM::bar()
 
 
 //Return a hashmap instead?? Vector? 
-std::string CloudRM::parse_slave_attributes(SlaveInfo& sinfo)
+hashmap<std::string, std::string> CloudRM::parse_slave_attributes(mesos::SlaveInfo& sinfo)
 {
+  hashmap<std::string, std::string> out ;
+
   std::string itype ;
   std::string az ;
   std::string owner_fmwk ;
   
-  Attributes attr = sinfo.attributes() ;
+  mesos::Attributes attr = sinfo.attributes() ;
   int a_size = attr.size() ;
   int i = 0 ;
   
   for(i = 0; i < a_size; i++) {
     if(attr.get(i).name() == "instance-type") {
       itype = attr.get(i).text().value() ;
+      out["instance-type"] = itype ;
     }
     else if(attr.get(i).name() == "az") {
       az = attr.get(i).text().value() ;
+      out["az"] = az ;
     }
-    else if(attr.get(i).name() == "owner_fmwk") {
+    else if(attr.get(i).name() == "owner-fmwk") {
       owner_fmwk = attr.get(i).text().value() ;
+      out["owner-fmwk"] = owner_fmwk ;
     }
   }//end FOR loop across all attributes
    
-  return "" ;
+  return out ;
 }
 
 /** Called from _registerSlave from the master, after allocator has
  *    been informed 
  */
-void CloudRM::new_server(Slave* slave, SlaveInfo sinfo)
+void CloudRM::new_server(mesos::internal::master::Slave* slave, mesos::SlaveInfo sinfo)
 {
   //sinfo.get("role") ;
   //sinfo.get("owner_fmwk");
@@ -326,8 +331,18 @@ void CloudRM::new_server(Slave* slave, SlaveInfo sinfo)
   //  slave->info.attributes()
 
  
-  parse_slave_attributes(&sinfo); 
-  allocator->alloc_slave_to_fmwk(slave->id, owner_framework) ;
+  hashmap<std::string, std::string> slave_attrs = parse_slave_attributes(&sinfo);  
+  //Store the attributes of the slave somewhere? In the master? Allocator? Here? 
+  //extract the owner_framework
+  auto owner_framework = slave_attrs.find("owner-fmwk") ;
+  if(owner_framework!=slave_attrs.end()) {
+    if(packing_policy=="private" || packing_policy=="binpack") {
+      //XXX decide whether to pass strings or SlaveID, FrameworkId 
 
+      //allocator->alloc_slave_to_fmwk(sinfo.id(), owner_framework) ;
+    } 
+  }
 
 }
+
+
