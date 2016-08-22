@@ -5,12 +5,12 @@
 ** Read the role/default_owner in slave.cpp when registering slave 
 slave.cpp
 
-::STARTED:: <2016-08-22 Mon>
+::DONE:: <2016-08-22 Mon>
 
 ** Read the meta-data for instance-type and avail-zone via curl/http whatevs
 slave.cpp registering code in info again!
 
-::STARTED:: <2016-08-22 Mon>
+::DONE:: <2016-08-22 Mon>
 
 ** relay_warning
 ::DONE::
@@ -21,9 +21,9 @@ slave.cpp registering code in info again!
 - owner_fmwk
 - avail zone          
 
-::STARTED:: <2016-08-22 Mon>
+::DONE:: 
 
-** Add cloudmachine information for all the slaves 
+** Add EC2 server size information for all the slaves 
 ::DONE::
 
 ** Parse the portfolio allocations
@@ -39,7 +39,7 @@ slave.cpp registering code in info again!
 ** Policy switches 
 Better private/packing code-paths to ensure that private mode is independent of other policy options and works end-to-end 
 
-<2016-08-22 Mon>
+
 
 ** Resource parsing 
 CPU/memory into one, and then do some vector arithmetic to see if we can pack? 
@@ -64,6 +64,16 @@ Check, create offer, and call offercallback
 
 ** Parse resources here? 
 
+** Task end recovery?
+When a task ends, the resources are freed.
+
+*** How does the master get the message 
+
+*** How does the allocator respond? 
+    Presumably in =recoverResources=, frameworksorters[role]->unallocated(resources)
+
+*** How to modify recovery with the partitioned allocator? 
+    Only reclaim on framework end? 
 
 * Applications
 

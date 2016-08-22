@@ -7077,6 +7077,7 @@ void Master::updateTask(Task* task, const StatusUpdate& update)
   }
 }
 
+//XXX Who calls removeTask and removeExecutor
 
 void Master::removeTask(Task* task)
 {

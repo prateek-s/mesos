@@ -113,7 +113,20 @@ public:
       const int expectedAgentCount,
       const hashmap<std::string, Quota>& quotas) = 0;
 
-  virtual process::Future<int> packServers(const double cpu, const double mem, const CloudMachine& cm, const std::string packing_policy) = 0;
+  virtual void addSlave_cloudinfo(
+    const SlaveID& slaveId,
+    const CloudMachine& cm) = 0 ;
+
+  virtual void alloc_slave_to_fmwk(
+    const SlaveID& slaveid,
+    const std::string owner_framework) = 0 ;
+
+  
+  virtual process::Future<int> packServers(
+    const double cpu,
+    const double mem,
+    const CloudMachine& cm,
+    const std::string packing_policy) = 0;
 
   
   /**

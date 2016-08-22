@@ -57,6 +57,7 @@ int CloudRM::init(mesos::internal::master::Master* master)
 {
   this->master = master ;
   LOG(INFO) << "~~~~~~~ INITIALIZED by master" ;
+  allocator = master->get_allocator();
   return 1; 
 }
 
@@ -150,7 +151,7 @@ ServerOrder CloudRM::get_min_servers(double wt, const CloudMachine& cm, Resource
     //How many servers we will need AFTER packing 
     int deficit = 0.0;
     
-    mesos::allocator::Allocator* allocator = master->get_allocator();
+
     
     deficit = allocator->packServers(req_cpu, req_mem, cm, packing_policy).get();
     //allocator->activateFramework(framework->id());
@@ -335,8 +336,20 @@ void CloudRM::new_server(mesos::internal::master::Slave* slave, const mesos::Sla
   //Store the attributes of the slave somewhere? In the master? Allocator? Here? 
   //extract the owner_framework
   auto owner_framework = slave_attrs.find("owner-fmwk") ;
+
+  //First, let's update this slave's market information in a few places?
+  //Allocator
+  //Master
+  //CRM local map of slaves
+  
   
   if(owner_framework!=slave_attrs.end()) {
+    CloudMachine cm ;
+    cm.az = slave_attrs["az"] ;
+    cm.type = slave_attrs["instance-type"] ;
+    
+    allocator->addSlave_cloudinfo(sinfo.id(), cm) ;
+    
     if(packing_policy=="private" || packing_policy=="binpack") {
       //XXX decide whether to pass strings or SlaveID, FrameworkId 
 

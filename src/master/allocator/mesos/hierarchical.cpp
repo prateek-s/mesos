@@ -216,15 +216,15 @@ hashset<SlaveID> HierarchicalAllocatorProcess::get_slaves_of_market(const CloudM
 }
 
 
-// Allocate all the resources on this slave to a framework
-// void HierarchicalAllocatorProcess::alloc_slave_to_fmwk(std::string sid, std::string fmwk)
-// {
-//   //First check if slave is registered
-//   //And if framework is registered
-//   //What to do with idle/unassigned slaves
+//Allocate all the resources on this slave to a framework
+void HierarchicalAllocatorProcess::alloc_slave_to_fmwk(const SlaveID& slaveid, const std::string fmwk)
+{
+  //First check if slave is registered
+  //And if framework is registered
+  //What to do with idle/unassigned slaves
   
 
-// }
+}
 
    
 //Find free resources in a given market, and return how many CPUs and
@@ -495,6 +495,15 @@ void HierarchicalAllocatorProcess::updateFramework(
 }
 
 
+void HierarchicalAllocatorProcess::addSlave_cloudinfo(
+  const SlaveID& slaveId,
+  const CloudMachine& cm)
+{
+  slaves[slaveId].cloudmachine  = cm ;
+  //XXX  maybe the owner framework too? 
+}
+
+  
 void HierarchicalAllocatorProcess::addSlave(
     const SlaveID& slaveId,
     const SlaveInfo& slaveInfo,

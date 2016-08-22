@@ -71,7 +71,7 @@ public:
       const hashmap<std::string, Quota>& quotas);
 
 
-  //void alloc_slave_to_fmwk(const std::string& slaveid, const std::string frameworkId) ;
+  void alloc_slave_to_fmwk(const SlaveID& slaveid, const std::string owner_framework) ;
 
   process::Future<int> packServers(const double cpu, const double mem, const CloudMachine& cm, const std::string packing_policy) ;
   
@@ -93,6 +93,10 @@ public:
       const FrameworkID& frameworkId,
       const FrameworkInfo& frameworkInfo);
 
+  void addSlave_cloudinfo(
+    const SlaveID& slaveId,
+    const CloudMachine& cm) ;
+  
   void addSlave(
       const SlaveID& slaveId,
       const SlaveInfo& slaveInfo,
@@ -203,6 +207,8 @@ public:
       const int expectedAgentCount,
       const hashmap<std::string, Quota>& quotas) = 0;
 
+  virtual void alloc_slave_to_fmwk(const SlaveID& slaveid, const std::string owner_framework) = 0;
+  
   virtual process::Future<int> packServers(const double cpu, const double mem, const CloudMachine& cm, const std::string packing_policy) = 0 ;
 
   
@@ -224,6 +230,11 @@ public:
       const FrameworkID& frameworkId,
       const FrameworkInfo& frameworkInfo) = 0;
 
+  virtual void addSlave_cloudinfo(
+    const SlaveID& slaveId,
+    const CloudMachine& cm) = 0 ;
+
+  
   virtual void addSlave(
       const SlaveID& slaveId,
       const SlaveInfo& slaveInfo,
@@ -360,6 +371,21 @@ inline void MesosAllocator<AllocatorProcess>::recover(
       quotas);
 }
 
+
+template <typename AllocatorProcess>
+inline void MesosAllocator<AllocatorProcess>::alloc_slave_to_fmwk(
+    const SlaveID& slaveid,
+    const std::string owner_framework)
+{
+  process::dispatch(
+      process,
+      &MesosAllocatorProcess::alloc_slave_to_fmwk,
+      slaveid,
+      owner_framework);
+}
+
+
+
 template <typename AllocatorProcess>
 inline process::Future<int> MesosAllocator<AllocatorProcess>::packServers(
   const double cpu, const double mem, const CloudMachine& cm,
@@ -435,6 +461,18 @@ inline void MesosAllocator<AllocatorProcess>::updateFramework(
       frameworkInfo);
 }
 
+template <typename AllocatorProcess>
+inline void MesosAllocator<AllocatorProcess>::addSlave_cloudinfo(
+    const SlaveID& slaveId,
+    const CloudMachine& cm)
+{
+  process::dispatch(
+      process,
+      &MesosAllocatorProcess::addSlave_cloudinfo,
+      slaveId,
+      cm);
+}
+  
 
 template <typename AllocatorProcess>
 inline void MesosAllocator<AllocatorProcess>::addSlave(

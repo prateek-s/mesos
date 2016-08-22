@@ -207,6 +207,8 @@ public :
 
   vector<ServerOrder> pendingOrders  ;
 
+  mesos::allocator::Allocator* allocator ;
+  
   /****** Policy flags **********/
   int new_framework_starter_nodes = 0 ;
 

@@ -114,6 +114,8 @@ public:
       const hashmap<std::string, Quota>& quotas);
 
   hashset<SlaveID> get_slaves_of_market(const CloudMachine& cm) ;
+
+  void alloc_slave_to_fmwk(const SlaveID& slaveid, const std::string owner_framework) ;
   
   process::Future<int> packServers(const double cpu, const double mem, const CloudMachine& cm, const std::string packing_policy) ;
 
@@ -136,6 +138,11 @@ public:
       const FrameworkID& frameworkId,
       const FrameworkInfo& frameworkInfo);
 
+  void addSlave_cloudinfo(
+    const SlaveID& slaveId,
+    const CloudMachine& cm) ;
+
+  
   void addSlave(
       const SlaveID& slaveId,
       const SlaveInfo& slaveInfo,
@@ -350,6 +357,9 @@ protected:
 
     std::string hostname;
 
+    CloudMachine cloudmachine ;
+    std::string owner_fmwk ;
+    
     // Represents a scheduled unavailability due to maintenance for a specific
     // slave, and the responses from frameworks as to whether they will be able
     // to gracefully handle this unavailability.
