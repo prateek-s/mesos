@@ -1,0 +1,58 @@
+
+** Mesos integration
+Mesos cluster mode exposes spark UI via mesos. 
+http://spark.apache.org/docs/latest/running-on-mesos.html#mesos-run-modes
+
+spark.mesos.role
+
+Slaves must be able to download the Spark binary package from the http://, hdfs:// or s3n:// URL you gave
+
+::TODO:: Where is the scheduler message handling happening? 
+Presumably get some protocol buffer messages (or even the HTTP API). 
+
+scheduler/cluster/mesos/MesosClusterScheduler.scala
+has slightly higher-level operations for communicating with Mesos 
+
+=createSchedulerDriver= creates new MesosSchedulerDriver, which is presumably a method supplied by mesos from =org.apache.mesos.{MesosSchedulerDriver, Protos, Scheduler, SchedulerDriver}=
+
+::LEAD:: 
+Maybe add cloudinfo and terminationwarning here? 
+https://github.com/apache/spark/blob/eca58755fbbc11937b335ad953a3caff89b818e6/core/src/main/scala/org/apache/spark/scheduler/cluster/mesos/MesosClusterScheduler.scala
+Line 580 does resourceOffers handling. 
+Presumably these are the event handlers, and I can define my own for the two extra messages.
+
+::TODO:: Explicit request resources after registering. 
+
+** Checkpointing
+
+Get MTTF from the cloudinfo messages in mesos 
+
+::TODO:: the org.apache.mesos packages --- where does spark pull them from? Not included in the source. Because the new cloudinfo and termination warning messages MUST be supported by this new version of the mesos scheduler driver....
+
+
+
+** Scheduling 
+In core/src/main/scala/org/apache/spark/scheduler/cluster/mesos/MesosCoarseGrainedSchedulerBackend.scala
+
+ val maxCores = conf.get("spark.cores.max", Int.MaxValue.toString).toInt
+
+spark.cores.max defaults to infinite in mesos mode if not set.
+
+
+** Termination Warning 
+The question is what to do after a termination warning. Take the policy options via spark configuration parameters again? spark.exosphere.warning="ignore, kill"
+
+The options are:
+ - Ignore 
+
+ - Kill the executor immediately. This may seem counterintuitive, but what is the point of letting a task run (possibly to completion), and having to recompute it again? It is better to kill doomed tasks as quickly as possible---when we get the warning. *Definitely implement this*
+
+ - Kill if not shuffle. Assuming we allow the shuffle tasks to complete, are these outputs stored somewhere safe and durable? If yes, we could allow executors running shuffle tasks the leeway and allow them to run until completion/termination. Two challenges. First, identify shuffle tasks. Second, verify that the shuffle tasks send the output to others and restarting the "next" tasks will not involve recomputing the shuffle all over again. 
+
+::TODO:: Test this on obelix-104 cluster. Kill a slave after a shuffle stage, and then see which tasks gets recomputed? Can also just compare timings. Kill a slave in the middle of a shuffle vs. after a shuffle.
+
+ - Checkpoint the RDD partitions being computed by the tasks in the executor. *Not implementing it now*
+
+
+** CloudInfo
+Take the MTTF and pass it to the RDD checkpointing logic. Do this instead of taking MTTF from the spark configuration as in the case of Flint. 
