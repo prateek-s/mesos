@@ -56,6 +56,20 @@ public:
   virtual void resourceOffers(SchedulerDriver* driver,
                               const vector<Offer>& offers);
   virtual void offerRescinded(SchedulerDriver* driver, const OfferID& offerId);
+
+  virtual void cloudInfo(
+    SchedulerDriver* driver ,
+    double e_cost ,
+    double e_mttf ,
+    double current_cost ,
+    double current_mttf) ;
+
+  virtual void terminationWarning(
+    SchedulerDriver* driver,
+    const std::vector<InverseOffer>& inverse_offers,
+    double warning_time_seconds) ;
+
+  
   virtual void statusUpdate(SchedulerDriver* driver, const TaskStatus& status);
   virtual void frameworkMessage(SchedulerDriver* driver,
                                 const ExecutorID& executorId,
@@ -228,6 +242,61 @@ void JNIScheduler::resourceOffers(SchedulerDriver* driver,
 
   jvm->DetachCurrentThread();
 }
+
+void JNIScheduler::terminationWarning(
+  SchedulerDriver* driver,
+  const std::vector<InverseOffer>& inverse_offers,
+  double warning_time_seconds)
+{
+
+
+}
+
+
+void JNIScheduler::cloudInfo(
+  SchedulerDriver* driver,
+  double e_cost ,
+  double e_mttf ,
+  double current_cost ,
+  double current_mttf)
+{
+  jvm->AttachCurrentThread(JNIENV_CAST(&env), nullptr);
+
+  jclass clazz = env->GetObjectClass(jdriver);
+
+  jfieldID scheduler = env->GetFieldID(clazz, "scheduler", "Lorg/apache/mesos/Scheduler;");
+  jobject jscheduler = env->GetObjectField(jdriver, scheduler);
+
+  clazz = env->GetObjectClass(jscheduler);
+
+  // scheduler.cloudInfo(driver, offers);
+  jmethodID cloudInfo =
+    env->GetMethodID(clazz, "cloudInfo",
+		     "(Lorg/apache/mesos/SchedulerDriver;"
+		     "D; D; D; D;)V");
+
+  jdouble j_e_cost = e_cost ;
+  jdouble j_e_mttf = e_mttf ;
+  jdouble j_current_cost = current_cost ;
+  jdouble j_current_mttf = current_mttf ;
+  
+  env->ExceptionClear();
+
+  env->CallVoidMethod(jscheduler, cloudInfo, jdriver, j_e_cost, j_e_mttf, j_current_cost, j_current_mttf);
+
+  if (env->ExceptionCheck()) {
+    env->ExceptionDescribe();
+    env->ExceptionClear();
+    jvm->DetachCurrentThread();
+    driver->abort();
+    return;
+  }
+
+  jvm->DetachCurrentThread();
+}
+
+
+
 
 
 void JNIScheduler::offerRescinded(SchedulerDriver* driver,

@@ -120,6 +120,20 @@ public:
       SchedulerDriver* driver,
       const OfferID& offerId) = 0;
 
+
+  virtual void terminationWarning(
+    SchedulerDriver* driver,
+    const std::vector<InverseOffer>& inverse_offers,
+    double warning_time_seconds) = 0 ;
+  
+  virtual void cloudInfo(
+    SchedulerDriver* driver ,
+    double e_cost ,
+    double e_mttf ,
+    double current_cost ,
+    double current_mttf) = 0 ;
+ 
+  
   // Invoked when the status of a task has changed (e.g., a slave is
   // lost and so the task is lost, a task finishes and an executor
   // sends a status update saying so, etc). If implicit
@@ -227,6 +241,7 @@ public:
   // framework via Scheduler::resourceOffers callback, asynchronously.
   virtual Status requestResources(const std::vector<Request>& requests) = 0;
 
+  
   // Launches the given set of tasks. Any remaining resources (i.e.,
   // those that are not used by the launched tasks or their executors)
   // will be considered declined. Note that this includes resources
@@ -314,6 +329,8 @@ public:
   // currently known.
   virtual Status reconcileTasks(
       const std::vector<TaskStatus>& statuses) = 0;
+  
+  
 };
 
 

@@ -95,6 +95,15 @@ PyObject* MesosSchedulerDriverImpl_requestResources(
     MesosSchedulerDriverImpl* self,
     PyObject* args);
 
+// PyObject* MesosSchedulerDriverImpl_cloudInfo(
+//     MesosSchedulerDriverImpl* self,
+//     PyObject* args);
+    
+// PyObject* MesosSchedulerDriverImpl_terminationWarning(
+//     MesosSchedulerDriverImpl* self,
+//     PyObject* args);
+
+    
 PyObject* MesosSchedulerDriverImpl_launchTasks(
     MesosSchedulerDriverImpl* self,
     PyObject* args);

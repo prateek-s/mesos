@@ -8,3 +8,18 @@ Add CloudInfoMessage in src/messages/messages.proto
 Add evolve defintion in src/internal/evolve.cpp and hpp 
 
 QUESTION: Why is there a mutable_info() and not a mutable_cloudinfo() ? How did the protocol buffer compiler smartly pick info (and warning) from cloudinfo and terminationWarning? 
+
+
+** Lanugage bindings
+Usual protocol buffer defns in *include/mesos/mesos.proto*
+Virtual functions in *Scheduler* class in *include/mesos/scheduler.hpp*
+Similar to  the resourceOffers methods.
+
+Java Inteface, declare AND define : *src/java/jni/org_apache_mesos_MesosSchedulerDriver.cpp*
+
+
+Python: src/python/scheduler/src/mesos/scheduler/proxy_scheduler.cpp
+src/python/scheduler/src/mesos/scheduler/proxy_scheduler.hpp
+
+*NOT REQUIRED* is the scheduler_driver stuff src/python/scheduler/src/mesos/scheduler/mesos_scheduler_driver_impl.hpp
+
