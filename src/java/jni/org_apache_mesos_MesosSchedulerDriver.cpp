@@ -430,7 +430,7 @@ void JNIScheduler::frameworkMessage(SchedulerDriver* driver,
 
   clazz = env->GetObjectClass(jscheduler);
 
-  // scheduler.frameworkMessage(driver, executorId, slaveId, data);
+  // scheduler.frameworkMessage(driver, executorId, slaveId, data); 
   jmethodID frameworkMessage =
     env->GetMethodID(clazz, "frameworkMessage",
 		     "(Lorg/apache/mesos/SchedulerDriver;"

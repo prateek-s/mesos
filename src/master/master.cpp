@@ -3058,7 +3058,9 @@ void Master::send_cloud_info(Framework* f)
 void Master::handle_warning(std::string hostname, std::string slave_id, int countdown)
 {
   LOG(INFO) << "Received termination warning from " << slave_id << " for " << countdown << " seconds" ;
+  
   Slave* affected_slave = get_slave_by_id(slave_id) ;
+  
   CHECK_NOTNULL(affected_slave) ;
 
   std::vector<SlaveID> all_slaves = get_affected_slaves(slave_id) ;
@@ -3068,6 +3070,13 @@ void Master::handle_warning(std::string hostname, std::string slave_id, int coun
   for(auto f : to_warn) {
     TerminationWarningMessage message ;
     InverseOffer* inverseOffer = new InverseOffer() ;
+    //XXX Actually construct the inverse offer here!!!
+    //offerID
+    //FrameworkID
+    //Unavailability TimeInfo start
+    //slaveID
+    //How will frameworks convert from slave id to executors?
+    //Spark has taskIdtoSlaveId
     
     inverseOffer->mutable_id()->CopyFrom(newOfferId());
     inverseOffer->mutable_framework_id()->CopyFrom(f->id());
