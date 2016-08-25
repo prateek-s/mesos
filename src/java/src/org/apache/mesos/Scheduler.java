@@ -93,6 +93,16 @@ public interface Scheduler {
    */
   void resourceOffers(SchedulerDriver driver, List<Offer> offers);
 
+  void cloudInfo(SchedulerDriver driver,   double e_cost ,
+		 double e_mttf ,
+		 double current_cost ,
+		 double current_mttf) ;
+
+  void terminationWarning(SchedulerDriver driver,
+			  List<InverseOffer> inverse_offers,
+			  double warning_time_seconds) ;
+
+  
   /**
    * Invoked when an offer is no longer valid (e.g., the slave was
    * lost or another framework used resources in the offer). If for
