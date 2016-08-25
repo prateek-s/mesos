@@ -449,6 +449,26 @@ jobject convert(JNIEnv* env, const Offer& offer)
 
 
 template <>
+jobject convert(JNIEnv* env, const InverseOffer& offer)
+{
+  string data ;
+  offer.SerializeToString(&data) ;
+
+  jbyteArray jdata = env->NewByteArray(data.size()) ;
+  env->SetByteArrayRegion(jdata, 0, data.size(), (jbyte*) data.data()) ;
+
+  jclass clazz = FindMesosClass(env, "org/apache/mesos/Protos$InverseOffer");
+
+  jmethodID parseFrom =
+    env->GetStaticMethodID(clazz, "parseFrom",
+                           "([B)Lorg/apache/mesos/Protos$Offer;");
+
+  jobject joffer = env->CallStaticObjectMethod(clazz, parseFrom, jdata);
+
+  return joffer;  
+}
+
+template <>
 jobject convert(JNIEnv* env, const ExecutorInfo& executor)
 {
   string data;
