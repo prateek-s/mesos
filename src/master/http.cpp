@@ -3162,6 +3162,7 @@ Future<Response> Master::Http::machineWarning(
 
   // Parse the POST body as JSON.
   Try<JSON::Object> warn_obj = JSON::parse<JSON::Object>(request.body) ;
+  
   JSON::Object real_obj = warn_obj.get() ;
   // Try<JSON::Array> jsonIds = JSON::parse<JSON::Array>(request.body);
   // if (jsonIds.isError()) {
@@ -3170,9 +3171,12 @@ Future<Response> Master::Http::machineWarning(
   // }
   //Expect the slave to give its own identifier? Hostname? IP Address? Machine name?
   LOG(INFO) << "WARNING PARSED AS " << stringify(real_obj) ;
+  
   std::string hostname = real_obj.find<JSON::String>("hostname").get().value ;
   LOG(INFO) << "~~~~~" << hostname ;
+  
   std::string slave_id = real_obj.find<JSON::String>("slave_id").get().value ;
+  
   int countdown = real_obj.find<JSON::Number>("countdown").get().as<int64_t>() ;
   LOG(INFO) << "~~~~~" << countdown ; 
 

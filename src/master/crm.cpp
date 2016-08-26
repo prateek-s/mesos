@@ -20,12 +20,16 @@
 // #include <stout/strings.hpp>
 // #include <stout/try.hpp>
 
+#include <stout/json.hpp>
+#include <stout/stringify.hpp>
 
 //using mesos::log::Log;
 
 #include "master/crm.hpp"
 
-#include<aws/core/Aws.h>
+#include <fstream>
+#include <streambuf>
+
 
 //using std::string;
 using namespace std ;
@@ -34,11 +38,21 @@ CloudRM::CloudRM()
 {
   LOG(INFO) << "~~~ FROM CLOUD RM" ;
   std::cout << "  CLOUD RM \n" ;
+ 
+}
+
+
+int CloudRM::init(mesos::internal::master::Master* master)
+{
+  this->master = master ;
+  LOG(INFO) << "~~~~~~~ INITIALIZED by master" ;
+  allocator = master->get_allocator();
   
-  Aws::SDKOptions options;
   Aws::InitAPI(options);
 
+  return 1; 
 }
+
 
 /********************************************************************************/
 
@@ -48,7 +62,8 @@ CloudRM::CloudRM()
 // can be some basic rule engine etc.  Return a vector of server orders
 // here?
 
-vector<ServerOrder> CloudRM::pDefaultFrameworkResources(const mesos::FrameworkInfo& frameworkinfo)
+vector<ServerOrder> CloudRM::pDefaultFrameworkResources(
+  const mesos::FrameworkInfo& frameworkinfo)
 {
   //add_to_pending_orders(frameworkinfo);
   ServerOrder* order = new ServerOrder() ;
@@ -59,17 +74,12 @@ vector<ServerOrder> CloudRM::pDefaultFrameworkResources(const mesos::FrameworkIn
 }
 
 
-int CloudRM::init(mesos::internal::master::Master* master)
-{
-  this->master = master ;
-  LOG(INFO) << "~~~~~~~ INITIALIZED by master" ;
-  allocator = master->get_allocator();
-  return 1; 
-}
-
 /********************************************************************************/
 
- /* A new framework has been registered with us. Most frameworks will subsequently ask for resources once they have been registered with the mesos master. We can put the framework on some sort of a pending list? 
+ /* A new framework has been registered with us. Most frameworks will
+  * subsequently ask for resources once they have been registered with
+  * the mesos master. We can put the framework on some sort of a
+  * pending list?
  */
 int CloudRM::new_framework(const mesos::FrameworkInfo& frameworkinfo)
 {
@@ -84,12 +94,14 @@ int CloudRM::new_framework(const mesos::FrameworkInfo& frameworkinfo)
   }
     
   /* Create the server order vector for the framework according to some rule engine*/
-  std::vector<ServerOrder> order = pDefaultFrameworkResources(frameworkinfo) ;
+  std::vector<ServerOrder> order ; //= pDefaultFrameworkResources(frameworkinfo) ;
   
   //add_to_pending_orders 
   if(!order.empty()) {
+    
     LOG(INFO) << "Something in order " ;
-    add_to_pending_orders(order) ;
+    
+    add_to_pending_orders(order) ; 
     /* Now ask the cloud layer to fulfill this order for us */
 //     process:dispatch(AwsAgent, GetServers, order) 
   }
@@ -98,10 +110,44 @@ int CloudRM::new_framework(const mesos::FrameworkInfo& frameworkinfo)
 
 /********************************************************************************/
 
+//should be associated with some framework?
 void CloudRM::add_to_pending_orders (std::vector<ServerOrder> orders)
 {
   
   
+}
+
+
+void CloudRM::read_portfolio_wts()
+{
+  std::string path = "/home/prateeks/code/mesos/portfolio/us-east-1.json" ;
+  std::ifstream t(path);
+  std::string str((std::istreambuf_iterator<char>(t)),
+		  std::istreambuf_iterator<char>());
+  
+  Try<JSON::Array> jarr = JSON::parse<JSON::Array>(str) ;
+  JSON::Array arr = jarr.get() ;
+
+  std::vector<JSON::Value> values = arr.values ;
+  
+  for(auto a_portfolio : values) {
+    JSON::Object obj = a_portfolio.as<JSON::Object>() ;
+    
+    double alpha = obj.find<JSON::Number>("alpha").get().as<double>() ;
+    LOG(INFO) << alpha ;
+    
+    JSON::Array wts_array = obj.find<JSON::Array>("wts").get() ;
+
+    for(auto wtv : wts_array.values) {
+      JSON::Object wobj = wtv.as<JSON::Object>() ;
+      std::map<std::string, JSON::Value> w_values = wobj.values ;
+      //std::string market
+      //double actual_wt 
+
+    }
+
+  } // outer for portfolios in values 
+
 }
 
 /********************************************************************************/
@@ -123,7 +169,11 @@ hashmap<CloudMachine, int> CloudRM::get_portfolio_wts(double alpha)
 //given market. Depends only on the type. Servers might end up being
 //too small for an application, in which case we cant do anything now!
 
-ServerOrder CloudRM::get_min_servers(double wt, const CloudMachine& cm, ResourceVector& req, std::string packing_policy)
+ServerOrder CloudRM::get_min_servers(
+  double wt,
+  const CloudMachine& cm,
+  ResourceVector& req,
+  std::string packing_policy)
 {
   ServerOrder out ;
   std::string type = cm.type ;
@@ -174,7 +224,10 @@ ServerOrder CloudRM::get_min_servers(double wt, const CloudMachine& cm, Resource
 
 /* Translates portfolio weights to actual servers. The wts indicate what fraction of the application should be running on servers in that market. If wt=1, then simply determine how many servers we need from this market to satisfy the cpu AND memory resources. In fact lets do this. 
  */
-std::vector<ServerOrder> CloudRM::compute_server_order(hashmap<CloudMachine, int> & portfolio_wts, ResourceVector& req, std::string packing_policy)
+std::vector<ServerOrder> CloudRM::compute_server_order(
+  hashmap<CloudMachine, int> & portfolio_wts,
+  ResourceVector& req,
+  std::string packing_policy)
 {
   std::vector<ServerOrder> out ; 
   //1. For each market, determine min servers to satisfy w*cpu and w*memory
@@ -198,7 +251,11 @@ std::vector<ServerOrder> CloudRM::compute_server_order(hashmap<CloudMachine, int
 
 /** Get the actual servers which must be ordered. 
  */
-std::vector<ServerOrder> CloudRM::get_servers(mesos::internal::master::Framework* framework, ResourceVector& req, PlacementConstraint& placement, std::string packing_policy)
+std::vector<ServerOrder> CloudRM::get_servers(
+  mesos::internal::master::Framework* framework,
+  ResourceVector& req,
+  PlacementConstraint& placement,
+  std::string packing_policy)
 {
   std::vector<ServerOrder> out ;
   
@@ -219,7 +276,9 @@ std::vector<ServerOrder> CloudRM::get_servers(mesos::internal::master::Framework
 /**
  * Resource request made by a framework. Framework->offeredResources is partitioned by slaveId, and we do packing etc based off of that. 
  */
-void CloudRM::res_req(mesos::internal::master::Framework* framework, const std::vector<mesos::Request>& requests)
+void CloudRM::res_req(
+  mesos::internal::master::Framework* framework,
+  const std::vector<mesos::Request>& requests)
 {
   LOG(INFO) << "~~~~~~ REQ RCVD " ;
   //1. Check if resources requested + totalUsedResources is within bounds or not?
@@ -257,7 +316,9 @@ void CloudRM::res_req(mesos::internal::master::Framework* framework, const std::
 
 /* Fill in the server order with the framework and the AMI information if needed?
  */
-void CloudRM::finalize_server_order(std::vector<ServerOrder>& to_buy, mesos::internal::master::Framework* framework)
+void CloudRM::finalize_server_order(
+  std::vector<ServerOrder>& to_buy,
+  mesos::internal::master::Framework* framework)
 {
   std::string frameworkID ; //=framework->frameworkID ;
   std::string ami = "8y4982" ;
@@ -273,7 +334,11 @@ void CloudRM::finalize_server_order(std::vector<ServerOrder>& to_buy, mesos::int
  * How to represent constraints? It can either be just some alpha for now.
  * Other locality constraints may be supported in the future. 
  */
-void find_free(mesos::internal::master::Framework* framework, std::vector<mesos::Request>& requests, std::vector<int> constraints) {
+void find_free(
+  mesos::internal::master::Framework* framework,
+  std::vector<mesos::Request>& requests,
+  std::vector<int> constraints)
+{
   //This is where the packing logic is implemented. 
 
 }
@@ -296,7 +361,8 @@ int CloudRM::bar()
 
 
 //Return a hashmap instead?? Vector? 
-hashmap<std::string, std::string> CloudRM::parse_slave_attributes(const  mesos::SlaveInfo& sinfo)
+hashmap<std::string, std::string> CloudRM::parse_slave_attributes(
+  const  mesos::SlaveInfo& sinfo)
 {
   hashmap<std::string, std::string> out ;
 
@@ -329,7 +395,9 @@ hashmap<std::string, std::string> CloudRM::parse_slave_attributes(const  mesos::
 /** Called from _registerSlave from the master, after allocator has
  *    been informed 
  */
-void CloudRM::new_server(mesos::internal::master::Slave* slave, const mesos::SlaveInfo&  sinfo)
+void CloudRM::new_server(
+  mesos::internal::master::Slave* slave,
+  const mesos::SlaveInfo&  sinfo)
 {
   //sinfo.get("role") ;
   //sinfo.get("owner_fmwk");

@@ -3025,7 +3025,8 @@ std::vector<SlaveID> Master::get_affected_slaves(std::string slave_id)
 }
   
   
-std::vector<Framework*> Master::get_affected_frameworks(std::vector<SlaveID> all_slaves)
+std::vector<Framework*> Master::get_affected_frameworks(
+  std::vector<SlaveID> all_slaves)
 {
   std::vector<Framework*> out ; //TODO: Use set instead of vector
   SlaveID s ;
@@ -3042,6 +3043,7 @@ std::vector<Framework*> Master::get_affected_frameworks(std::vector<SlaveID> all
   return out ;
 }
 
+  
 void Master::send_cloud_info(Framework* f)
 {
   CloudInfoMessage m2 ;
@@ -3054,8 +3056,16 @@ void Master::send_cloud_info(Framework* f)
   LOG(INFO) << "Sending Cloud_info to framework, " << m2.e_cost()  ;
   f->send(m2) ;
 }
-  
-void Master::handle_warning(std::string hostname, std::string slave_id, int countdown)
+
+// Resources Master::get_revoked_resources(std::string slave_id)
+// {
+//   Resources resources ;
+//   return resources ;
+// }
+
+
+  void Master::handle_warning(std::string hostname,
+			    std::string slave_id, int countdown)
 {
   LOG(INFO) << "Received termination warning from " << slave_id << " for " << countdown << " seconds" ;
   
@@ -3078,26 +3088,25 @@ void Master::handle_warning(std::string hostname, std::string slave_id, int coun
     //How will frameworks convert from slave id to executors?
     //Spark has taskIdtoSlaveId
     
+    UnavailableResources unavailableresources ; //Resources, Unavailability
+    
+    //Resources resources = get_revoked_resources(slave_id) ;
+    
     inverseOffer->mutable_id()->CopyFrom(newOfferId());
     inverseOffer->mutable_framework_id()->CopyFrom(f->id());
     
     inverseOffer->mutable_slave_id()->CopyFrom(affected_slave->id);
 
     //inverseOffer->mutable_url()->CopyFrom(url);
-      //inverseOffer->mutable_unavailability()->CopyFrom(unavailableResources.unavailability);
+    inverseOffer->mutable_unavailability()->CopyFrom(
+      unavailableresources.unavailability);
+
     message.add_inverse_offers()->CopyFrom(*inverseOffer);
     
     message.set_warning_time_seconds(120.0) ;
     f->send(message) ;    
-  }
-  //Broadcast the termination warning to the frameworks
-  //Framework status -> warned
-
-  // RescindInverseOfferMessage message;
-  // message.mutable_inverse_offer_id()->CopyFrom(inverseOffer->id());
-  // framework->send(message);
-
-  
+  } //send message to  every framework
+    
 }
   
 
@@ -5923,7 +5932,7 @@ void Master::offer(const FrameworkID& frameworkId,
 
   framework->send(message);
 
-  //TODO: Find better place for this? For now, we send cloud info immediately after the offers.
+  //TODO: Find better place for this? For now, we send cloud info immediately after the offers. Maybe with the heartbeat message of some kind?
   send_cloud_info(framework) ;
   
 }

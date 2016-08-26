@@ -48,6 +48,8 @@
 
 #include <vector>
 
+#include<aws/core/Aws.h>
+
 //using namespace mesos ;
 //using namespace mesos::internal ;
 //using namespace mesos::internal::slave ;
@@ -62,6 +64,8 @@ using namespace std;
 class CloudRM ;
 class CloudMachine ;
 
+/******************************************************************************/
+
 struct
 {
   hashmap<std::string, std::pair<int,int>> ec2 = 
@@ -75,6 +79,8 @@ struct
   }
   
 } EC2_machines;
+
+/******************************************************************************/
 
 class ResourceVector
 {
@@ -132,6 +138,8 @@ public:
   
 };
 
+/**********************************************************************/
+
 class PlacementConstraint
 {
 public:
@@ -145,6 +153,8 @@ public:
   
   virtual ~PlacementConstraint() {}
 };
+
+
 
 // class CloudMachine
 // {
@@ -174,6 +184,8 @@ struct hash<CloudMachine>
 } //namespace std 
 //ServerOrder should be ONE order, so that when acquiring the servers, we can fill in the details one at a time.
 
+/********************  CLASS ServerOrder     ******************************/
+
 /* This is a vector/collection of servers */
 class ServerOrder
 {
@@ -191,9 +203,46 @@ public:
   
   //This is filled in by whoever actually acquires the cloud server to point to the cloud server/machine. Initialized to null. 
   CloudMachine machine ;
+
+  std::string status ;  //ordered, fulfilled
+
+  //Have a list of instance-ids  in this server order? 
+  
+//   void buy_order() {
+//       Aws::EC2::Model::RunInstancesRequest request ;
+//       Aws::String ami = "fsdfsd" ;
+//       int count = 2 ;
+//       Aws::String Framework = "3423423" ;
+  
+//       Aws::String keyname = "prateeks" ;
+//       Aws::String user_data = "Framework=78245637856343 ; master=127.0.0.1:5050" ;
+//       Aws::EC2::Model::InstanceType type ;
+//       request.SetImageId(ami) ;
+//       request.SetMinCount(count) ;
+//       request.SetKeyName(keyname) ;
+//       request.SetUserData(user_data) ;
+//       request.SetInstanceType(type) ;
+//       request.SetClientToken(Framework) ;
+//       //Terminate instead of stopping!!
+// //  request.SetInstanceInitiatedShutdownBehavior 
+
+// /* Availability zone field is absent for on-demand instances, but seems to be present for spot instances. */
+//       //SpotInstanceRequest.SetAvailabilityZoneGroup     SetLaunchedAvailabilityZone   SetSpotPrice 
+//       Aws::Client::ClientConfiguration cconfig () ;
+//       Aws::EC2::EC2Client client ;
+  
+// //  RunInstancesAsync (const Model::RunInstancesRequest &request, const RunInstancesResponseReceivedHandler &handler, const std::shared_ptr< const Aws::Client::AsyncCallerContext > &context=nullptr) const 
+
+//       Aws::EC2::Model::RunInstancesOutcome outcome = client.RunInstances(request) ;
+ 
+//   }
+
+  
+  
 };  //End ServerOrder Class 
 
 
+/***********************  CLASS CloudRM   ***********************************/
 
 class CloudRM : public process::Process<CloudRM>
 {
@@ -207,7 +256,11 @@ public :
 
   vector<ServerOrder> pendingOrders  ;
 
+  hashmap<std::string, std::vector<ServerOrder>> frameworkServers ;
+  
   mesos::allocator::Allocator* allocator ;
+
+  Aws::SDKOptions options ;
   
   /****** Policy flags **********/
   int new_framework_starter_nodes = 0 ;
@@ -221,39 +274,59 @@ public :
   void foo() ;
   
   int bar() ;
-  
+
   /* Initialization message from the master */
-  int init(mesos::internal::master::Master* master) ;
+  int init(mesos::internal::master::Master* master);
 
   /* Newly registered framework */
-  int new_framework(const mesos::FrameworkInfo& frameworkinfo) ;
-  
-  void res_req(mesos::internal::master::Framework* framework, const std::vector<mesos::Request>& requests) ;
+  int new_framework(const mesos::FrameworkInfo& frameworkinfo);
 
-  //Should really return a vector of orders. 
-  std::vector<ServerOrder> pDefaultFrameworkResources(const mesos::FrameworkInfo& frameworkinfo) ;
+  void res_req(
+    mesos::internal::master::Framework* framework,
+    const std::vector<mesos::Request>& requests);
 
-  void add_to_pending_orders(std::vector<ServerOrder> orders) ;
+  // Should really return a vector of orders.
+  std::vector<ServerOrder> pDefaultFrameworkResources(
+    const mesos::FrameworkInfo& frameworkinfo);
 
+  void add_to_pending_orders(std::vector<ServerOrder> orders);
 
-  std::vector<ServerOrder> get_servers(mesos::internal::master::Framework* framework, ResourceVector& req, PlacementConstraint& placement, std::string packing_policy) ;
+  void read_portfolio_wts() ;
 
-  hashmap<CloudMachine, int> get_portfolio_wts(double alpha) ;
+  std::vector<ServerOrder> get_servers(
+    mesos::internal::master::Framework* framework,
+    ResourceVector& req,
+    PlacementConstraint& placement,
+    std::string packing_policy);
 
-  ServerOrder get_min_servers(double wt, const CloudMachine& cm, ResourceVector& req, std::string packing_policy) ;
+  hashmap<CloudMachine, int> get_portfolio_wts(double alpha);
 
-  std::vector<ServerOrder> compute_server_order(hashmap<CloudMachine, int> & portfolio_wts, ResourceVector& req, std::string packing_policy) ;
+  ServerOrder get_min_servers(
+    double wt,
+    const CloudMachine& cm,
+    ResourceVector& req,
+    std::string packing_policy);
 
-  void finalize_server_order(std::vector<ServerOrder>& to_buy, mesos::internal::master::Framework* framework) ;
+  std::vector<ServerOrder> compute_server_order(
+    hashmap<CloudMachine, int>& portfolio_wts,
+    ResourceVector& req,
+    std::string packing_policy);
 
-  hashmap<std::string, std::string> parse_slave_attributes(const mesos::SlaveInfo& sinfo) ;
-  
-  void new_server(mesos::internal::master::Slave* slave, const mesos::SlaveInfo&  sinfo) ;
-  
+  void finalize_server_order(
+    std::vector<ServerOrder>& to_buy,
+    mesos::internal::master::Framework* framework);
+
+  hashmap<std::string, std::string> parse_slave_attributes(
+    const mesos::SlaveInfo& sinfo);
+
+  void new_server(
+    mesos::internal::master::Slave* slave, const mesos::SlaveInfo& sinfo);
+
   /**************************************/
   virtual ~CloudRM() {}
   
 }; //end Class declaration
 
+/******************************************************************************/
 
 #endif 
