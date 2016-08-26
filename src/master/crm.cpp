@@ -25,6 +25,8 @@
 
 #include "master/crm.hpp"
 
+#include<aws/core/Aws.h>
+
 //using std::string;
 using namespace std ;
 
@@ -32,6 +34,10 @@ CloudRM::CloudRM()
 {
   LOG(INFO) << "~~~ FROM CLOUD RM" ;
   std::cout << "  CLOUD RM \n" ;
+  
+  Aws::SDKOptions options;
+  Aws::InitAPI(options);
+
 }
 
 /********************************************************************************/

@@ -128,6 +128,9 @@ CLEAN_EXTRACTED =	\
 # Dependencies for all-local.
 ALL_LOCAL = # Initialize ALL_LOCAL so we can add to it.
 
+AWS_CORE = aws-sdk-cpp-master/aws-cpp-sdk-core/libaws-cpp-sdk-core.so
+AWS_EC2 = aws-sdk-cpp-master/aws-cpp-sdk-ec2/libaws-cpp-sdk-ec2.so
+
 if HAS_PYTHON
 if WITH_BUNDLED_PIP
   ALL_LOCAL += $(PIP)-stamp

@@ -197,6 +197,12 @@ endif
 # though the plan is to remove this hard dependency as well. See MESOS-5450.
 MESOS_CPPFLAGS += -DHAS_AUTHENTICATION=1
 
+MESOS_CPPFLAGS += -I../3rdparty/aws-sdk-cpp-master/aws-cpp-sdk-core/include
+MESOS_CPPFLAGS += -I../3rdparty/aws-sdk-cpp-master/aws-cpp-sdk-ec2/include
+LDADD += -laws-cpp-sdk-core
+LDADD += -laws-cpp-sdk-ec2
+
+
 # README: we build the Mesos library out of a collection of
 # convenience libraries (that is, libraries that do not get installed
 # but we can use as building blocks to vary compile flags as necessary
