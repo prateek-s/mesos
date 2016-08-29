@@ -48,7 +48,18 @@
 
 #include <vector>
 
-#include<aws/core/Aws.h>
+
+/////////////////// AWS 
+#include <aws/core/Aws.h>
+#include <aws/core/Region.h>
+#include <aws/ec2/model/RunInstancesRequest.h>
+#include <aws/ec2/model/TerminateInstancesRequest.h>
+
+#include <aws/ec2/EC2Client.h>
+//#include <aws/client/ClientConfiguration.h>
+#include <aws/core/auth/AWSCredentialsProvider.h>
+#include <aws/ec2/model/Instance.h>
+
 
 //using namespace mesos ;
 //using namespace mesos::internal ;
@@ -206,38 +217,6 @@ public:
   CloudMachine machine ;
 
   std::string status ;  //ordered, fulfilled
-
-  //Have a list of instance-ids  in this server order? 
-  
-//   void buy_order() {
-//       Aws::EC2::Model::RunInstancesRequest request ;
-//       Aws::String ami = "fsdfsd" ;
-//       int count = 2 ;
-//       Aws::String Framework = "3423423" ;
-  
-//       Aws::String keyname = "prateeks" ;
-//       Aws::String user_data = "Framework=78245637856343 ; master=127.0.0.1:5050" ;
-//       Aws::EC2::Model::InstanceType type ;
-//       request.SetImageId(ami) ;
-//       request.SetMinCount(count) ;
-//       request.SetKeyName(keyname) ;
-//       request.SetUserData(user_data) ;
-//       request.SetInstanceType(type) ;
-//       request.SetClientToken(Framework) ;
-//       //Terminate instead of stopping!!
-// //  request.SetInstanceInitiatedShutdownBehavior 
-
-// /* Availability zone field is absent for on-demand instances, but seems to be present for spot instances. */
-//       //SpotInstanceRequest.SetAvailabilityZoneGroup     SetLaunchedAvailabilityZone   SetSpotPrice 
-//       Aws::Client::ClientConfiguration cconfig () ;
-//       Aws::EC2::EC2Client client ;
-  
-// //  RunInstancesAsync (const Model::RunInstancesRequest &request, const RunInstancesResponseReceivedHandler &handler, const std::shared_ptr< const Aws::Client::AsyncCallerContext > &context=nullptr) const 
-
-//       Aws::EC2::Model::RunInstancesOutcome outcome = client.RunInstances(request) ;
- 
-//   }
-
   
   
 };  //End ServerOrder Class 
@@ -261,7 +240,16 @@ public :
   
   mesos::allocator::Allocator* allocator ;
 
+
+  /************ AWS STUFF ****************/
   Aws::SDKOptions options ;
+  
+  Aws::Auth::AWSCredentials creds ;
+
+  Aws::Client::ClientConfiguration cconfig ;
+
+  Aws::EC2::EC2Client* client ;
+
   
   /****** Policy flags **********/
   int new_framework_starter_nodes = 0 ;
@@ -313,10 +301,12 @@ public :
     ResourceVector& req,
     std::string packing_policy);
 
+  std::vector<std::string> actually_buy_servers(ServerOrder& to_buy) ;
+  
   void finalize_server_order(
     std::vector<ServerOrder>& to_buy,
     mesos::internal::master::Framework* framework);
-
+  
   hashmap<std::string, std::string> parse_slave_attributes(
     const mesos::SlaveInfo& sinfo);
 

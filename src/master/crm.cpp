@@ -31,6 +31,8 @@
 #include <streambuf>
 
 
+
+
 //using std::string;
 using namespace std ;
 
@@ -41,14 +43,42 @@ CloudRM::CloudRM()
  
 }
 
+Aws::Auth::AWSCredentials init_aws_stuff(Aws::SDKOptions options)
+{
+  //Based on the above, can ignore all these options
+  
+  Aws::InitAPI(options);
+  //make your SDK calls in here.
+  LOG(INFO) << " AWS library loaded \n" ;
+
+  Aws::Auth::EnvironmentAWSCredentialsProvider envcreds ; //supposedly reads env vars 
+  
+  Aws::Auth::AWSCredentials creds = envcreds.GetAWSCredentials() ;
+  LOG(INFO) << "Credentials loaded too? \n" ;
+  
+  //std::cout << creds.GetAWSAccessKeyId()  << "\n" ;
+  //std::cout << creds.GetAWSSecretKey() << "\n" ;
+  
+  return creds ;
+}
+
 
 int CloudRM::init(mesos::internal::master::Master* master)
 {
   this->master = master ;
   LOG(INFO) << "~~~~~~~ INITIALIZED by master" ;
   allocator = master->get_allocator();
+
+  //1. Get credentials 
+  creds = init_aws_stuff(options); //Default options with nothing turned on 
+  //2. Initialize the default config
+
+  Aws::Region region = Aws::RegionMapper::GetRegionFromName("us-east-1") ;
+ 
+  cconfig.region = region ; //ClientConfig 
   
-  Aws::InitAPI(options);
+  //3. Initialize the client 
+  client = new Aws::EC2::EC2Client(creds, cconfig) ;
 
   return 1; 
 }
@@ -290,10 +320,70 @@ std::vector<ServerOrder> CloudRM::get_servers(
   hashmap<CloudMachine, int> portfolio_wts = get_portfolio_wts(placement.alpha);
   // 2. Translate wts into actual number of servers we need!
   out = compute_server_order(portfolio_wts, req, packing_policy);
+
   return out;
 }
 
 /********************************************************************************/
+
+std::vector<std::string> CloudRM::actually_buy_servers(
+  ServerOrder& to_buy)
+{
+  // Extract the cloud machine information first?
+  std::vector<std::string> out ;
+  
+  Aws::String keyname = "prateeks"; // only used for launching AMIs
+  Aws::String ami = to_buy.ami.c_str() ;
+  int count = to_buy.num ;
+
+  //TODO: Proper user_data string and specification.
+  //We might also want to run some scripts!
+  std::string user_data = "Framework=78245637856343 ; master=127.0.0.1:5050" ;
+
+  Aws::EC2::Model::InstanceType type =
+    Aws::EC2::Model::InstanceTypeMapper::GetInstanceTypeForName(
+      to_buy.machine.type.c_str());
+  
+
+  Aws::EC2::Model::RunInstancesRequest request;
+
+  request.SetImageId(ami);
+  request.SetMinCount(count);
+  request.SetKeyName(keyname);
+  request.SetUserData(user_data.c_str());
+  request.SetInstanceType(type);
+  request.SetClientToken(to_buy.framework.c_str());
+
+  //  request.SetInstanceInitiatedShutdownBehavior
+
+  /* Availability zone field is absent for on-demand instances, but seems to be
+   * present for spot instances. */
+  // SpotInstanceRequest.SetAvailabilityZoneGroup
+  // SetLaunchedAvailabilityZone   SetSpotPrice
+
+
+  //  RunInstancesAsync (const Model::RunInstancesRequest &request, const
+  //  RunInstancesResponseReceivedHandler &handler, const std::shared_ptr< const
+  //  Aws::Client::AsyncCallerContext > &context=nullptr) const
+
+  Aws::EC2::Model::RunInstancesOutcome outcome = client->RunInstances(request);
+
+  //TODO XXX Error checking, retry, etc.  outcome.GetError() ;
+  Aws::EC2::Model::RunInstancesResponse r = outcome.GetResult() ; 
+  Aws::String rid = r.GetReservationId() ;
+  //instance id would be useful to terminate it etc!!!
+  Aws::Vector<Aws::EC2::Model::Instance> launched_instances = r.GetInstances() ;
+
+  for (auto i : launched_instances) {
+    Aws::String id = i.GetInstanceId() ;
+    out.push_back(id.c_str()) ;
+  }
+
+  return out ;
+}
+
+
+/******************************************************************************/
 
 /**
  * Resource request made by a framework. Framework->offeredResources is partitioned by slaveId, and we do packing etc based off of that. 
@@ -321,6 +411,17 @@ void CloudRM::res_req(
   std::vector<ServerOrder> to_buy =
     get_servers(framework, req, placement, packing_policy);
 
+  //TODO XXX change to true to start burning EC2 money muwahaha 
+  bool actually_buy = false ;
+  if (actually_buy) {
+    for (auto server : to_buy) {
+      std::vector<std::string> instance_ids = actually_buy_servers(server) ;
+      if (instance_ids.empty()) {
+	LOG(INFO) << "Instance id vec is empty, oops " ;
+      }
+    }
+  }
+  
   // TODO: tag all these orders with the framework and AMI?
   // Actually ask amazon for these servers?
   finalize_server_order(to_buy, framework);
