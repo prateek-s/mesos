@@ -107,6 +107,7 @@ public:
   void add(double alpha, std::string market, double wt) {
 
   }
+  
 };
 
 
@@ -300,7 +301,7 @@ public :
 
   void add_to_pending_orders(std::vector<ServerOrder> orders);
 
-  void read_portfolio_wts() ;
+  Portfolios read_portfolio_wts() ;
 
   std::vector<ServerOrder> get_servers(
     mesos::internal::master::Framework* framework,
