@@ -2344,6 +2344,8 @@ struct Framework
 
   hashmap<SlaveID, hashmap<ExecutorID, ExecutorInfo>> executors;
 
+  hashset<SlaveID> term_warning_slaves ;
+  
   // NOTE: For the used and offered resources below, we keep the
   // total as well as partitioned by SlaveID.
   // We expose the total resources via the HTTP endpoint, and we
@@ -2374,6 +2376,7 @@ struct Framework
   Resources totalOfferedResources;
   hashmap<SlaveID, Resources> offeredResources;
 
+  //CRM 
   std::vector<ServerOrder> ServerOrders ;
   int numServersAssigned = 0;
   

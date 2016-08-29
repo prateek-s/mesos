@@ -3013,7 +3013,7 @@ Slave* Master::get_slave_by_id(std::string slave_id)
   return this_slave ;
 }
 
-/* Same market etc */
+/* Same market etc. ASK CRM for this info! */
 std::vector<SlaveID> Master::get_affected_slaves(std::string slave_id)
 {
   std::vector<SlaveID> out ;
@@ -3064,47 +3064,60 @@ void Master::send_cloud_info(Framework* f)
 // }
 
 
-  void Master::handle_warning(std::string hostname,
+void Master::handle_warning(std::string hostname,
 			    std::string slave_id, int countdown)
 {
   LOG(INFO) << "Received termination warning from " << slave_id << " for " << countdown << " seconds" ;
   
-  Slave* affected_slave = get_slave_by_id(slave_id) ;
+  //Slave* affected_slave = get_slave_by_id(slave_id) ;
   
-  CHECK_NOTNULL(affected_slave) ;
+  //CHECK_NOTNULL(affected_slave) ;
 
   std::vector<SlaveID> all_slaves = get_affected_slaves(slave_id) ;
   
   std::vector<Framework*> to_warn = get_affected_frameworks(all_slaves) ;
   
   for(auto f : to_warn) {
-    TerminationWarningMessage message ;
-    InverseOffer* inverseOffer = new InverseOffer() ;
-    //XXX Actually construct the inverse offer here!!!
-    //offerID
-    //FrameworkID
-    //Unavailability TimeInfo start
-    //slaveID
-    //How will frameworks convert from slave id to executors?
-    //Spark has taskIdtoSlaveId
+    for(auto affected_slave : all_slaves) {
+      
+      if(f->term_warning_slaves.find(affected_slave) !=
+	 f->term_warning_slaves.end() ) {
+	LOG(INFO) <<
+	  "Already warned about slave, not warning again " << affected_slave ;
+	continue ;
+      }
     
-    UnavailableResources unavailableresources ; //Resources, Unavailability
+      TerminationWarningMessage message ;
+      InverseOffer* inverseOffer = new InverseOffer() ;
+      //How will frameworks convert from slave id to executors?
+      //Spark has taskIdtoSlaveId. MPI should maintain list of slave-ids too
     
-    //Resources resources = get_revoked_resources(slave_id) ;
+      UnavailableResources unavailableresources ; //Resources, Unavailability
     
-    inverseOffer->mutable_id()->CopyFrom(newOfferId());
-    inverseOffer->mutable_framework_id()->CopyFrom(f->id());
+      //Resources resources = get_revoked_resources(slave_id) ;
     
-    inverseOffer->mutable_slave_id()->CopyFrom(affected_slave->id);
+      inverseOffer->mutable_id()->CopyFrom(newOfferId());
+      inverseOffer->mutable_framework_id()->CopyFrom(f->id());
+    
+      inverseOffer->mutable_slave_id()->CopyFrom(affected_slave);
 
-    //inverseOffer->mutable_url()->CopyFrom(url);
-    inverseOffer->mutable_unavailability()->CopyFrom(
-      unavailableresources.unavailability);
+      //inverseOffer->mutable_url()->CopyFrom(url);
+      inverseOffer->mutable_unavailability()->CopyFrom(
+	unavailableresources.unavailability);
 
-    message.add_inverse_offers()->CopyFrom(*inverseOffer);
+      message.add_inverse_offers()->CopyFrom(*inverseOffer);
     
-    message.set_warning_time_seconds(120.0) ;
-    f->send(message) ;    
+      message.set_warning_time_seconds(120.0) ;
+    
+      f->send(message) ;
+      LOG(INFO) << "Termination warning message sent to Framework " << f->id() ;
+
+      f->addInverseOffer(inverseOffer) ;
+    
+      f->term_warning_slaves.insert(affected_slave) ;
+
+    }
+    //TODO:: Garbage collect dead slaves.
   } //send message to  every framework
     
 }
