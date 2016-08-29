@@ -80,6 +80,8 @@ int CloudRM::init(mesos::internal::master::Master* master)
   //3. Initialize the client 
   client = new Aws::EC2::EC2Client(creds, cconfig) ;
 
+  read_portfolio_wts() ;
+  
   return 1; 
 }
 
@@ -153,7 +155,8 @@ void CloudRM::add_to_pending_orders (std::vector<ServerOrder> orders)
 //   {
 //     "wts": [
 //       {
-//         "m1.small-a": 0.5
+//         "market" : "m1.small-a",
+//          "wt" : 0.3 
 //       },
 //       {
 //         "r3.large-b": 0.5
@@ -176,6 +179,11 @@ void CloudRM::add_to_pending_orders (std::vector<ServerOrder> orders)
 
 void CloudRM::read_portfolio_wts()
 {
+  //Monstrosity of a structure, sorry!
+  //For each Alpha, we want to add a new object?
+  //This should be its own class!
+  Portfolios portfolios ;
+  
   std::string path = "/home/prateeks/code/mesos/portfolio/us-east-1.json";
   std::ifstream t(path);
   std::string str(
@@ -185,22 +193,35 @@ void CloudRM::read_portfolio_wts()
   JSON::Array arr = jarr.get();
 
   std::vector<JSON::Value> values = arr.values;
-
+  
+  LOG(INFO) << "Start reading portflio wts!" ;
+  
+  //Each file contains multiple portflios, one for each alpha 
   for (auto a_portfolio : values) {
     JSON::Object obj = a_portfolio.as<JSON::Object>();
 
     double alpha = obj.find<JSON::Number>("alpha").get().as<double>();
-    LOG(INFO) << alpha;
-
+    LOG(INFO) << "alpha= " << alpha;
+    
+    portfolios.new_portfolio(alpha) ;
+    
+    //Associated with each alpha, there is a weights array
     JSON::Array wts_array = obj.find<JSON::Array>("wts").get();
 
+    //Each element in the wts array is an object with type and wt fields 
     for (auto wtv : wts_array.values) {
       JSON::Object wobj = wtv.as<JSON::Object>();
-      std::map<std::string, JSON::Value> w_values = wobj.values;
-      // std::string market
-      // double actual_wt
-    }
+      
+      std::string market = wobj.find<JSON::String>("market").get().value ;
+      double actual_wt = wobj.find<JSON::Number>("wt").get().as<double>();
 
+      LOG(INFO) << market  << " : " << actual_wt ;
+      
+      //std::tuple tup = std::make_tuple(market, actual_wt) ;
+      
+      portfolios.add(alpha, market, actual_wt) ;
+      
+    } //For each market in the portfolio 
   } // outer for portfolios in values
 }
 

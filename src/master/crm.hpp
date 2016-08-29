@@ -93,6 +93,26 @@ struct
 
 /******************************************************************************/
 
+class Portfolios
+{
+public:
+
+  hashmap<double, std::vector<std::tuple<std::string, double>>> out ; 
+  
+  void new_portfolio(double alpha) {
+    //do nothing if hashmap, really.
+    // out[alpha] = NULL ;
+  }
+
+  void add(double alpha, std::string market, double wt) {
+
+  }
+};
+
+
+
+/******************************************************************************/
+
 class ResourceVector
 {
 public:
