@@ -62,7 +62,7 @@
 using namespace std;
 
 class CloudRM ;
-class CloudMachine ;
+class CloudMachine ;  // Class cloudmachine defined in include/mesos/master/crm.hpp
 
 /******************************************************************************/
 
@@ -171,6 +171,7 @@ public:
 //   }
   
 // }; //END CloudMachine class
+// Class cloudmachine defined in include/mesos/master/crm.hpp
 
 namespace std {
 template <>

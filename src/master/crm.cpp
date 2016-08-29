@@ -206,11 +206,10 @@ ServerOrder CloudRM::get_min_servers(
   else if(packing_policy == "binpack") {
     //How many servers we will need AFTER packing 
     int deficit = 0.0;
-    
-
-    
+        
     deficit = allocator->packServers(req_cpu, req_mem, cm, packing_policy).get();
-    //allocator->activateFramework(framework->id());
+
+//allocator->activateFramework(framework->id());
     order_count = deficit ;
   } //IF BINPACK
 
@@ -294,6 +293,7 @@ void CloudRM::res_req(
   placement.extract_placement_constraint(requests) ;
 
   std::vector<ServerOrder>to_buy = get_servers(framework, req, placement, packing_policy) ;
+
   //TODO: tag all these orders with the framework and AMI? 
   //Actually ask amazon for these servers? 
   finalize_server_order(to_buy, framework) ;
@@ -360,17 +360,23 @@ int CloudRM::bar()
 /********************************************************************************/
 
 
-//Return a hashmap instead?? Vector? 
+//Always returns a string, either an empty string or the
+//slave-provided value
+
 hashmap<std::string, std::string> CloudRM::parse_slave_attributes(
   const  mesos::SlaveInfo& sinfo)
 {
   hashmap<std::string, std::string> out ;
-
+  out["instance-type"] = "" ;
+  out["az"] = "" ;
+  out["owner-fmwk"] = "" ;
+  
   std::string itype ;
   std::string az ;
   std::string owner_fmwk ;
   
   mesos::Attributes attr = sinfo.attributes() ;
+  
   int a_size = attr.size() ;
   int i = 0 ;
   
@@ -392,6 +398,7 @@ hashmap<std::string, std::string> CloudRM::parse_slave_attributes(
   return out ;
 }
 
+
 /** Called from _registerSlave from the master, after allocator has
  *    been informed 
  */
@@ -399,38 +406,42 @@ void CloudRM::new_server(
   mesos::internal::master::Slave* slave,
   const mesos::SlaveInfo&  sinfo)
 {
-  //sinfo.get("role") ;
-  //sinfo.get("owner_fmwk");
-  //Find the owner framework out of the slaveInfo.
-  //Get some attributes first
-  //  slave->info.attributes()
-
  
   hashmap<std::string, std::string> slave_attrs = parse_slave_attributes(sinfo);  
   //Store the attributes of the slave somewhere? In the master? Allocator? Here? 
   //extract the owner_framework
-  auto owner_framework = slave_attrs.find("owner-fmwk") ;
+  std::string owner_framework = slave_attrs["owner-fmwk"] ;
 
   //First, let's update this slave's market information in a few places?
-  //Allocator
+  //::DONE:: Allocator
   //Master
   //CRM local map of slaves
-  
-  
-  if(owner_framework!=slave_attrs.end()) {
-    CloudMachine cm ;
-    cm.az = slave_attrs["az"] ;
-    cm.type = slave_attrs["instance-type"] ;
     
-    allocator->addSlave_cloudinfo(sinfo.id(), cm) ;
+  CloudMachine cm ;
+  cm.az = slave_attrs["az"] ; //These may not exist either? 
+  cm.type = slave_attrs["instance-type"] ;
+  
+  LOG(INFO) << "New slave has az " << cm.az << " and type " << cm.type ; 
+  
+  allocator->addSlave_cloudinfo(sinfo.id(), cm) ;
+  
+  if(packing_policy=="private") {
     
-    if(packing_policy=="private" || packing_policy=="binpack") {
-      //XXX decide whether to pass strings or SlaveID, FrameworkId 
-
-      //allocator->alloc_slave_to_fmwk(sinfo.id(), owner_framework) ;
-    } 
+    allocator->alloc_slave_to_fmwk(sinfo.id(), owner_framework) ;
+    
   }
+  else if( packing_policy=="binpack") {
+    
 
+  }
+  
 }
+
+
+
+
+/******************************************************************************/
+/*****************************   END  *****************************************/
+/******************************************************************************/
 
 

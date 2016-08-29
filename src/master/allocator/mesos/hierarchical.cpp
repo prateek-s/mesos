@@ -212,6 +212,7 @@ void HierarchicalAllocatorProcess::recover(
 // Return all the slaves running in the given market. 
 hashset<SlaveID> HierarchicalAllocatorProcess::get_slaves_of_market(const CloudMachine& cm)
 {
+  //TODO:  Filter on the market slaves
   return slaves.keys();
 }
 
