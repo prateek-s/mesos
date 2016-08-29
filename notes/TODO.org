@@ -1,4 +1,13 @@
 
+
+<2016-08-29 Mon>
+- Porfolio parsing 
+
+- Bring EC2 code into CRM 
+
+- 
+
+
 <2016-08-21 Sun>
 
 * Slave

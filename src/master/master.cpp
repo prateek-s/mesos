@@ -3023,27 +3023,27 @@ std::vector<SlaveID> Master::get_affected_slaves(std::string slave_id)
 
   return out ;
 }
-  
-  
+
+
 std::vector<Framework*> Master::get_affected_frameworks(
   std::vector<SlaveID> all_slaves)
 {
-  std::vector<Framework*> out ; //TODO: Use set instead of vector
-  SlaveID s ;
-  
-  hashmap<FrameworkID, Framework*> registered = frameworks.registered ;
-  
-  foreachvalue(Framework* Framework, registered) {
-    for(auto s : all_slaves) {
-      if(Framework->hasExecutor(s)) {
-	out.push_back(Framework) ;
+  std::vector<Framework*> out; // TODO: Use set instead of vector
+  SlaveID s;
+
+  hashmap<FrameworkID, Framework*> registered = frameworks.registered;
+
+  foreachvalue (Framework* Framework, registered) {
+    for (auto s : all_slaves) {
+      if (Framework->hasExecutor(s)) {
+        out.push_back(Framework);
       }
     }
   }
-  return out ;
+  return out;
 }
 
-  
+
 void Master::send_cloud_info(Framework* f)
 {
   CloudInfoMessage m2 ;
@@ -3097,29 +3097,27 @@ void Master::handle_warning(std::string hostname,
       //Resources resources = get_revoked_resources(slave_id) ;
     
       inverseOffer->mutable_id()->CopyFrom(newOfferId());
-      inverseOffer->mutable_framework_id()->CopyFrom(f->id());
-    
+      inverseOffer->mutable_framework_id()->CopyFrom(f->id());    
       inverseOffer->mutable_slave_id()->CopyFrom(affected_slave);
-
-      //inverseOffer->mutable_url()->CopyFrom(url);
       inverseOffer->mutable_unavailability()->CopyFrom(
 	unavailableresources.unavailability);
 
+      //inverseOffer->mutable_url()->CopyFrom(url);
       message.add_inverse_offers()->CopyFrom(*inverseOffer);
     
       message.set_warning_time_seconds(120.0) ;
     
       f->send(message) ;
+      
       LOG(INFO) << "Termination warning message sent to Framework " << f->id() ;
 
       f->addInverseOffer(inverseOffer) ;
     
       f->term_warning_slaves.insert(affected_slave) ;
-
+      
     }
     //TODO:: Garbage collect dead slaves.
-  } //send message to  every framework
-    
+  } //send message to  every framework    
 }
   
 
@@ -6665,6 +6663,10 @@ void Master::removeFramework(Framework* framework)
 
   // The completedFramework buffer now owns the framework pointer.
   frameworks.completed.push_back(shared_ptr<Framework>(framework));
+
+  //XXX inform CRM so that we can reclaim the servers!
+  //crm->removeFramework(framework) ;
+  
 }
 
 

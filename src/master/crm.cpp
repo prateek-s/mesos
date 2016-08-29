@@ -118,36 +118,60 @@ void CloudRM::add_to_pending_orders (std::vector<ServerOrder> orders)
 }
 
 
+// JSON parsing for the portfolios file which looks something like this :
+// [
+//   {
+//     "wts": [
+//       {
+//         "m1.small-a": 0.5
+//       },
+//       {
+//         "r3.large-b": 0.5
+//       }
+//     ],
+//     "alpha": 0.5
+//   },
+//   {
+//     "wts": [
+//       {
+//         "m3.large-c": 0.2
+//       },
+//       {
+//         "r3.xlarge-d": 0.8
+//       }
+//     ],
+//     "alpha": 1.0
+//   }
+// ]
+
 void CloudRM::read_portfolio_wts()
 {
-  std::string path = "/home/prateeks/code/mesos/portfolio/us-east-1.json" ;
+  std::string path = "/home/prateeks/code/mesos/portfolio/us-east-1.json";
   std::ifstream t(path);
-  std::string str((std::istreambuf_iterator<char>(t)),
-		  std::istreambuf_iterator<char>());
-  
-  Try<JSON::Array> jarr = JSON::parse<JSON::Array>(str) ;
-  JSON::Array arr = jarr.get() ;
+  std::string str(
+    (std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
 
-  std::vector<JSON::Value> values = arr.values ;
-  
-  for(auto a_portfolio : values) {
-    JSON::Object obj = a_portfolio.as<JSON::Object>() ;
-    
-    double alpha = obj.find<JSON::Number>("alpha").get().as<double>() ;
-    LOG(INFO) << alpha ;
-    
-    JSON::Array wts_array = obj.find<JSON::Array>("wts").get() ;
+  Try<JSON::Array> jarr = JSON::parse<JSON::Array>(str);
+  JSON::Array arr = jarr.get();
 
-    for(auto wtv : wts_array.values) {
-      JSON::Object wobj = wtv.as<JSON::Object>() ;
-      std::map<std::string, JSON::Value> w_values = wobj.values ;
-      //std::string market
-      //double actual_wt 
+  std::vector<JSON::Value> values = arr.values;
 
+  for (auto a_portfolio : values) {
+    JSON::Object obj = a_portfolio.as<JSON::Object>();
+
+    double alpha = obj.find<JSON::Number>("alpha").get().as<double>();
+    LOG(INFO) << alpha;
+
+    JSON::Array wts_array = obj.find<JSON::Array>("wts").get();
+
+    for (auto wtv : wts_array.values) {
+      JSON::Object wobj = wtv.as<JSON::Object>();
+      std::map<std::string, JSON::Value> w_values = wobj.values;
+      // std::string market
+      // double actual_wt
     }
 
-  } // outer for portfolios in values 
-
+  } // outer for portfolios in values
 }
 
 /********************************************************************************/
@@ -175,48 +199,48 @@ ServerOrder CloudRM::get_min_servers(
   ResourceVector& req,
   std::string packing_policy)
 {
-  ServerOrder out ;
-  std::string type = cm.type ;
-  LOG(INFO) << "Finding servers of type " << type ;
-  
-  //Resources required in this market.
-  double req_cpu = req.get_cpu() * wt ; 
-  double req_mem = req.get_mem() * wt ;
-  
-  //2. Get CPU and mem capacity of the given server type
-  int cap_cpu = EC2_machines.get_cpu(type) ;
-  int cap_mem = EC2_machines.get_mem(type) ;
+  ServerOrder out;
+  std::string type = cm.type;
+  LOG(INFO) << "Finding servers of type " << type;
 
-  //Number of additional servers of this type we will need. 
-  int order_count ;
+  // Resources required in this market.
+  double req_cpu = req.get_cpu() * wt;
+  double req_mem = req.get_mem() * wt;
+
+  // 2. Get CPU and mem capacity of the given server type
+  int cap_cpu = EC2_machines.get_cpu(type);
+  int cap_mem = EC2_machines.get_mem(type);
+
+  // Number of additional servers of this type we will need.
+  int order_count;
 
   // In private allocation, there is no sharing of servers, so no need
   // to do packing
-  if(packing_policy == "private") {
-    
-    LOG(INFO) << "Private packing policy in operation" ;
-    //3. Compute min numbers here?
-    double min_for_cpu = req_cpu/cap_cpu ;
-    double min_for_mem = req_mem/cap_mem ;
+  if (packing_policy == "private") {
+    LOG(INFO) << "Private packing policy in operation";
+    // 3. Compute min numbers here?
+    double min_for_cpu = req_cpu / cap_cpu;
+    double min_for_mem = req_mem / cap_mem;
 
-    order_count = ceil(std::max(min_for_mem, min_for_cpu)) ;
-  } //IF PRIVATE 
+    order_count = ceil(std::max(min_for_mem, min_for_cpu));
+  } // IF PRIVATE
 
-  //Ask allocator how many servers we will need. 
-  else if(packing_policy == "binpack") {
-    //How many servers we will need AFTER packing 
+  // Ask allocator how many servers we will need.
+  else if (packing_policy == "binpack") {
+    // How many servers we will need AFTER packing
     int deficit = 0.0;
-        
-    deficit = allocator->packServers(req_cpu, req_mem, cm, packing_policy).get();
 
-//allocator->activateFramework(framework->id());
-    order_count = deficit ;
-  } //IF BINPACK
+    deficit =
+      allocator->packServers(req_cpu, req_mem, cm, packing_policy).get();
+
+    // allocator->activateFramework(framework->id());
+    order_count = deficit;
+  } // IF BINPACK
 
 
-  out.num = order_count ;
-  out.machine = cm ;
-  return out ;
+  out.num = order_count;
+  out.machine = cm;
+  return out;
 }
 
 /********************************************************************************/
@@ -224,26 +248,25 @@ ServerOrder CloudRM::get_min_servers(
 /* Translates portfolio weights to actual servers. The wts indicate what fraction of the application should be running on servers in that market. If wt=1, then simply determine how many servers we need from this market to satisfy the cpu AND memory resources. In fact lets do this. 
  */
 std::vector<ServerOrder> CloudRM::compute_server_order(
-  hashmap<CloudMachine, int> & portfolio_wts,
+  hashmap<CloudMachine, int>& portfolio_wts,
   ResourceVector& req,
   std::string packing_policy)
 {
-  std::vector<ServerOrder> out ; 
-  //1. For each market, determine min servers to satisfy w*cpu and w*memory
-  foreachkey(const CloudMachine& cm, portfolio_wts) {
-    double wt = portfolio_wts[cm] ;
-    
-    ServerOrder in_market = get_min_servers(wt, cm, req, packing_policy) ;
-    
-    if(in_market.num == 0) {
-      //Server type too small maybe?
-      LOG(INFO) << "Cannot meet server order requirement, too small" ;
+  std::vector<ServerOrder> out;
+  // 1. For each market, determine min servers to satisfy w*cpu and w*memory
+  foreachkey (const CloudMachine& cm, portfolio_wts) {
+    double wt = portfolio_wts[cm];
+
+    ServerOrder in_market = get_min_servers(wt, cm, req, packing_policy);
+
+    if (in_market.num == 0) {
+      // Server type too small maybe?
+      LOG(INFO) << "Cannot meet server order requirement, too small";
+    } else {
+      out.push_back(in_market);
     }
-    else {
-      out.push_back(in_market) ;
-    }
-  } //end foreachkey
-  return out ;
+  } // end foreachkey
+  return out;
 }
 
 /********************************************************************************/
@@ -256,18 +279,18 @@ std::vector<ServerOrder> CloudRM::get_servers(
   PlacementConstraint& placement,
   std::string packing_policy)
 {
-  std::vector<ServerOrder> out ;
-  
-  if(packing_policy!="private") {
-    LOG(INFO) << "Packing policy " << packing_policy << " is NOT supported " ;
-    return out ;
+  std::vector<ServerOrder> out;
+
+  if (packing_policy != "private") {
+    LOG(INFO) << "Packing policy " << packing_policy << " is NOT supported ";
+    return out;
   }
 
-  //1. Find the portfolio-vector for the given alpha first.
-  hashmap<CloudMachine, int> portfolio_wts = get_portfolio_wts(placement.alpha) ;
-  //2. Translate wts into actual number of servers we need!
-  out = compute_server_order(portfolio_wts, req, packing_policy) ;
-  return out ;
+  // 1. Find the portfolio-vector for the given alpha first.
+  hashmap<CloudMachine, int> portfolio_wts = get_portfolio_wts(placement.alpha);
+  // 2. Translate wts into actual number of servers we need!
+  out = compute_server_order(portfolio_wts, req, packing_policy);
+  return out;
 }
 
 /********************************************************************************/
@@ -279,37 +302,40 @@ void CloudRM::res_req(
   mesos::internal::master::Framework* framework,
   const std::vector<mesos::Request>& requests)
 {
-  LOG(INFO) << "~~~~~~ REQ RCVD " ;
-  //1. Check if resources requested + totalUsedResources is within bounds or not?
-  //2. See if we can find some free resources on any machine to fill these demands
+  LOG(INFO) << "~~~~~~ REQ RCVD ";
+  // 1. Check if resources requested + totalUsedResources is within bounds or
+  // not?
+  // 2. See if we can find some free resources on any machine to fill these
+  // demands
   // find_free(framework, requests, constraints) ;
-  //3. Buy more cloud servers if required.
-  //4. Make this a Future/Promise thingy so that we know the execution context (the framework which actually requested these servers.
-  //5. Once the new servers are up, do we need to perform the packing again?
+  // 3. Buy more cloud servers if required.
+  // 4. Make this a Future/Promise thingy so that we know the execution context
+  // (the framework which actually requested these servers.
+  // 5. Once the new servers are up, do we need to perform the packing again?
 
-  ResourceVector req ;
-  req.extract_resource_vector(requests) ;
-  PlacementConstraint placement ;
-  placement.extract_placement_constraint(requests) ;
+  ResourceVector req;
+  req.extract_resource_vector(requests);
+  PlacementConstraint placement;
+  placement.extract_placement_constraint(requests);
 
-  std::vector<ServerOrder>to_buy = get_servers(framework, req, placement, packing_policy) ;
+  std::vector<ServerOrder> to_buy =
+    get_servers(framework, req, placement, packing_policy);
 
-  //TODO: tag all these orders with the framework and AMI? 
-  //Actually ask amazon for these servers? 
-  finalize_server_order(to_buy, framework) ;
+  // TODO: tag all these orders with the framework and AMI?
+  // Actually ask amazon for these servers?
+  finalize_server_order(to_buy, framework);
 
-  bool ec2_buy = false ;
-  std::vector<ServerOrder> servers ;
-  
-  if(ec2_buy) {
-    //CALL EC2 libraries here.
-    
+  bool ec2_buy = false;
+  std::vector<ServerOrder> servers;
+
+  if (ec2_buy) {
+    // CALL EC2 libraries here.
+
   } else {
-    servers = to_buy ;
+    servers = to_buy;
   }
-  framework->ServerOrders = servers  ;
-  framework->numServersAssigned = servers.size() ;
-  
+  framework->ServerOrders = servers;
+  framework->numServersAssigned = servers.size();
 }
 
 /********************************************************************************/
@@ -320,11 +346,11 @@ void CloudRM::finalize_server_order(
   std::vector<ServerOrder>& to_buy,
   mesos::internal::master::Framework* framework)
 {
-  std::string frameworkID ; //=framework->frameworkID ;
-  std::string ami = "8y4982" ;
-  for(auto order : to_buy) {
-    order.framework = frameworkID ;
-    order.ami = ami ;
+  std::string frameworkID; //=framework->frameworkID ;
+  std::string ami = "8y4982";
+  for (auto order : to_buy) {
+    order.framework = frameworkID;
+    order.ami = ami;
   }
 }
 
@@ -345,6 +371,79 @@ void find_free(
 
 /********************************************************************************/
 
+
+//Always returns a string, either an empty string or the
+//slave-provided value
+
+hashmap<std::string, std::string> CloudRM::parse_slave_attributes(
+  const mesos::SlaveInfo& sinfo)
+{
+  hashmap<std::string, std::string> out;
+  out["instance-type"] = "";
+  out["az"] = "";
+  out["owner-fmwk"] = "";
+
+  std::string itype;
+  std::string az;
+  std::string owner_fmwk;
+
+  mesos::Attributes attr = sinfo.attributes();
+
+  int a_size = attr.size();
+  int i = 0;
+
+  for (i = 0; i < a_size; i++) {
+    if (attr.get(i).name() == "instance-type") {
+      itype = attr.get(i).text().value();
+      out["instance-type"] = itype;
+    } else if (attr.get(i).name() == "az") {
+      az = attr.get(i).text().value();
+      out["az"] = az;
+    } else if (attr.get(i).name() == "owner-fmwk") {
+      owner_fmwk = attr.get(i).text().value();
+      out["owner-fmwk"] = owner_fmwk;
+    }
+  } // end FOR loop across all attributes
+
+  return out;
+}
+
+
+/** Called from _registerSlave from the master, after allocator has
+ *    been informed 
+ */
+void CloudRM::new_server(
+  mesos::internal::master::Slave* slave, const mesos::SlaveInfo& sinfo)
+{
+  hashmap<std::string, std::string> slave_attrs = parse_slave_attributes(sinfo);
+  // Store the attributes of the slave somewhere? In the master? Allocator?
+  // Here?
+  // extract the owner_framework
+  std::string owner_framework = slave_attrs["owner-fmwk"];
+
+  // First, let's update this slave's market information in a few places?
+  //::DONE:: Allocator
+  // Master
+  // CRM local map of slaves
+
+  CloudMachine cm;
+  cm.az = slave_attrs["az"]; // These may not exist either?
+  cm.type = slave_attrs["instance-type"];
+
+  LOG(INFO) << "New slave has az " << cm.az << " and type " << cm.type;
+
+  allocator->addSlave_cloudinfo(sinfo.id(), cm);
+
+  if (packing_policy == "private") {
+    allocator->alloc_slave_to_fmwk(sinfo.id(), owner_framework);
+
+  } else if (packing_policy == "binpack") {
+  }
+}
+
+
+/********************************************************************************/
+
 void CloudRM::foo()
 {
   LOG(INFO) << "~~~~~~~ FOO " ;
@@ -356,88 +455,6 @@ int CloudRM::bar()
   LOG(INFO) << "~~~~~~~ BAR CALLED " ;
   return 32; 
 }
-
-/********************************************************************************/
-
-
-//Always returns a string, either an empty string or the
-//slave-provided value
-
-hashmap<std::string, std::string> CloudRM::parse_slave_attributes(
-  const  mesos::SlaveInfo& sinfo)
-{
-  hashmap<std::string, std::string> out ;
-  out["instance-type"] = "" ;
-  out["az"] = "" ;
-  out["owner-fmwk"] = "" ;
-  
-  std::string itype ;
-  std::string az ;
-  std::string owner_fmwk ;
-  
-  mesos::Attributes attr = sinfo.attributes() ;
-  
-  int a_size = attr.size() ;
-  int i = 0 ;
-  
-  for(i = 0; i < a_size; i++) {
-    if(attr.get(i).name() == "instance-type") {
-      itype = attr.get(i).text().value() ;
-      out["instance-type"] = itype ;
-    }
-    else if(attr.get(i).name() == "az") {
-      az = attr.get(i).text().value() ;
-      out["az"] = az ;
-    }
-    else if(attr.get(i).name() == "owner-fmwk") {
-      owner_fmwk = attr.get(i).text().value() ;
-      out["owner-fmwk"] = owner_fmwk ;
-    }
-  }//end FOR loop across all attributes
-   
-  return out ;
-}
-
-
-/** Called from _registerSlave from the master, after allocator has
- *    been informed 
- */
-void CloudRM::new_server(
-  mesos::internal::master::Slave* slave,
-  const mesos::SlaveInfo&  sinfo)
-{
- 
-  hashmap<std::string, std::string> slave_attrs = parse_slave_attributes(sinfo);  
-  //Store the attributes of the slave somewhere? In the master? Allocator? Here? 
-  //extract the owner_framework
-  std::string owner_framework = slave_attrs["owner-fmwk"] ;
-
-  //First, let's update this slave's market information in a few places?
-  //::DONE:: Allocator
-  //Master
-  //CRM local map of slaves
-    
-  CloudMachine cm ;
-  cm.az = slave_attrs["az"] ; //These may not exist either? 
-  cm.type = slave_attrs["instance-type"] ;
-  
-  LOG(INFO) << "New slave has az " << cm.az << " and type " << cm.type ; 
-  
-  allocator->addSlave_cloudinfo(sinfo.id(), cm) ;
-  
-  if(packing_policy=="private") {
-    
-    allocator->alloc_slave_to_fmwk(sinfo.id(), owner_framework) ;
-    
-  }
-  else if( packing_policy=="binpack") {
-    
-
-  }
-  
-}
-
-
 
 
 /******************************************************************************/
