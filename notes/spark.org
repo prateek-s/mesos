@@ -40,6 +40,7 @@ spark.cores.max defaults to infinite in mesos mode if not set.
 
 
 ** Termination Warning 
+
 The question is what to do after a termination warning. Take the policy options via spark configuration parameters again? spark.exosphere.warning="ignore, kill"
 
 The options are:
@@ -54,5 +55,17 @@ The options are:
  - Checkpoint the RDD partitions being computed by the tasks in the executor. *Not implementing it now*
 
 
+::TODO:: Call replenish/repair. Call resource_request (tag:repair), for now? 
+
 ** CloudInfo
 Take the MTTF and pass it to the RDD checkpointing logic. Do this instead of taking MTTF from the spark configuration as in the case of Flint. 
+
+
+** Mesos API
+Looks like the cloudinfo and terminationwarning messages/events ARE present as class files in build/src/java ... /v1/ . Spark should be able to read and view these bindings then. 
+
+::TODO:: Verify that sbt build actually uses the mesos from the local host and not pull off from the internet!
+
+The mesos jar files are here /home/prateeks/code/mesos/build/src/java/target
+
+Use javap <classfile> to see if the methods are there in the individual class files.

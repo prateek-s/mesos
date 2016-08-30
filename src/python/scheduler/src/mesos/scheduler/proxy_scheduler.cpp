@@ -175,6 +175,28 @@ cleanup:
 }
 
 
+void ProxyScheduler::terminationWarning(
+  SchedulerDriver* driver,
+  const std::vector<InverseOffer>& inverse_offers,
+  double warning_time_seconds)
+{
+
+
+}
+  
+void ProxyScheduler::cloudInfo(
+  SchedulerDriver* driver ,
+  double e_cost ,
+  double e_mttf ,
+  double current_cost ,
+  double current_mttf)
+{
+
+  
+}
+  
+  
+  
 void ProxyScheduler::offerRescinded(SchedulerDriver* driver,
                                     const OfferID& offerId)
 {

@@ -30,6 +30,7 @@ pkgconfig_DATA = mesos.pc
 # Directories to optionally install test binaries and libraries.
 testlibexecdir = $(pkglibexecdir)/tests
 
+
 # Since we generate several files in src/ with config.status, make
 # sure they're regenerated before we recurse into the src directory.
 all-recursive: src/python/setup.py			\

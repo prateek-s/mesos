@@ -34,3 +34,7 @@ missing
 .libs/
 *-stamp
 .cpp#
+/src/tests/#dynamic_weights_tests.cpp#
+/src/tests/#resource_offers_tests.cpp#
+/src/tests/.#dynamic_weights_tests.cpp
+/src/tests/.#resource_offers_tests.cpp

@@ -141,6 +141,20 @@ PyMethodDef MesosSchedulerDriverImpl_methods[] = {
     METH_NOARGS,
     "Remove all filters and ask Mesos for new offers"
   },
+
+  // { "cloudInfo",
+  //   (PyCFunction) MesosSchedulerDriverImpl_cloudInfo,
+  //   METH_NOARGS,
+  //   "Get cloud cost and avail information"
+  // },
+
+  // { "terminationWarning",
+  //   (PyCFunction) MesosSchedulerDriverImpl_terminationWarning,
+  //   METH_NOARGS,
+  //   "React to termination warnings!"
+  // },
+
+   
   { "suppressOffers",
     (PyCFunction) MesosSchedulerDriverImpl_suppressOffers,
     METH_NOARGS,
@@ -656,6 +670,25 @@ PyObject* MesosSchedulerDriverImpl_reviveOffers(MesosSchedulerDriverImpl* self)
   return PyInt_FromLong(status); // Sets exception if creating long fails.
 }
 
+
+  
+// PyObject* MesosSchedulerDriverImpl_cloudInfo(MesosSchedulerDriverImpl* self,
+// 					     PyObject* args)
+// {
+
+//   Status status ;
+//   return PyInt_FromLong(status) ;
+// }
+
+// PyObject* MesosSchedulerDriverImpl_terminationWarning(MesosSchedulerDriverImpl* self,
+// 					     PyObject* args)
+// {
+
+//   Status status ;
+//   return PyInt_FromLong(status) ;
+// }
+
+  
 
 PyObject* MesosSchedulerDriverImpl_suppressOffers(
     MesosSchedulerDriverImpl* self)

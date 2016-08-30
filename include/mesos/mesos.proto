@@ -1217,6 +1217,28 @@ message Offer {
 
 
 /**
+ * Information message for the framework
+ */
+ message CloudInfo {
+ required string message = 1 ;
+// repeated Resource resources = 2;
+// Resources is too low-level. We just need a list of agents/slaves with
+// corresponding price and MTTF etc.
+// repeated <Slave-id, price, MTTF>
+ 
+}
+
+/* Termination warning message ? */
+  // Transient server revocation warning passed to the framework.
+  // Use the inverse offers infrastructure.
+  // Also give the warning time
+message TerminationWarning {
+  repeated InverseOffer inverse_offers = 1;
+  required double warning_time_seconds = 2 ;
+} 
+
+
+/**
  * A request to return some resources occupied by a framework.
  */
 message InverseOffer {

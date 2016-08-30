@@ -56,6 +56,20 @@ public:
   virtual void resourceOffers(SchedulerDriver* driver,
                               const vector<Offer>& offers);
   virtual void offerRescinded(SchedulerDriver* driver, const OfferID& offerId);
+
+  virtual void cloudInfo(
+    SchedulerDriver* driver ,
+    double e_cost ,
+    double e_mttf ,
+    double current_cost ,
+    double current_mttf) ;
+
+  virtual void terminationWarning(
+    SchedulerDriver* driver,
+    const std::vector<InverseOffer>& inverse_offers,
+    double warning_time_seconds) ;
+
+  
   virtual void statusUpdate(SchedulerDriver* driver, const TaskStatus& status);
   virtual void frameworkMessage(SchedulerDriver* driver,
                                 const ExecutorID& executorId,
@@ -230,6 +244,106 @@ void JNIScheduler::resourceOffers(SchedulerDriver* driver,
 }
 
 
+void JNIScheduler::terminationWarning(
+  SchedulerDriver* driver,
+  const std::vector<InverseOffer>& inverse_offers,
+  double warning_time_seconds)
+{
+  jvm->AttachCurrentThread(JNIENV_CAST(&env), nullptr);
+
+  jclass clazz = env->GetObjectClass(jdriver);
+
+  jfieldID scheduler = env->GetFieldID(clazz, "scheduler", "Lorg/apache/mesos/Scheduler;");
+  jobject jscheduler = env->GetObjectField(jdriver, scheduler);
+
+  jmethodID terminationWarning =
+    env->GetMethodID(clazz, "terminationWarning",
+		     "(Lorg/apache/mesos/SchedulerDriver;"
+		     "Ljava/util/List; D;)V");
+  
+  clazz = env->GetObjectClass(jscheduler);
+
+    clazz = env->FindClass("java/util/ArrayList");
+
+  jmethodID _init_ = env->GetMethodID(clazz, "<init>", "()V");
+  jobject joffers = env->NewObject(clazz, _init_);
+
+  jmethodID add = env->GetMethodID(clazz, "add", "(Ljava/lang/Object;)Z");
+
+  // Loop through C++ vector and add each offer to the Java list.
+
+  foreach (const InverseOffer& offer, inverse_offers) {
+    jobject joffer = convert<InverseOffer>(env, offer);
+    env->CallBooleanMethod(joffers, add, joffer);
+  }
+
+  jdouble j_warning_time_seconds = warning_time_seconds ;
+
+//////////////////////////////////////////////////////////////////
+  env->ExceptionClear();
+
+  env->CallVoidMethod(jscheduler, terminationWarning, jdriver, joffers, j_warning_time_seconds) ;
+
+  if (env->ExceptionCheck()) {
+    env->ExceptionDescribe();
+    env->ExceptionClear();
+    jvm->DetachCurrentThread();
+    driver->abort();
+    return;
+  }
+
+  jvm->DetachCurrentThread();  
+}
+
+
+
+//XXX this was easy because only doubles were involved, and no lists? 
+void JNIScheduler::cloudInfo(
+  SchedulerDriver* driver,
+  double e_cost ,
+  double e_mttf ,
+  double current_cost ,
+  double current_mttf)
+{
+  jvm->AttachCurrentThread(JNIENV_CAST(&env), nullptr);
+
+  jclass clazz = env->GetObjectClass(jdriver);
+
+  jfieldID scheduler = env->GetFieldID(clazz, "scheduler", "Lorg/apache/mesos/Scheduler;");
+  jobject jscheduler = env->GetObjectField(jdriver, scheduler);
+
+  clazz = env->GetObjectClass(jscheduler);
+
+  // scheduler.cloudInfo(driver, offers);
+  jmethodID cloudInfo =
+    env->GetMethodID(clazz, "cloudInfo",
+		     "(Lorg/apache/mesos/SchedulerDriver;"
+		     "D; D; D; D;)V");
+
+  jdouble j_e_cost = e_cost ;
+  jdouble j_e_mttf = e_mttf ;
+  jdouble j_current_cost = current_cost ;
+  jdouble j_current_mttf = current_mttf ;
+  
+  env->ExceptionClear();
+
+  env->CallVoidMethod(jscheduler, cloudInfo, jdriver, j_e_cost, j_e_mttf, j_current_cost, j_current_mttf);
+
+  if (env->ExceptionCheck()) {
+    env->ExceptionDescribe();
+    env->ExceptionClear();
+    jvm->DetachCurrentThread();
+    driver->abort();
+    return;
+  }
+
+  jvm->DetachCurrentThread();
+}
+
+
+
+
+
 void JNIScheduler::offerRescinded(SchedulerDriver* driver,
                                   const OfferID& offerId)
 {
@@ -316,7 +430,7 @@ void JNIScheduler::frameworkMessage(SchedulerDriver* driver,
 
   clazz = env->GetObjectClass(jscheduler);
 
-  // scheduler.frameworkMessage(driver, executorId, slaveId, data);
+  // scheduler.frameworkMessage(driver, executorId, slaveId, data); 
   jmethodID frameworkMessage =
     env->GetMethodID(clazz, "frameworkMessage",
 		     "(Lorg/apache/mesos/SchedulerDriver;"
@@ -461,6 +575,8 @@ void JNIScheduler::error(SchedulerDriver* driver, const string& message)
   jvm->DetachCurrentThread();
 }
 
+
+/**************** THIS IS only for framework -> mesos communication *******/
 
 extern "C" {
 

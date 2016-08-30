@@ -95,3 +95,137 @@ int main()
   
 }
 #+END_SRC
+
+Including for shutting down
+
+#+BEGIN_SRC cpp
+
+/* Compile using g++ -std=c++11 1.cpp  -laws-cpp-sdk-core -laws-cpp-sdk-ec2 */
+
+#include <iostream>
+
+#include <aws/core/Aws.h>
+#include <aws/ec2/model/RunInstancesRequest.h>
+#include <aws/ec2/model/TerminateInstancesRequest.h>
+
+#include <aws/ec2/EC2Client.h>
+//#include <aws/client/ClientConfiguration.h>
+#include <aws/core/auth/AWSCredentialsProvider.h>
+#include <aws/ec2/model/Instance.h>
+
+//#include <aws/core/config/AWSProfileConfigLoader.h>
+//profileloader is indeed not present in the install path. WHY!?!?!
+
+
+
+/******************************************************************************/
+
+Aws::Auth::AWSCredentials init_aws_stuff(Aws::SDKOptions options)
+{
+  //Based on the above, can ignore all these options
+  
+  Aws::InitAPI(options);
+  //make your SDK calls in here.
+  std::cout << " AWS library loaded \n" ;
+
+  Aws::Auth::EnvironmentAWSCredentialsProvider envcreds ; //supposedly reads env vars 
+  
+  Aws::Auth::AWSCredentials creds = envcreds.GetAWSCredentials() ;
+  std::cout << "Credentials loaded too? \n" ;
+  std::cout << creds.GetAWSAccessKeyId()  << "\n" ;
+  std::cout << creds.GetAWSSecretKey() << "\n" ;
+  
+  return creds ;
+}
+
+
+/******************************************************************************/
+
+Aws::EC2::Model::RunInstancesOutcome launch_amis(
+  Aws::String Framework,
+  Aws::Auth::AWSCredentials creds,
+  Aws::EC2::EC2Client client)
+{
+  Aws::String keyname = "prateeks" ; //only used for launching AMIs
+  Aws::String ami = "fsdfsd" ;
+  int count = 1 ;
+   
+  Aws::String user_data = "Framework=78245637856343 ; master=127.0.0.1:5050" ;
+  
+  Aws::EC2::Model::InstanceType type ;
+
+  Aws::EC2::Model::RunInstancesRequest request ;
+  
+  request.SetImageId(ami) ;
+  request.SetMinCount(count) ;
+  request.SetKeyName(keyname) ;
+  request.SetUserData(user_data) ;
+  request.SetInstanceType(type) ;
+  request.SetClientToken(Framework) ;
+
+//  request.SetInstanceInitiatedShutdownBehavior 
+
+/* Availability zone field is absent for on-demand instances, but seems to be present for spot instances. */
+  //SpotInstanceRequest.SetAvailabilityZoneGroup     SetLaunchedAvailabilityZone   SetSpotPrice 
+
+  
+//  RunInstancesAsync (const Model::RunInstancesRequest &request, const RunInstancesResponseReceivedHandler &handler, const std::shared_ptr< const Aws::Client::AsyncCallerContext > &context=nullptr) const 
+
+  Aws::EC2::Model::RunInstancesOutcome outcome = client.RunInstances(request) ;
+
+  //outcome.GetError() ;
+  return outcome ;
+}
+
+/******************************************************************************/
+
+int main()
+{
+  Aws::SDKOptions options ;  //loggingoptions, memmgmt, http, crypto
+
+  //First create the credentials and configuration objects
+  
+  Aws::Client::ClientConfiguration cconfig ; //This has credentials??
+  Aws::Region region ; // "us-east-1"
+  cconfig.region = region ;
+
+  Aws::Auth::AWSCredentials creds = init_aws_stuff(options) ;
+  
+  Aws::EC2::EC2Client client(creds, cconfig) ;
+  
+  
+  Aws::String Framework = "3423423" ;   //useful for user-data and tagging?
+  Aws::EC2::Model::RunInstancesOutcome outcome = launch_amis(Framework, creds, client) ;
+
+  Aws::EC2::Model::RunInstancesResponse r = outcome.GetResult() ; 
+  Aws::String rid = r.GetReservationId() ;
+  //instance id would be useful to terminate it etc!!!
+  Aws::Vector<Aws::EC2::Model::Instance> launched_instances = r.GetInstances() ;
+  //Maybe need to poll this etc?? 
+
+  
+  //terminate_instances(client) ;
+  
+  Aws::ShutdownAPI(options) ;  
+  
+}
+
+
+void terminate_instances(Aws::EC2::EC2Client client)
+{
+
+  Aws::EC2::Model::TerminateInstancesRequest trequest  ;
+//  trequest.SetInstanceIds(<Aws::String>"") ; //TODO get the actual instance id strings, not the model
+  //trequest.addinstanceids(string) ;
+  
+  Aws::EC2::Model::TerminateInstancesOutcome troutcome = client.TerminateInstances(trequest) ;
+
+}
+
+/******************************************************************************/
+/******************************************************************************/
+/******************************************************************************/
+
+
+#+END_SRC
+
