@@ -41,6 +41,26 @@ This needs polling though! Had written a script for this --- where is it? Spark?
 ** User-data 
 http://169.254.169.254/latest/user-data to get the user-data 
 
+With cloud-init, any script can be passed as user-data.
+We need to pass:
+
+- master ip and port 
+- Framework ID 
+- Tell the mesos-slave to startup 
+
+Could do the slave-startup thing using an init script
+
+"framework=sdfsdf ; master=http://:5050"
+
+init script launches mesos-slave IFF master exists. This way we can have one common image for master and slaves. Start master manually. 
+
+
+ec2-run-instances                             \
+  --user-data-file /home/root/beginProcess.sh \
+  --key $USER                                 \
+  ami-XXXXXXXX
+
+
 
 ** AWS API
 

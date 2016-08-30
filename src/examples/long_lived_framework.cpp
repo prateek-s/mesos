@@ -357,7 +357,8 @@ protected:
           LOG(INFO)
             << "Starting executor and task " << tasksLaunched
             << " on " << offer.hostname();
-	  //TODO: Save the slave-id -> task-id mapping somewhere 
+	  
+	  //TODO XXX : Save the slave-id -> task-id mapping somewhere 
           launch(offer);
 
           agentId = offer.agent_id();
@@ -485,6 +486,32 @@ private:
     task.mutable_resources()->CopyFrom(taskResources);
     task.mutable_executor()->CopyFrom(executor);
 
+    // 
+    // XXX Are we not running any real tasks?
+    // driver.launchTasks(execname, options) 
+    // threading.Thread(target = mpiexec).start()
+    // Fill out the taskinfo
+
+    
+    // task.command.value 
+    // TaskInfo task;
+    // task.set_name("Task " + lexical_cast<string>(taskId));
+    // task.mutable_task_id()->set_value(
+    //     lexical_cast<string>(taskId));
+    // task.mutable_agent_id()->MergeFrom(offer.agent_id());
+    // task.mutable_executor()->MergeFrom(executor);
+    
+    // Option<Resources> resources =
+    //   remaining.find(TASK_RESOURCES.flatten(framework.role()));
+    
+    // CHECK_SOME(resources);
+    
+    // task.mutable_resources()->CopyFrom(resources.get());
+    
+    // remaining -= resources.get();
+
+
+    
     Call call;
     call.set_type(Call::ACCEPT);
 
