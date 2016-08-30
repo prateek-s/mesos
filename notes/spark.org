@@ -62,10 +62,51 @@ Take the MTTF and pass it to the RDD checkpointing logic. Do this instead of tak
 
 
 ** Mesos API
-Looks like the cloudinfo and terminationwarning messages/events ARE present as class files in build/src/java ... /v1/ . Spark should be able to read and view these bindings then. 
+Looks like the cloudinfo and terminationwarning messages/events ARE present as class files in build/src/java ... /v1/ . Spark should be able to read and view these bindings then. *BUT IT DOESNT!* 
 
-::TODO:: Verify that sbt build actually uses the mesos from the local host and not pull off from the internet!
+::TODO:: Verify that sbt build actually uses the mesos from the local host and not pull off from the internet! 
+
 
 The mesos jar files are here /home/prateeks/code/mesos/build/src/java/target
 
 Use javap <classfile> to see if the methods are there in the individual class files.
+
+1. Need to "install" the jar inside the spark project tree first using mvn:
+
+mvn deploy:deploy-file -Durl=file:///home/prateeks/code/flint/sspark/repo/ -Dfile=mesos-1.0.0-shaded-protobuf.jar -DgroupId=org.apache.mesos -DartifactId=mesos -Dpackaging=jar -Dversion=1.0.0
+
+
+2. Change pom.xml to use a local file repo 
+First, change version to 1.0.0
+    <mesos.version>1.0.0</mesos.version>
+and then point to the repo
+
+#+BEGIN_SRC xml
+
+    <repository>
+        <id>mymesos</id>
+        <name>mesos_local</name>
+        <url>file:${project.basedir}/repo</url>
+    </repository>
+#+END_SRC 
+
+** Mesos Java interface 
+
+Lots of files changed. Add Declarations in Scheduler.java (NOT SchedulerDriver)
+
+#+BEGIN_SRC java
+
+  void cloudInfo(SchedulerDriver driver,   double e_cost ,
+		 double e_mttf ,
+		 double current_cost ,
+		 double current_mttf) ;
+
+  void terminationWarning(SchedulerDriver driver,
+			  List<InverseOffer> inverse_offers,
+			  double warning_time_seconds) ;
+#+END_SRC
+
+And then a whole slew of JNI stuff which is too involved 
+
+** Mesos python interface 
+

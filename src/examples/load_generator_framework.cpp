@@ -196,6 +196,27 @@ public:
 
   virtual void statusUpdate(SchedulerDriver*, const TaskStatus&) {}
 
+  virtual void cloudInfo(
+    SchedulerDriver* driver ,
+    double e_cost ,
+    double e_mttf ,
+    double current_cost ,
+    double current_mttf)
+    {
+
+
+    }
+
+ virtual void terminationWarning(
+    SchedulerDriver* driver,
+    const std::vector<InverseOffer>& inverse_offers,
+    double warning_time_seconds)
+    {
+
+
+    }
+
+  
   virtual void frameworkMessage(
       SchedulerDriver*,
       const ExecutorID&,

@@ -61,6 +61,7 @@ using mesos::v1::Resources;
 using mesos::v1::TaskInfo;
 using mesos::v1::TaskState;
 using mesos::v1::TaskStatus;
+using mesos::v1::InverseOffer ;
 
 using mesos::v1::scheduler::Call;
 using mesos::v1::scheduler::Event;
@@ -118,6 +119,8 @@ public:
 
   virtual ~LongLivedScheduler() {}
 
+/******************************************************************************/
+  
 protected:
   virtual void initialize()
   {
@@ -133,6 +136,8 @@ protected:
     
   }
 
+/******************************************************************************/
+  
   void connected()
   {
     state = CONNECTED;
@@ -147,6 +152,8 @@ protected:
     state = DISCONNECTED;
   }
 
+/******************************************************************************/
+  
   void doReliableRegistration()
   {
     if (state == SUBSCRIBED || state == DISCONNECTED) {
@@ -168,6 +175,8 @@ protected:
     process::delay(Seconds(1), self(), &Self::doReliableRegistration);
   }
 
+/******************************************************************************/
+  
   void askResources()
   {
       LOG(INFO) << "Asking Mesos for specified amount of resources" ;
@@ -210,12 +219,33 @@ protected:
       
   }
 
+/******************************************************************************/
+
   void handleWarning(const Event::TerminationWarning& warning)
   {
-    
+    // TODO: Process the inverseoffer for slave-ids
+    double countdown = warning.warning_time_seconds();
+    int num_affected = warning.inverse_offers_size();
 
+    LOG(INFO) << countdown << num_affected ;
+    
+    vector<InverseOffer> ioffers =
+      google::protobuf::convert(warning.inverse_offers());
+
+    for(auto m : ioffers) {
+      //m is the inverse offer
+      if(m.has_agent_id()) {
+	std::string affected = m.agent_id().value() ;
+	LOG(INFO) << affected ;
+	
+	
+      }
+    }
+    
   }
 
+  /******************************************************************************/
+  
   void processCloudInfo(const Event::CloudInfo& info)
   {
     double e_cost = info.e_cost() ;
@@ -225,6 +255,8 @@ protected:
     LOG(INFO) << e_cost ;
     LOG(INFO) << e_mttf << e_cost << current_cost << current_mttf ;
   }
+
+/******************************************************************************/
   
   void received(queue<Event> events)
   {
@@ -305,6 +337,8 @@ protected:
     }
   }
 
+/******************************************************************************/
+  
   void offers(const vector<Offer>& offers)
   {
     CHECK_EQ(SUBSCRIBED, state);
@@ -323,7 +357,7 @@ protected:
           LOG(INFO)
             << "Starting executor and task " << tasksLaunched
             << " on " << offer.hostname();
-
+	  //TODO: Save the slave-id -> task-id mapping somewhere 
           launch(offer);
 
           agentId = offer.agent_id();
@@ -350,6 +384,8 @@ protected:
     }
   }
 
+/******************************************************************************/
+  
   void update(const TaskStatus& status)
   {
     CHECK_EQ(SUBSCRIBED, state);
@@ -382,6 +418,8 @@ protected:
     }
   }
 
+/******************************************************************************/
+  
   void agentFailed(const AgentID& _agentId)
   {
     CHECK_EQ(SUBSCRIBED, state);
@@ -393,6 +431,8 @@ protected:
     }
   }
 
+/******************************************************************************/
+  
   void executorFailed(
       const ExecutorID& executorId,
       const AgentID& _agentId,
@@ -407,6 +447,9 @@ protected:
     agentId = None();
   }
 
+/******************************************************************************/
+/******************************************************************************/
+  
 private:
   // Helper to decline an offer.
   void decline(const Offer& offer)
@@ -427,6 +470,8 @@ private:
     mesos->send(call);
   }
 
+/******************************************************************************/
+  
   // Helper to launch a task using an offer.
   void launch(const Offer& offer)
   {
@@ -457,6 +502,8 @@ private:
     mesos->send(call);
   }
 
+/******************************************************************************/
+  
   enum State
   {
     DISCONNECTED,
@@ -464,6 +511,8 @@ private:
     SUBSCRIBED
   } state;
 
+/******************************************************************************/
+  
   const string master;
   FrameworkInfo framework;
   const ExecutorInfo executor;
@@ -480,6 +529,9 @@ private:
   Owned<Mesos> mesos;
 
   process::Time start_time;
+
+/******************************************************************************/
+  
   double _uptime_secs()
   {
     return (Clock::now() - start_time).secs();
@@ -490,6 +542,8 @@ private:
     return state == SUBSCRIBED ? 1 : 0;
   }
 
+/******************************************************************************/
+  
   struct Metrics
   {
     Metrics(const LongLivedScheduler& scheduler)
@@ -531,6 +585,7 @@ private:
   } metrics;
 };
 
+/******************************************************************************/
 
 class Flags : public flags::FlagsBase
 {
@@ -588,6 +643,9 @@ public:
   Option<string> principal;
   Option<string> secret;
 };
+
+/******************************************************************************/
+/******************************************************************************/
 
 
 int main(int argc, char** argv)
@@ -673,3 +731,10 @@ int main(int argc, char** argv)
 
   return EXIT_SUCCESS;
 }
+
+
+/******************************************************************************/
+/******************************************************************************/
+/******************************************************************************/
+
+
