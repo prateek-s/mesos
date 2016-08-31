@@ -93,6 +93,8 @@ public:
 
   virtual ~HierarchicalAllocatorProcess() {}
 
+  bool cloud_mode  = true ;
+  
   process::PID<HierarchicalAllocatorProcess> self() const
   {
     return process::PID<Self>(this);

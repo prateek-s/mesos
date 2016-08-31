@@ -526,6 +526,7 @@ void HierarchicalAllocatorProcess::updateFramework(
 }
 
 
+//XXX what is this here for ? 
 void HierarchicalAllocatorProcess::addSlave_cloudinfo(
   const SlaveID& slaveId,
   const CloudMachine& cm)
@@ -1264,6 +1265,11 @@ void HierarchicalAllocatorProcess::allocate()
     VLOG(1) << "Skipped allocation because the allocator is paused";
 
     return;
+  }
+
+  if (cloud_mode) {
+    VLOG(1) << "IN local mode , not allocating via the standard paths" ;
+    return ;
   }
 
   Stopwatch stopwatch;
