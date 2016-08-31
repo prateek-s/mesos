@@ -604,11 +604,13 @@ void CloudRM::new_server(
 
   
   if (unbound_slave == true) {
+    LOG(INFO) << "~~~ New unbound slave registered! " ;
     
     if (pending_frameworks.empty()) {
       //There are no frameworks registered yet. So put this in a free-list
       free_slaves.push_back(sinfo.id()) ;
       
+      return ;
     }
     else {
       //There IS a framework we can assign this slave to!
@@ -616,8 +618,9 @@ void CloudRM::new_server(
       pending_frameworks.pop_back() ;
       
       allocator->alloc_slave_to_fmwk(sinfo.id(), candidate_fmwk) ;
+      return ;
     }
-    return  ;
+
   } //end unbound_slave 
   
 
@@ -625,8 +628,7 @@ void CloudRM::new_server(
   cm.az = slave_attrs["az"]; // These may not exist either?
   cm.type = slave_attrs["instance-type"];
 
-  LOG(INFO) << "New slave has az " << cm.az << " and type " << cm.type;
-
+  LOG(INFO) << "~~~~~ New slave has az " << cm.az << " and type " << cm.type;
   
   allocator->addSlave_cloudinfo(sinfo.id(), cm);
 
@@ -643,7 +645,9 @@ void CloudRM::new_server(
 
 bool CloudRM::check_unbound_slave(hashmap<std::string, std::string>& s)
 {
-  if (s["instance-type"]=="" && s["az"]=="local" && s["owner-fmwk"]=="*")
+  LOG(INFO) << "Slave instance type is " <<  s["instance-type"] ;
+  
+  if (s["instance-type"]=="local" && s["az"]=="local" && s["owner-fmwk"]=="*")
     return true ;
   else
     return false ;

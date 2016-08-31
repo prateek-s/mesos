@@ -195,14 +195,15 @@ protected:
 
   void launch(const TaskInfo& task)
   {
-    cout << "Starting task " << task.task_id().value() << endl;
+    cout << "LL EXEC Starting task " << task.task_id().value() << endl;
 
     tasks[task.task_id()] = task;
 
     std::thread thread([=]() {
-      os::sleep(Seconds(random() % 10));
-
-      process::dispatch(self(), &Self::update, task, TaskState::TASK_FINISHED);
+	
+	os::sleep(Seconds(21)); //This is what the executor executes!
+	
+	process::dispatch(self(), &Self::update, task, TaskState::TASK_FINISHED);
     });
 
     thread.detach();

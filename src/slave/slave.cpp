@@ -204,7 +204,7 @@ void Slave::signaled(int signal, int uid)
 hashmap<std::string, std::string> Slave::get_cloud_server_data()
 {
   hashmap<std::string ,std::string> out ;
-  out["instance-type"] = "" ;
+  out["instance-type"] = "local" ;
   out["az"] = "local" ;
   out["owner-fmwk"] = "*" ;
 
@@ -218,14 +218,31 @@ hashmap<std::string, std::string> Slave::get_cloud_server_data()
   // Will need to make THREE separate GET requests aargh. Use curl directly? Please!
 
   process::http::Response http_response ;
-  std::string body ;
-  process::http::URL url ;
-  Future<process::http::Response> response ;
-
-  url = process::http::URL("http", hname, 80, itype_path);
   
-  response = process::http::get(url) ;
-  http_response = response.get() ;
+  std::string body ;
+
+  Future<process::http::Response> response ;
+  
+  process::http::URL url ;
+  
+  url = process::http::URL("http", hname, 80, itype_path);
+
+  LOG(INFO) << "URL TO FETCH " << url ;
+
+  goto fail ;
+ 
+  response = process::http::get(url) ; //this is a future. Failing here??
+  
+  LOG(INFO) << "http::get success " ;
+  
+  if (response.isFailed()) {
+    LOG(INFO) << "Response future is failed " ;
+    goto fail ;
+  }
+  
+  
+  http_response = response.get() ;    //this is failing?
+  
   if(http_response.code == process::http::Status::OK) {
     body = http_response.body ;
     out["instance-type"]  = body ;
@@ -260,7 +277,7 @@ hashmap<std::string, std::string> Slave::get_cloud_server_data()
   //  AWAIT_READY(response); 		     //if Futures are not used?
   //response->code == http::Status::OK && response->status == http::Status::OK
   //Can we do JSON::parse(response->body)
-    
+  fail:
   return out ;
 }
     

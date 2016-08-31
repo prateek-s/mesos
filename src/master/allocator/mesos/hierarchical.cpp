@@ -996,6 +996,11 @@ void HierarchicalAllocatorProcess::recoverResources(
     return;
   }
 
+  if(cloud_mode) {
+    LOG(INFO) << " Exiting from recoverResources in Cloud mode " << frameworkId ;
+    return ;
+  }
+  
   // Updated resources allocated to framework (if framework still
   // exists, which it might not in the event that we dispatched
   // Master::offer before we received

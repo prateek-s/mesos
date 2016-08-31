@@ -5055,6 +5055,11 @@ void Master::reregisterSlave(
   LOG(INFO) << "Re-registering agent " << slaveInfo.id() << " at " << from
             << " (" << slaveInfo.hostname() << ")";
 
+  
+  LOG(INFO) << "~~~ Telling CRM of rereigsterd slave" ;
+  
+  crm->new_server(slave, slaveInfo) ;
+  
   slaves.reregistering.insert(slaveInfo.id());
 
   // This handles the case when the slave tries to re-register with

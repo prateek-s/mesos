@@ -476,16 +476,26 @@ private:
   // Helper to launch a task using an offer.
   void launch(const Offer& offer)
   {
+    LOG(INFO) << "INSIDE LAUNCH TASKS! " ;
+    
     int taskId = tasksLaunched++;
     ++metrics.tasks_launched;
 
     TaskInfo task;
-    task.set_name("Task " + stringify(taskId));
+    task.set_name("TOP-Task " + stringify(taskId));
     task.mutable_task_id()->set_value(stringify(taskId));
     task.mutable_agent_id()->MergeFrom(offer.agent_id());
     task.mutable_resources()->CopyFrom(taskResources);
-    task.mutable_executor()->CopyFrom(executor);
+    
+    //task.mutable_executor()->CopyFrom(executor);
+    // Either executor info or task info, but not both 
 
+    //task.mutable_command()->set_shell(true);    
+    std::string command = "yes > /dev/null" ;
+    task.mutable_command()->set_value(command);
+
+
+    
     // 
     // XXX Are we not running any real tasks?
     // driver.launchTasks(execname, options) 
@@ -510,6 +520,7 @@ private:
     
     // remaining -= resources.get();
 
+    LOG(INFO) << "LL launching task now!!! " ;
 
     
     Call call;
