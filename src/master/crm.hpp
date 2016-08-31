@@ -252,6 +252,8 @@ public :
   /***************** Fields **************/
   
   int p = 42 ;
+
+  bool local_mode ;
   
   mesos::internal::master::Master* master ;
 
@@ -260,8 +262,12 @@ public :
   hashmap<std::string, std::vector<ServerOrder>> frameworkServers ;
   
   mesos::allocator::Allocator* allocator ;
+  
+  std::vector<mesos::SlaveID> free_slaves ; //unbound_slaves
 
-
+  std::vector<std::string> pending_frameworks ; //in unbound_slaves mode 
+  
+  
   /************ AWS STUFF ****************/
   Aws::SDKOptions options ;
   
@@ -334,6 +340,9 @@ public :
   void new_server(
     mesos::internal::master::Slave* slave, const mesos::SlaveInfo& sinfo);
 
+  bool check_unbound_slave(hashmap<std::string, std::string>& s) ;
+
+  
   /**************************************/
   virtual ~CloudRM() {}
   

@@ -69,6 +69,13 @@ int CloudRM::init(mesos::internal::master::Master* master)
   LOG(INFO) << "~~~~~~~ INITIALIZED by master" ;
   allocator = master->get_allocator();
 
+  local_mode = true ;
+
+  if (local_mode) {
+    //IN local mode, AWS stuff is not required at all 
+    return true ;
+  }
+  
   //1. Get credentials 
   creds = init_aws_stuff(options); //Default options with nothing turned on 
   //2. Initialize the default config
@@ -108,46 +115,15 @@ vector<ServerOrder> CloudRM::pDefaultFrameworkResources(
 
 /********************************************************************************/
 
- /* A new framework has been registered with us. Most frameworks will
-  * subsequently ask for resources once they have been registered with
-  * the mesos master. We can put the framework on some sort of a
-  * pending list?
- */
-int CloudRM::new_framework(const mesos::FrameworkInfo& frameworkinfo)
-{
-  LOG(INFO) << "~~~~~~~ NEW FRAMEWORK" ;
-  std::string fid ;
-  
-  if(frameworkinfo.has_id()) {
-    fid = frameworkinfo.id().value() ;
-  }
-  if(new_framework_starter_nodes==0){
-    return 0;
-  }
-    
-  /* Create the server order vector for the framework according to some rule engine*/
-  std::vector<ServerOrder> order ; //= pDefaultFrameworkResources(frameworkinfo) ;
-  
-  //add_to_pending_orders 
-  if(!order.empty()) {
-    
-    LOG(INFO) << "Something in order " ;
-    
-    add_to_pending_orders(order) ; 
-    /* Now ask the cloud layer to fulfill this order for us */
-//     process:dispatch(AwsAgent, GetServers, order) 
-  }
-  return 1; 
-}
-
-/********************************************************************************/
-
 //should be associated with some framework?
 void CloudRM::add_to_pending_orders (std::vector<ServerOrder> orders)
 {
   
   
 }
+
+
+/********************************************************************************/
 
 
 // JSON parsing for the portfolios file which looks something like this :
@@ -437,13 +413,42 @@ void CloudRM::res_req(
   PlacementConstraint placement;
   placement.extract_placement_constraint(requests);
 
+  std::string fmwk_id = framework->id().value() ;
+  
+  if (local_mode) {
+
+    if (free_slaves.empty()) {
+      // If no slave exists, add to pending frameworks and exit       
+      LOG(INFO) << "************ START SOME AGENTS FOR FRAMEWORK!" ;
+      
+      pending_frameworks.push_back(fmwk_id) ;
+      
+      return ;
+    }
+    else {
+      //There are some free slaves! Assign ALL to this framework
+      //XXX TODO while loop here for all slaves.
+      mesos::SlaveID slaveid = free_slaves.back() ;
+      
+      free_slaves.pop_back() ;
+      
+      // Match this slave with the framework
+      allocator->alloc_slave_to_fmwk(slaveid, fmwk_id) ;
+      
+      return ;
+    }
+
+  } //end local mode 
+  
   std::vector<ServerOrder> to_buy =
     get_servers(framework, req, placement, packing_policy);
 
   //TODO XXX change to true to start burning EC2 money muwahaha 
   bool actually_buy = false ;
   if (actually_buy) {
+    
     for (auto server : to_buy) {
+      
       std::vector<std::string> instance_ids = actually_buy_servers(server) ;
       if (instance_ids.empty()) {
 	LOG(INFO) << "Instance id vec is empty, oops " ;
@@ -539,6 +544,49 @@ hashmap<std::string, std::string> CloudRM::parse_slave_attributes(
 }
 
 
+/********************************************************************************/
+
+ /* A new framework has been registered with us. Most frameworks will
+  * subsequently ask for resources once they have been registered with
+  * the mesos master. We can put the framework on some sort of a
+  * pending list?
+ */
+int CloudRM::new_framework(const mesos::FrameworkInfo& frameworkinfo)
+{
+  LOG(INFO) << "~~~~~~~ NEW FRAMEWORK" ;
+  std::string fid ;
+  
+  if(frameworkinfo.has_id()) {
+    fid = frameworkinfo.id().value() ;
+  }
+  if(new_framework_starter_nodes == 0){
+    return 0;
+  }
+
+  if (local_mode) {
+    LOG(INFO) << "In local mode, nothing to do for new framework" ;
+    // we dont do anything in cloud mode anyway
+    return 1 ;
+  }
+
+  /* Create the server order vector for the framework according to some rule engine*/
+  std::vector<ServerOrder> order ; //= pDefaultFrameworkResources(frameworkinfo) ;
+  
+  //add_to_pending_orders 
+  if(!order.empty()) {
+    
+    LOG(INFO) << "Something in order " ;
+    
+    add_to_pending_orders(order) ; 
+    /* Now ask the cloud layer to fulfill this order for us */
+//     process:dispatch(AwsAgent, GetServers, order) 
+  }
+  return 1; 
+}
+
+
+/********************************************************************************/
+
 /** Called from _registerSlave from the master, after allocator has
  *    been informed 
  */
@@ -551,10 +599,27 @@ void CloudRM::new_server(
   // extract the owner_framework
   std::string owner_framework = slave_attrs["owner-fmwk"];
 
-  // First, let's update this slave's market information in a few places?
-  //::DONE:: Allocator
-  // Master
-  // CRM local map of slaves
+  //Check if local slave
+  bool unbound_slave = check_unbound_slave(slave_attrs) ;
+
+  
+  if (unbound_slave == true) {
+    
+    if (pending_frameworks.empty()) {
+      //There are no frameworks registered yet. So put this in a free-list
+      free_slaves.push_back(sinfo.id()) ;
+      
+    }
+    else {
+      //There IS a framework we can assign this slave to!
+      std::string candidate_fmwk = pending_frameworks.back() ;
+      pending_frameworks.pop_back() ;
+      
+      allocator->alloc_slave_to_fmwk(sinfo.id(), candidate_fmwk) ;
+    }
+    return  ;
+  } //end unbound_slave 
+  
 
   CloudMachine cm;
   cm.az = slave_attrs["az"]; // These may not exist either?
@@ -562,6 +627,7 @@ void CloudRM::new_server(
 
   LOG(INFO) << "New slave has az " << cm.az << " and type " << cm.type;
 
+  
   allocator->addSlave_cloudinfo(sinfo.id(), cm);
 
   if (packing_policy == "private") {
@@ -573,6 +639,18 @@ void CloudRM::new_server(
 
 
 /********************************************************************************/
+
+
+bool CloudRM::check_unbound_slave(hashmap<std::string, std::string>& s)
+{
+  if (s["instance-type"]=="" && s["az"]=="local" && s["owner-fmwk"]=="*")
+    return true ;
+  else
+    return false ;
+}
+
+/********************************************************************************/
+
 
 void CloudRM::foo()
 {

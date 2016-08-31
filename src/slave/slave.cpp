@@ -197,10 +197,18 @@ void Slave::signaled(int signal, int uid)
   }
 }
 
+// Get server type, avail zone, and owner framework from the EC2
+// information service. If not running on EC2, return the local server
+// flags so that CRM on the master can tag us as an unbound-slave.
+  
 hashmap<std::string, std::string> Slave::get_cloud_server_data()
 {
   hashmap<std::string ,std::string> out ;
+  out["instance-type"] = "" ;
+  out["az"] = "local" ;
+  out["owner-fmwk"] = "*" ;
 
+  
   std::string hname = "169.254.169.254";
 
   std::string itype_path = "/latest/meta-data/instance-type" ;
@@ -221,6 +229,10 @@ hashmap<std::string, std::string> Slave::get_cloud_server_data()
   if(http_response.code == process::http::Status::OK) {
     body = http_response.body ;
     out["instance-type"]  = body ;
+  } else {
+    LOG(INFO) << "Not in the EC2 cloud, returning local slave attributes" ;
+    
+    return out ;
   }
 
   url = process::http::URL("http", hname, 80, az_path);
