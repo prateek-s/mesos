@@ -1,0 +1,40 @@
+
+** Run BOINC on ExoSphere 
+
+Revocation -> Checkpoint 
+Revocation -> Ignore 
+
+Measure job completion time 
+
+BOINC is bag of tasks . Also change number of pools here! 
+10 servers total? Or 5? 
+All in one mkt
+2 mkts
+3
+4
+5 etc.
+
+Inject revocation in one market. Show what happens to BOINC throughput 
+
+Repeat the same for Spark 3 Flint workloads + TPC-H also 
+
+Spark has completion time as metric. What about BOINC? 
+
+BOINC tasks may not be of the same length sadly. Computation units performed? Lost? 
+
+For repeatability, use a load-generator framework which we can checkpoint-restart etc.
+
+Maybe mesos-sim? Simulate lost tasks by checkpointing policy etc, measure other things.
+
+Checkpoint will require sleeping etc though!!
+
+
+
+
+** Grand experiment 
+
+COMES LAST after other expts are done 
+
+Run Spark, Boinc, MPI at the same time
+Revoke one market 
+Show what happens to each with different policies 

@@ -251,6 +251,9 @@ void HierarchicalAllocatorProcess::alloc_slave_to_fmwk(const SlaveID& slaveId, c
   offerable[slaveId] += available; 
   slaves[slaveId].allocated += available ;  //Wow this is optimistic assignment
 
+  //XXX Sorters need to be informed so that resources can be reclaimed safely?
+  //
+  
   //Offercallback takes hashmap of slaveid and resources 
   offerCallback(fid, offerable) ; //This actually makes the offer!
   

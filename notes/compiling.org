@@ -3,3 +3,6 @@
 cd build ; make tags ; make cscope ;
 
 TAGS is in build/src , cscope.out is in build 
+
+
+apt-get install zlib1g-dev 

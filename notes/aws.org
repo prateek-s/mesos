@@ -61,6 +61,23 @@ ec2-run-instances                             \
   ami-XXXXXXXX
 
 
+** EC2 scripts
+
+ubuntu ami: ami-a8137dbf
+ubuntu-ebs ami-4f680658
+aws-ebs-backed ami-6869aa05
+aws-instance-storage ami-dc6aa9b1
+
+bin/ec2-run-instances --image-id ami-4f680658 -k prateeks -t m4.xlarge
+
+ssh -i prateeks.pem ubuntu@ec2-54-196-240-119.compute-1.amazonaws.com
+
+git branch -a # to see all remote branches 
+git checkout -b fg origin/fg 
+
+All mesos apt-get packages
+also default-java for sbt (strange!)
+
 
 ** AWS API
 

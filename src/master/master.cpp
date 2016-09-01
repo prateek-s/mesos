@@ -2907,6 +2907,12 @@ void Master::deactivate(Framework* framework)
     removeOffer(offer, true); // Rescind.
   }
 
+  //TODO XXX We have currently deactivated recoverResources.
+  // Either modify the allocator so that this works correctly
+  // OR inform CRM to terminate all servers associated with this framework
+  // Things are more complicated with packing :
+  // Because we have to properly reclaim resources of framework
+  
   // Remove the framework's inverse offers.
   foreach (InverseOffer* inverseOffer, utils::copy(framework->inverseOffers)) {
     allocator->updateInverseOffer(
