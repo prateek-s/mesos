@@ -1,0 +1,1 @@
+/usr/bin/c++  -fPIC  -Wall -Werror -pedantic -Wextra -fno-exceptions  -shared -Wl,-soname,libaws-cpp-sdk-core.so -o libaws-cpp-sdk-core.so @CMakeFiles/aws-cpp-sdk-core.dir/objects1.rsp -lpthread -luuid -lcurl -lssl -lcrypto -lz 

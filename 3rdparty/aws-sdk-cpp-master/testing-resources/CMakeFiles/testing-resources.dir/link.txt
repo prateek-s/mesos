@@ -1,0 +1,1 @@
+/usr/bin/c++  -fPIC  -Wall -Werror -pedantic -Wextra -fno-exceptions  -shared -Wl,-soname,libtesting-resources.so -o libtesting-resources.so @CMakeFiles/testing-resources.dir/objects1.rsp ../aws-cpp-sdk-core/libaws-cpp-sdk-core.so -lpthread -luuid -lcurl -lssl -lcrypto -lz -Wl,-rpath,/home/prateeks/code/aws-sdk-cpp-master/aws-cpp-sdk-core 

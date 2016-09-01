@@ -1,0 +1,1 @@
+/usr/bin/c++  -fPIC  -Wall -Werror -pedantic -Wextra -fno-exceptions  -shared -Wl,-soname,libaws-cpp-sdk-ec2.so -o libaws-cpp-sdk-ec2.so @CMakeFiles/aws-cpp-sdk-ec2.dir/objects1.rsp ../aws-cpp-sdk-core/libaws-cpp-sdk-core.so -lpthread -luuid -lcurl -lssl -lcrypto -lz -Wl,-rpath,/home/prateeks/code/aws-sdk-cpp-master/aws-cpp-sdk-core: 
