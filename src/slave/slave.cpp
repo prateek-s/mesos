@@ -206,7 +206,8 @@ hashmap<std::string, std::string> Slave::get_cloud_server_data()
   hashmap<std::string ,std::string> out ;
   out["instance-type"] = "local" ;
   out["az"] = "local" ;
-  out["owner-fmwk"] = "*" ;
+
+  //out["owner-fmwk"] = "*" ;
 
   
   std::string hname = "169.254.169.254";
@@ -229,7 +230,7 @@ hashmap<std::string, std::string> Slave::get_cloud_server_data()
 
   LOG(INFO) << "------------------- URL TO FETCH " << url ;
 
-  //goto fail ;
+  goto fail ;
   //XXX 
   response = process::http::get(url) ; //this is a future. Failing here??
   
@@ -263,16 +264,16 @@ hashmap<std::string, std::string> Slave::get_cloud_server_data()
     LOG(INFO) << "AZ: " << body ;
   }
 
-  url = process::http::URL("http", hname, 80, userdata_path);
+  // url = process::http::URL("http", hname, 80, userdata_path);
   
-  response = process::http::get(url) ;
-  http_response = response.get() ;
-  if(http_response.code == process::http::Status::OK) {
-    body = http_response.body ;
-    //XXX JSON parse this!
-    out["owner-fmwk"] = body ;
-    LOG(INFO) << "fmwk: " << body ;
-  }
+  // response = process::http::get(url) ;
+  // http_response = response.get() ;
+  // if(http_response.code == process::http::Status::OK) {
+  //   body = http_response.body ;
+  //   //XXX JSON parse this!
+  //   out["owner-fmwk"] = body ;
+  //   LOG(INFO) << "fmwk: " << body ;
+  // }
 
   
   //ASSERT_TRUE(response.isReady()) , or AWAIT_READY(response) ;

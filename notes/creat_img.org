@@ -1,0 +1,4 @@
+
+
+aws ec2 stop-instances --instance-ids i-572aea56
+aws ec2 create-image --instance-id i-572aea56 --name "exo1"

@@ -359,9 +359,21 @@ std::vector<std::string> CloudRM::actually_buy_servers(
   Aws::String ami = to_buy.ami.c_str() ;
   int count = to_buy.num ;
 
-  //TODO: Proper user_data string and specification.
-  //We might also want to run some scripts!
-  std::string user_data = "Framework=78245637856343 ; master=127.0.0.1:5050" ;
+  //Expects a base-64 string of the script ?
+
+  std::string master_loc = "127.0.0.1:5050" ;
+  //Masterinfo.address.ip.in().get().s_addr
+  
+  std::string master_ip = master->info().address().ip() ;
+  std::string master_port = std::to_string(master->info().address().port()) ;
+  std::string owner_fmwk = to_buy.framework.c_str() ;  
+  
+  char* uc  = (char*)malloc(800) ;
+  
+  sprintf(uc, "#!/bin/bash \n /home/ubuntu/mesos/build/src/mesos-slave --master=\'%s\' --work_dir=/tmp --attributes=\"owner_fmwk:%s\" \n", master_loc.c_str(), owner_fmwk.c_str()); 
+  
+  std::string user_data(uc) ;
+    
 
   Aws::EC2::Model::InstanceType type =
     Aws::EC2::Model::InstanceTypeMapper::GetInstanceTypeForName(
@@ -370,12 +382,12 @@ std::vector<std::string> CloudRM::actually_buy_servers(
 
   Aws::EC2::Model::RunInstancesRequest request;
 
-  request.SetImageId(ami);
-  request.SetMinCount(count);
-  request.SetKeyName(keyname);
-  request.SetUserData(user_data.c_str());
-  request.SetInstanceType(type);
-  request.SetClientToken(to_buy.framework.c_str());
+  request.SetImageId(ami) ;
+  request.SetMinCount(count) ;
+  request.SetKeyName(keyname) ;
+  request.SetUserData(user_data.c_str()) ;
+  request.SetInstanceType(type) ;
+  request.SetClientToken(to_buy.framework.c_str()) ;
 
   //  request.SetInstanceInitiatedShutdownBehavior
 
