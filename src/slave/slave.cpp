@@ -227,10 +227,10 @@ hashmap<std::string, std::string> Slave::get_cloud_server_data()
   
   url = process::http::URL("http", hname, 80, itype_path);
 
-  LOG(INFO) << "URL TO FETCH " << url ;
+  LOG(INFO) << "------------------- URL TO FETCH " << url ;
 
-  goto fail ;
- 
+  //goto fail ;
+  //XXX 
   response = process::http::get(url) ; //this is a future. Failing here??
   
   LOG(INFO) << "http::get success " ;
@@ -239,13 +239,14 @@ hashmap<std::string, std::string> Slave::get_cloud_server_data()
     LOG(INFO) << "Response future is failed " ;
     goto fail ;
   }
+
   
-  
-  http_response = response.get() ;    //this is failing?
+  http_response = response.get() ;    
   
   if(http_response.code == process::http::Status::OK) {
     body = http_response.body ;
     out["instance-type"]  = body ;
+    LOG(INFO) << "instance-type: " << body ;
   } else {
     LOG(INFO) << "Not in the EC2 cloud, returning local slave attributes" ;
     
@@ -259,6 +260,7 @@ hashmap<std::string, std::string> Slave::get_cloud_server_data()
   if(http_response.code == process::http::Status::OK) {
     body = http_response.body ;
     out["az"] = body ;
+    LOG(INFO) << "AZ: " << body ;
   }
 
   url = process::http::URL("http", hname, 80, userdata_path);
@@ -269,10 +271,10 @@ hashmap<std::string, std::string> Slave::get_cloud_server_data()
     body = http_response.body ;
     //XXX JSON parse this!
     out["owner-fmwk"] = body ;
+    LOG(INFO) << "fmwk: " << body ;
   }
 
-
-
+  
   //ASSERT_TRUE(response.isReady()) , or AWAIT_READY(response) ;
   //  AWAIT_READY(response); 		     //if Futures are not used?
   //response->code == http::Status::OK && response->status == http::Status::OK

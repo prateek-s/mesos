@@ -162,8 +162,8 @@ Portfolios CloudRM::read_portfolio_wts()
   //For each Alpha, we want to add a new object?
   //This should be its own class!
   Portfolios portfolios ;
-  
-  std::string path = "/home/prateeks/code/mesos/portfolios/us-east-1.json";
+  //We are in mesos/build/src when launched  
+  std::string path = "../../portfolios/us-east-1.json";
   //XXX change to ~/portfolios/ instead of hard-coded local path!
   
   std::ifstream t(path);
