@@ -1,24 +1,29 @@
 [
-  {
-    "wts": [
-      {
-        "m1.small-a": 0.5
-      },
-      {
-        "r3.large-b": 0.5
-      }
-    ],
-    "alpha": 0.5
-  },
-  {
-    "wts": [
-      {
-        "m3.large-c": 0.2
-      },
-      {
-        "r3.xlarge-d": 0.8
-      }
-    ],
-    "alpha": 1.0
-  }
+    {
+	"wts": [
+	    {
+		"market" : "m3.large-a",
+		"wt" : 0.3 
+	    },
+	    
+	    {
+		"market":"r3.large",
+		"wt" : 0.5
+	    }
+	],
+	"alpha": 0.5
+    },
+    {
+	"wts": [
+	    {
+		"market" : "m3.large-c",
+		"wt" : 0.2
+	    },
+	    {
+		"market" : "r3.xlarge-d" ,
+		"wt" : 0.8
+	    }
+	],
+	"alpha": 1.0
+    }
 ]

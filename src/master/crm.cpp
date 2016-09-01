@@ -43,6 +43,8 @@ CloudRM::CloudRM()
  
 }
 
+/********************************************************************************/
+
 Aws::Auth::AWSCredentials init_aws_stuff(Aws::SDKOptions options)
 {
   //Based on the above, can ignore all these options
@@ -62,6 +64,7 @@ Aws::Auth::AWSCredentials init_aws_stuff(Aws::SDKOptions options)
   return creds ;
 }
 
+/********************************************************************************/
 
 int CloudRM::init(mesos::internal::master::Master* master)
 {
@@ -71,6 +74,8 @@ int CloudRM::init(mesos::internal::master::Master* master)
 
   local_mode = true ;
 
+  default_portfolios = read_portfolio_wts() ; //lets test this!
+  
   if (local_mode) {
     //IN local mode, AWS stuff is not required at all 
     return true ;
@@ -86,8 +91,6 @@ int CloudRM::init(mesos::internal::master::Master* master)
   
   //3. Initialize the client 
   client = new Aws::EC2::EC2Client(creds, cconfig) ;
-
-  read_portfolio_wts() ;
   
   return 1; 
 }
@@ -160,24 +163,38 @@ Portfolios CloudRM::read_portfolio_wts()
   //This should be its own class!
   Portfolios portfolios ;
   
-  std::string path = "/home/prateeks/code/mesos/portfolio/us-east-1.json";
+  std::string path = "/home/prateeks/code/mesos/portfolios/us-east-1.json";
+  //XXX change to ~/portfolios/ instead of hard-coded local path!
+  
   std::ifstream t(path);
   std::string str(
     (std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
 
+
+  //The outermost object is an array.
+
+  LOG(INFO) << "---------------- START JSON PARSING -------------- " ;
+  LOG(INFO) << str ;
+  LOG(INFO) << "----------------------------------------------------" ;
+  
   Try<JSON::Array> jarr = JSON::parse<JSON::Array>(str);
+
+  if(jarr.isError()) {
+    LOG(INFO) << "Error in parsing the outermost array!" ;
+    LOG(INFO) << jarr.error() ;
+    return portfolios ; 
+  }
+  
   JSON::Array arr = jarr.get();
 
   std::vector<JSON::Value> values = arr.values;
-  
-  LOG(INFO) << "Start reading portflio wts!" ;
-  
+    
   //Each file contains multiple portflios, one for each alpha 
   for (auto a_portfolio : values) {
     JSON::Object obj = a_portfolio.as<JSON::Object>();
 
     double alpha = obj.find<JSON::Number>("alpha").get().as<double>();
-    LOG(INFO) << "alpha= " << alpha;
+    LOG(INFO) << "alpha= " << alpha ;
     
     portfolios.new_portfolio(alpha) ;
     
@@ -200,6 +217,9 @@ Portfolios CloudRM::read_portfolio_wts()
     } //For each market in the portfolio 
   } // outer for portfolios in values
 
+  
+  LOG(INFO) << "---------------------- END --------------------- " ;
+  
   return portfolios ;
 }
 
@@ -213,14 +233,6 @@ Portfolios CloudRM::read_portfolio_wts()
 //there might be other portfolios *VERY* close to the requested alpha,
 //so we should return that instead. 0.5 vs. 0.45 for example
 
-hashmap<CloudMachine, int> CloudRM::get_portfolio_wts(double alpha)
-{
-  hashmap<CloudMachine, int> out ;
-  //XX Use the JSON parser instead of reading the CSV file by hand
-  // Even Boost.tokenizer would be HUGe pain to use and include (library linking etc)
-  
-  return out ;
-}
 
 /********************************************************************************/
 
@@ -283,14 +295,16 @@ ServerOrder CloudRM::get_min_servers(
 /* Translates portfolio weights to actual servers. The wts indicate what fraction of the application should be running on servers in that market. If wt=1, then simply determine how many servers we need from this market to satisfy the cpu AND memory resources. In fact lets do this. 
  */
 std::vector<ServerOrder> CloudRM::compute_server_order(
-  hashmap<CloudMachine, int>& portfolio_wts,
+  std::vector<std::tuple<CloudMachine, double>>& portfolio_wts,
   ResourceVector& req,
   std::string packing_policy)
 {
   std::vector<ServerOrder> out;
   // 1. For each market, determine min servers to satisfy w*cpu and w*memory
-  foreachkey (const CloudMachine& cm, portfolio_wts) {
-    double wt = portfolio_wts[cm];
+  
+  for (auto tup : portfolio_wts) {
+    CloudMachine cm = std::get<0>(tup) ;
+    double wt = std::get<1>(tup) ;
 
     ServerOrder in_market = get_min_servers(wt, cm, req, packing_policy);
 
@@ -301,6 +315,7 @@ std::vector<ServerOrder> CloudRM::compute_server_order(
       out.push_back(in_market);
     }
   } // end foreachkey
+  
   return out;
 }
 
@@ -322,7 +337,10 @@ std::vector<ServerOrder> CloudRM::get_servers(
   }
 
   // 1. Find the portfolio-vector for the given alpha first.
-  hashmap<CloudMachine, int> portfolio_wts = get_portfolio_wts(placement.alpha);
+
+  std::vector<std::tuple<CloudMachine, double>> portfolio_wts =
+    default_portfolios.get_portfolio_wts(placement.alpha);
+
   // 2. Translate wts into actual number of servers we need!
   out = compute_server_order(portfolio_wts, req, packing_policy);
 

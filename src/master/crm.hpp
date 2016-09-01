@@ -48,6 +48,7 @@
 
 #include <vector>
 
+#include <sstream>
 
 /////////////////// AWS 
 #include <aws/core/Aws.h>
@@ -59,6 +60,7 @@
 //#include <aws/client/ClientConfiguration.h>
 #include <aws/core/auth/AWSCredentialsProvider.h>
 #include <aws/ec2/model/Instance.h>
+
 
 
 //using namespace mesos ;
@@ -96,19 +98,72 @@ struct
 class Portfolios
 {
 public:
+  // alpha -> [(mkt,wt)] 
+  hashmap<double, std::vector<std::tuple<CloudMachine, double>>> out ; 
 
-  hashmap<double, std::vector<std::tuple<std::string, double>>> out ; 
+  void split(const std::string &s, char delim, std::vector<std::string> &elems) {
+    std::stringstream ss;
+    ss.str(s);
+    std::string item;
+    while (getline(ss, item, delim)) {
+        elems.push_back(item);
+    }
+  }
+
   
   void new_portfolio(double alpha) {
-    //do nothing if hashmap, really.
-    // out[alpha] = NULL ;
+    std::vector<std::tuple<CloudMachine, double>> vec ;
+    out[alpha] = vec ;
   }
 
-  void add(double alpha, std::string market, double wt) {
-
-  }
   
-};
+  void add(double alpha, std::string market, double wt) {
+    auto vec = out[alpha] ;
+    CloudMachine cm ;
+    //TODO PARSING LATER!
+    cm.type = market ;
+    cm.az = "a" ;
+
+    std::vector<std::string> ssplit ;
+    split(market, '-', ssplit) ;
+    
+    if(ssplit.size() > 1) {
+      cm.type = ssplit[0] ;
+      cm.az = ssplit[1] ;
+    }
+    
+    auto tup = std::make_tuple(cm, wt) ;
+    vec.push_back(tup) ;
+  }
+
+  //Return the portfolio for the NEAREST alpha!
+  std::vector<std::tuple<CloudMachine, double>> get_portfolio_wts(double alpha) {
+    //First see if we can find alpha in the hashmap!
+    auto search = out.find(alpha);
+    
+    if(search != out.end()) {      
+      LOG(INFO) << "Found matching alpha! " << alpha ;      
+      return out[alpha] ;
+    }
+    //Need to iterate over all the hashmap entries to find the closest one
+    double best_alpha = 0 ;
+    double min_diff = 10000000 ;
+    
+    foreachkey(const double a , out) {
+      double diff = std::abs(a-alpha) ;
+      if (diff < min_diff) {
+	min_diff = diff ;
+	best_alpha = a ;
+      }
+    }
+
+    
+    //XXX FIX 
+    return out[best_alpha] ;
+  } //END METHOD 
+
+  
+}; //END CLASS
 
 
 
@@ -266,7 +321,8 @@ public :
   std::vector<mesos::SlaveID> free_slaves ; //unbound_slaves
 
   std::vector<std::string> pending_frameworks ; //in unbound_slaves mode 
-  
+
+  Portfolios default_portfolios ;
   
   /************ AWS STUFF ****************/
   Aws::SDKOptions options ;
@@ -315,8 +371,6 @@ public :
     PlacementConstraint& placement,
     std::string packing_policy);
 
-  hashmap<CloudMachine, int> get_portfolio_wts(double alpha);
-
   ServerOrder get_min_servers(
     double wt,
     const CloudMachine& cm,
@@ -324,7 +378,7 @@ public :
     std::string packing_policy);
 
   std::vector<ServerOrder> compute_server_order(
-    hashmap<CloudMachine, int>& portfolio_wts,
+    std::vector<std::tuple<CloudMachine, double>>& portfolio_wts,
     ResourceVector& req,
     std::string packing_policy);
 
