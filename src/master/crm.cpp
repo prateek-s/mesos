@@ -357,62 +357,93 @@ std::vector<std::string> CloudRM::actually_buy_servers(
   
   Aws::String keyname = "prateeks"; // only used for launching AMIs
   Aws::String ami = to_buy.ami.c_str() ;
-  int count = to_buy.num ;
+  
+  //int count = to_buy.num ;
 
   //Expects a base-64 string of the script ?
 
-  std::string master_loc = "127.0.0.1:5050" ;
-  //Masterinfo.address.ip.in().get().s_addr
+  // std::string master_loc = "127.0.0.1:5050" ;
+  // Masterinfo.address.ip.in().get().s_addr
   
   std::string master_ip = master->info().address().ip() ;
   std::string master_port = std::to_string(master->info().address().port()) ;
   std::string owner_fmwk = to_buy.framework.c_str() ;  
+
+  std::string master_loc = master_ip +":" + master_port ;
+  
   
   char* uc  = (char*)malloc(800) ;
   
-  sprintf(uc, "#!/bin/bash \n /home/ubuntu/mesos/build/src/mesos-slave --master=\'%s\' --work_dir=/tmp --attributes=\"owner_fmwk:%s\" \n", master_loc.c_str(), owner_fmwk.c_str()); 
-  
+  sprintf(uc, "#!/bin/bash \n /home/ubuntu/mesos/build/src/mesos-slave --master=\'%s\' --work_dir=/tmp --attributes=\"owner-fmwk:%s\" \n", master_loc.c_str(), owner_fmwk.c_str()); 
+
   std::string user_data(uc) ;
-    
 
-  Aws::EC2::Model::InstanceType type =
-    Aws::EC2::Model::InstanceTypeMapper::GetInstanceTypeForName(
-      to_buy.machine.type.c_str());
+  std::ofstream myfile ;
+  myfile.open("slave_user_data.txt") ;
+  myfile << user_data ;
+  myfile.close() ;
+
+  LOG(INFO) << "Written to slave_user_data.txt file" ;
+
+  free(uc) ; 
+  //Write this to a file slave_user_data.txt
+  //free(uc) ;
+  
+  char* uc2 = (char*) malloc(800) ;
+//  --image-id ami-4f680658  --key-name prateeks --instance-type m3.xlarge
+  
+  sprintf(uc2, "aws ec2 run-instances --image-id %s --key-name prateeks --instance-type %s --user-data-file file://slave_user_data.txt" , ami.c_str(), to_buy.machine.type.c_str()) ;
+	      
+
+//  std::string cmd_str(uc2) ;
+
+  int status = std::system(uc2) ;
+
+  LOG(INFO) << "cmd status " << status ; 
+
+  free(uc2) ;
+  
+  //int status = system(uc2) ;
+  
+  
+  // Aws::EC2::Model::InstanceType type =
+  //   Aws::EC2::Model::InstanceTypeMapper::GetInstanceTypeForName(
+  //     to_buy.machine.type.c_str());
   
 
-  Aws::EC2::Model::RunInstancesRequest request;
+  // Aws::EC2::Model::RunInstancesRequest request;
 
-  request.SetImageId(ami) ;
-  request.SetMinCount(count) ;
-  request.SetKeyName(keyname) ;
-  request.SetUserData(user_data.c_str()) ;
-  request.SetInstanceType(type) ;
-  request.SetClientToken(to_buy.framework.c_str()) ;
+  // request.SetImageId(ami) ;
+  // request.SetMinCount(count) ;
+  // request.SetKeyName(keyname) ;
+  // request.SetUserData(user_data.c_str()) ;
+  // request.SetInstanceType(type) ;
+  // request.SetClientToken(to_buy.framework.c_str()) ;
 
-  //  request.SetInstanceInitiatedShutdownBehavior
+  // //  request.SetInstanceInitiatedShutdownBehavior
 
-  /* Availability zone field is absent for on-demand instances, but seems to be
-   * present for spot instances. */
-  // SpotInstanceRequest.SetAvailabilityZoneGroup
-  // SetLaunchedAvailabilityZone   SetSpotPrice
+  // /* Availability zone field is absent for on-demand instances, but seems to be
+  //  * present for spot instances. */
+  // // SpotInstanceRequest.SetAvailabilityZoneGroup
+  // // SetLaunchedAvailabilityZone   SetSpotPrice
 
 
-  //  RunInstancesAsync (const Model::RunInstancesRequest &request, const
-  //  RunInstancesResponseReceivedHandler &handler, const std::shared_ptr< const
-  //  Aws::Client::AsyncCallerContext > &context=nullptr) const
+  // //  RunInstancesAsync (const Model::RunInstancesRequest &request, const
+  // //  RunInstancesResponseReceivedHandler &handler, const std::shared_ptr< const
+  // //  Aws::Client::AsyncCallerContext > &context=nullptr) const
 
-  Aws::EC2::Model::RunInstancesOutcome outcome = client->RunInstances(request);
+  // Aws::EC2::Model::RunInstancesOutcome outcome = client->RunInstances(request);
 
-  //TODO XXX Error checking, retry, etc.  outcome.GetError() ;
-  Aws::EC2::Model::RunInstancesResponse r = outcome.GetResult() ; 
-  Aws::String rid = r.GetReservationId() ;
-  //instance id would be useful to terminate it etc!!!
-  Aws::Vector<Aws::EC2::Model::Instance> launched_instances = r.GetInstances() ;
+  // //TODO XXX Error checking, retry, etc.  outcome.GetError() ;
+  // Aws::EC2::Model::RunInstancesResponse r = outcome.GetResult() ; 
+  // Aws::String rid = r.GetReservationId() ;
+  // //instance id would be useful to terminate it etc!!!
+  // Aws::Vector<Aws::EC2::Model::Instance> launched_instances = r.GetInstances() ;
 
-  for (auto i : launched_instances) {
-    Aws::String id = i.GetInstanceId() ;
-    out.push_back(id.c_str()) ;
-  }
+  // for (auto i : launched_instances) {
+  //   Aws::String id = i.GetInstanceId() ;
+  //   out.push_back(id.c_str()) ;
+  // }
 
   return out ;
 }
@@ -473,13 +504,16 @@ void CloudRM::res_req(
   std::vector<ServerOrder> to_buy =
     get_servers(framework, req, placement, packing_policy);
 
-  //TODO XXX change to true to start burning EC2 money muwahaha 
+  //TODO XXX change to true to start burning EC2 money muwahaha
+  
   bool actually_buy = false ;
+  
   if (actually_buy) {
     
     for (auto server : to_buy) {
       
       std::vector<std::string> instance_ids = actually_buy_servers(server) ;
+      // We actually dont do anything with instance ids? 
       if (instance_ids.empty()) {
 	LOG(INFO) << "Instance id vec is empty, oops " ;
       }
@@ -677,7 +711,7 @@ bool CloudRM::check_unbound_slave(hashmap<std::string, std::string>& s)
 {
   LOG(INFO) << "Slave instance type is " <<  s["instance-type"] ;
   
-  if (s["instance-type"]=="local" && s["az"]=="local" && s["owner-fmwk"]=="*")
+  if (s["owner-fmwk"]=="*")
     return true ;
   else
     return false ;

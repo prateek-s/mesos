@@ -204,16 +204,18 @@ void Slave::signaled(int signal, int uid)
 hashmap<std::string, std::string> Slave::get_cloud_server_data()
 {
   hashmap<std::string ,std::string> out ;
+  
   out["instance-type"] = "local" ;
   out["az"] = "local" ;
-
-  //out["owner-fmwk"] = "*" ;
+  out["instance-id"] = "i" ;
 
   
   std::string hname = "169.254.169.254";
 
   std::string itype_path = "/latest/meta-data/instance-type" ;
   std::string az_path = "/latest/meta-data/placement/availability-zone" ;
+  std::string id_path = "/latest/meta-data/instance-id" ;
+  
   std::string userdata_path = "/latest/user-data" ; //This returns a json? How to parse?
 
   // Will need to make THREE separate GET requests aargh. Use curl directly? Please!
@@ -264,6 +266,17 @@ hashmap<std::string, std::string> Slave::get_cloud_server_data()
     LOG(INFO) << "AZ: " << body ;
   }
 
+  url = process::http::URL("http", hname, 80, id_path);
+  
+  response = process::http::get(url) ;
+  http_response = response.get() ;
+  if(http_response.code == process::http::Status::OK) {
+    body = http_response.body ;
+    out["instance-id"] = body ;
+    LOG(INFO) << "instance-id " << body ;
+  }
+
+  
   // url = process::http::URL("http", hname, 80, userdata_path);
   
   // response = process::http::get(url) ;
