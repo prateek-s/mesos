@@ -205,7 +205,7 @@ public:
   void extract_resource_vector(const std::vector<mesos::Request>& requests)
   {
     //Although we get only one request in the vector, may get multiple, so process all!
-    std::vector<std::string> types = {"cpu", "mem"} ;
+    std::vector<std::string> types = {"cpu", "mem", "alpha"} ;
     double dval ;
     
     for(auto t : types) {      
@@ -219,8 +219,13 @@ public:
   int get_cpu() {
     return int(res_vec["cpu"]) ;
   }
+  
   int get_mem() {
     return int(res_vec["mem"]) ;
+  }
+
+  double get_alpha() {
+    return double(res_vec["alpha"]) ;
   }
   
 };
@@ -233,7 +238,8 @@ public:
   PlacementConstraint() {
     alpha = 0.2 ;
   }
-  double alpha ; //Risk tolerance 
+  double alpha ; //Risk tolerance
+  
   void extract_placement_constraint(const std::vector<mesos::Request>& requests) {
     //TODO
   }
@@ -298,6 +304,52 @@ public:
 };  //End ServerOrder Class 
 
 
+/***********************   CLASS SlaveManager **********************************/
+
+class SlaveManager
+{
+public :
+  SlaveManager() {}
+  /**************************************************/
+  
+  //Framework, <slaveids> 
+  hashmap<std::string, std::vector<std::string>> dedicated_slaves ;
+
+  hashmap<std::string, std::string> slave_to_instance ;
+  
+  std::vector<std::string> free_slaves ;
+
+  /**************************************************/
+  
+  void new_fmwk(std::string fmwk) {
+    //Do we need to initialize this at all?
+    dedicated_slaves[fmwk].clear() ;
+  }
+
+  /**************************************************/
+  
+  void add_slave(std::string fmwk, std::string slaveid, std::string instance_id) {
+    // Just add to dicts 
+    slave_to_instance[slaveid] = instance_id ;
+    
+    dedicated_slaves[fmwk].push_back(slaveid) ;
+  }
+
+  /**************************************************/
+  
+  void die_fmwk(std::string fmwk) {
+    //Move its slaves to free list
+    for (auto s : dedicated_slaves[fmwk]) {
+      free_slaves.push_back(s) ;
+    }
+    
+    dedicated_slaves[fmwk].clear() ;
+  }
+
+  /**************************************************/
+
+} ;
+
 /***********************  CLASS CloudRM   ***********************************/
 
 class CloudRM : public process::Process<CloudRM>
@@ -314,7 +366,10 @@ public :
 
   vector<ServerOrder> pendingOrders  ;
 
-  hashmap<std::string, std::vector<ServerOrder>> frameworkServers ;
+  SlaveManager slaveManager ; 
+  
+  //Framework, 
+  hashmap<std::string, std::vector<ServerOrder>> dedicated_slaves ;
   
   mesos::allocator::Allocator* allocator ;
   

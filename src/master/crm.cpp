@@ -370,7 +370,7 @@ std::vector<std::string> CloudRM::actually_buy_servers(
   std::string owner_fmwk = to_buy.framework.c_str() ;  
 
   std::string master_loc = master_ip +":" + master_port ;
-  
+  LOG(INFO) << "------ Master location is " << master_loc ;
   
   char* uc  = (char*)malloc(800) ;
   
@@ -472,7 +472,9 @@ void CloudRM::res_req(
   ResourceVector req;
   req.extract_resource_vector(requests);
   PlacementConstraint placement;
-  placement.extract_placement_constraint(requests);
+  placement.alpha = req.get_alpha() ;
+  
+  //placement.extract_placement_constraint(requests);
 
   std::string fmwk_id = framework->id().value() ;
   
@@ -581,11 +583,13 @@ hashmap<std::string, std::string> CloudRM::parse_slave_attributes(
   out["instance-type"] = "";
   out["az"] = "";
   out["owner-fmwk"] = "";
-
+  out["instance-id"] = "" ;
+  
   std::string itype;
   std::string az;
   std::string owner_fmwk;
-
+  std::string instance_id ;
+  
   mesos::Attributes attr = sinfo.attributes();
 
   int a_size = attr.size();
@@ -601,7 +605,11 @@ hashmap<std::string, std::string> CloudRM::parse_slave_attributes(
     } else if (attr.get(i).name() == "owner-fmwk") {
       owner_fmwk = attr.get(i).text().value();
       out["owner-fmwk"] = owner_fmwk;
+    } else if (attr.get(i).name() == "instance-id") {
+      instance_id = attr.get(i).text().value();
+      out["instance-id"] = instance_id ;
     }
+    
   } // end FOR loop across all attributes
 
   return out;
@@ -633,6 +641,8 @@ int CloudRM::new_framework(const mesos::FrameworkInfo& frameworkinfo)
     return 1 ;
   }
 
+  slaveManager.new_fmwk(fid) ;
+
   /* Create the server order vector for the framework according to some rule engine*/
   std::vector<ServerOrder> order ; //= pDefaultFrameworkResources(frameworkinfo) ;
   
@@ -663,44 +673,51 @@ void CloudRM::new_server(
   // extract the owner_framework
   std::string owner_framework = slave_attrs["owner-fmwk"];
 
-  //Check if local slave
-  bool unbound_slave = check_unbound_slave(slave_attrs) ;
+  std::string instance_id = slave_attrs["instance-id"];
+  // Add to assigned slaves of framework?
+  //std::string slaveid = sinfo.id() ;  
+  // Check if local slave
+  bool unbound_slave = check_unbound_slave(slave_attrs);
+  //add to some sort of a registry
 
-  
   if (unbound_slave == true) {
-    LOG(INFO) << "~~~ New unbound slave registered! " ;
-    
+    LOG(INFO) << "~~~ New unbound slave registered! ";
+
     if (pending_frameworks.empty()) {
-      //There are no frameworks registered yet. So put this in a free-list
+      // There are no frameworks registered yet. So put this in a free-list
       free_slaves.push_back(sinfo.id()) ;
-      
-      return ;
-    }
-    else {
-      //There IS a framework we can assign this slave to!
-      std::string candidate_fmwk = pending_frameworks.back() ;
-      pending_frameworks.pop_back() ;
-      
-      allocator->alloc_slave_to_fmwk(sinfo.id(), candidate_fmwk) ;
-      return ;
+
+      return;
+    } else {
+      // There IS a framework we can assign this slave to!
+      std::string candidate_fmwk = pending_frameworks.back();
+      pending_frameworks.pop_back();
+
+      allocator->alloc_slave_to_fmwk(sinfo.id(), candidate_fmwk);
+      return;
     }
 
-  } //end unbound_slave 
-  
+  } // end unbound_slave
+
 
   CloudMachine cm;
   cm.az = slave_attrs["az"]; // These may not exist either?
   cm.type = slave_attrs["instance-type"];
 
-  LOG(INFO) << "~~~~~ New slave has az " << cm.az << " and type " << cm.type;
   
+  LOG(INFO) << "~~~~~ New slave has az " << cm.az << " and type " << cm.type;
+
+  slaveManager.add_slave(owner_framework, sinfo.id().value(), instance_id) ;
+			 
   allocator->addSlave_cloudinfo(sinfo.id(), cm);
 
   if (packing_policy == "private") {
     allocator->alloc_slave_to_fmwk(sinfo.id(), owner_framework);
 
   } else if (packing_policy == "binpack") {
+    //call allocator->packservers() ;
   }
+  
 }
 
 

@@ -2925,6 +2925,10 @@ void Master::deactivate(Framework* framework)
 
     removeInverseOffer(inverseOffer, true); // Rescind.
   }
+
+  // TODO XXX
+  // Call crm 
+  
 }
 
 

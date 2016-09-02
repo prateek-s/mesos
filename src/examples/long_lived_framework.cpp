@@ -176,13 +176,19 @@ protected:
   }
 
 /******************************************************************************/
-  
+
+
+  /** Ask the master for these resources */
   void askResources()
   {
       LOG(INFO) << "Asking Mesos for specified amount of resources" ;
       //vector<Request> sent;
       //Request request;
-
+      
+      int num_cpus = flags.cpus ;
+      int mem = flags.mem ;
+      double alpha = flags.alpha ;
+      
       Call call ;
       call.set_type(Call::REQUEST) ;
       call.mutable_framework_id()->CopyFrom(framework.id());
@@ -196,11 +202,26 @@ protected:
       mesos::v1::Resource cpus;
       cpus.set_name("cpu");
       cpus.set_type(mesos::v1::Value::SCALAR);
-      cpus.mutable_scalar()->set_value(2);
+      cpus.mutable_scalar()->set_value(num_cpus);  //ask for these many CPU cores 
+
+      mesos::v1::Resource mems;
+      mems.set_name("mem");
+      mems.set_type(mesos::v1::Value::SCALAR);
+      mems.mutable_scalar()->set_value(mem);  
+
+      
+
+      mesos::v1::Resource alpha_r;
+      alpha_r.set_name("alpha");
+      alpha_r.set_type(mesos::v1::Value::SCALAR);
+      alpha_r.mutable_scalar()->set_value(alpha);  //ask for these many CPU cores
+      
       
       //This is gonna core dump like crazy
       a_request->add_resources()->CopyFrom(cpus) ;
-
+      a_request->add_resources()->CopyFrom(mems) ;
+      a_request->add_resources()->CopyFrom(alpha_r) ;
+      
       //mesos::v1::Value_Scalar* val = resource->mutable_scalar() ;
       //val->set_value(90) ;      
       //resource->set_allocated_scalar(val) ;
@@ -668,6 +689,22 @@ public:
     add(&secret,
         "secret",
         "The secret to use for framework authentication.");
+
+    add(&cpus,
+	"cpus",
+	"Total number of CPUs to request. One task launched per CPU",
+	2);
+
+    add(&mem,
+	"mem",
+	"Total memory size in GB to request",
+	2);
+
+    add(&alpha,
+	"alpha",
+	"Alpha (Risk tolerance) ",
+	2.0) ;
+    
   }
 
   Option<string> master;
@@ -680,6 +717,13 @@ public:
   bool checkpoint;
   Option<string> principal;
   Option<string> secret;
+
+  int cpus ; //Number of CPU cores to request
+
+  int memory ; // Total size in GB of memory size 
+  
+  double alpha ;  // Influences number of markets we operate on
+  
 };
 
 /******************************************************************************/
