@@ -312,11 +312,14 @@ public :
   SlaveManager() {}
   /**************************************************/
   
-  //Framework, <slaveids> 
+  //Framework, vector<slaveids> 
   hashmap<std::string, std::vector<std::string>> dedicated_slaves ;
 
   hashmap<std::string, std::string> slave_to_instance ;
-  
+
+  hashmap<std::string, CloudMachine> market_map ;
+
+  //slave-ids 
   std::vector<std::string> free_slaves ;
 
   /**************************************************/
@@ -327,12 +330,19 @@ public :
   }
 
   /**************************************************/
-  
-  void add_slave(std::string fmwk, std::string slaveid, std::string instance_id) {
-    // Just add to dicts 
-    slave_to_instance[slaveid] = instance_id ;
-    
-    dedicated_slaves[fmwk].push_back(slaveid) ;
+
+  void add_slave(
+    std::string fmwk,
+    std::string slaveid,
+    std::string instance_id,
+    CloudMachine cm)
+  {
+    // Just add to dicts
+    slave_to_instance[slaveid] = instance_id;
+
+    dedicated_slaves[fmwk].push_back(slaveid);
+
+    market_map[slaveid] = cm ;
   }
 
   /**************************************************/
@@ -347,8 +357,7 @@ public :
   }
 
   /**************************************************/
-
-} ;
+} ; //END CLASS 
 
 /***********************  CLASS CloudRM   ***********************************/
 
@@ -408,6 +417,8 @@ public :
   /* Newly registered framework */
   int new_framework(const mesos::FrameworkInfo& frameworkinfo);
 
+  int die_framework(mesos::internal::master::Framework* framework) ;
+  
   void res_req(
     mesos::internal::master::Framework* framework,
     const std::vector<mesos::Request>& requests);
@@ -438,6 +449,8 @@ public :
     std::string packing_policy);
 
   std::vector<std::string> actually_buy_servers(ServerOrder& to_buy) ;
+
+  int terminate_ec2_server(std::string instance_id) ;
   
   void finalize_server_order(
     std::vector<ServerOrder>& to_buy,

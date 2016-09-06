@@ -91,6 +91,10 @@ const int32_t MEM_PER_TASK = 1;
 const double CPUS_PER_EXECUTOR = 0.1;
 const int32_t MEM_PER_EXECUTOR = 32;
 
+int g_cpus = 10 ;
+int g_mem = 20;
+double g_alpha = 1.0 ;
+
 
 // This scheduler picks one agent and repeatedly launches sleep tasks on it,
 // using a single multi-task executor. If the agent or executor fails, the
@@ -185,9 +189,9 @@ protected:
       //vector<Request> sent;
       //Request request;
       
-      int num_cpus = flags.cpus ;
-      int mem = flags.mem ;
-      double alpha = flags.alpha ;
+      int num_cpus = g_cpus ;
+      int mem = g_mem ;
+      double alpha = g_alpha ;
       
       Call call ;
       call.set_type(Call::REQUEST) ;
@@ -720,7 +724,7 @@ public:
 
   int cpus ; //Number of CPU cores to request
 
-  int memory ; // Total size in GB of memory size 
+  int mem ; // Total size in GB of memory size 
   
   double alpha ;  // Influences number of markets we operate on
   
@@ -744,6 +748,10 @@ int main(int argc, char** argv)
     LOG(WARNING) << warning.message;
   }
 
+  g_cpus = flags.cpus ;
+  g_mem = flags.mem ;
+  g_alpha = flags.alpha ;
+  
   const Resources resources = Resources::parse(
       "cpus:" + stringify(CPUS_PER_EXECUTOR) +
       ";mem:" + stringify(MEM_PER_EXECUTOR)).get();

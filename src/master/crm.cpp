@@ -301,11 +301,12 @@ std::vector<ServerOrder> CloudRM::compute_server_order(
 {
   std::vector<ServerOrder> out;
   // 1. For each market, determine min servers to satisfy w*cpu and w*memory
-  
-  for (auto tup : portfolio_wts) {
-    CloudMachine cm = std::get<0>(tup) ;
-    double wt = std::get<1>(tup) ;
 
+  for (auto tup : portfolio_wts) {
+    CloudMachine cm = std::get<0>(tup);
+    double wt = std::get<1>(tup);
+
+    //This is the minimum number of servers required for this market 
     ServerOrder in_market = get_min_servers(wt, cm, req, packing_policy);
 
     if (in_market.num == 0) {
@@ -315,7 +316,7 @@ std::vector<ServerOrder> CloudRM::compute_server_order(
       out.push_back(in_market);
     }
   } // end foreachkey
-  
+
   return out;
 }
 
@@ -341,9 +342,12 @@ std::vector<ServerOrder> CloudRM::get_servers(
   std::vector<std::tuple<CloudMachine, double>> portfolio_wts =
     default_portfolios.get_portfolio_wts(placement.alpha);
 
+  //XXX allocate from the free also! 
+  
   // 2. Translate wts into actual number of servers we need!
   out = compute_server_order(portfolio_wts, req, packing_policy);
 
+    
   return out;
 }
 
@@ -402,6 +406,8 @@ std::vector<std::string> CloudRM::actually_buy_servers(
   LOG(INFO) << "cmd status " << status ; 
 
   free(uc2) ;
+
+  LOG(INFO) << "<EC2> "<< "Start " << to_buy.machine.type ;
   
   //int status = system(uc2) ;
   
@@ -446,6 +452,22 @@ std::vector<std::string> CloudRM::actually_buy_servers(
   // }
 
   return out ;
+}
+
+/******************************************************************************/
+
+int CloudRM::terminate_ec2_server(std::string instance_id)
+{
+  char* uc = (char*) malloc(800) ;
+  sprintf(uc, "aws ec2 terminate-instances --instance-ids %s ",instance_id.c_str()) ; 
+
+  int status = std::system(uc) ;
+  
+  free(uc) ;
+
+  LOG(INFO) << "<EC2> " << "Terminate "<< instance_id ;
+  
+  return status ;
 }
 
 
@@ -508,7 +530,7 @@ void CloudRM::res_req(
 
   //TODO XXX change to true to start burning EC2 money muwahaha
   
-  bool actually_buy = false ;
+  bool actually_buy = true ;
   
   if (actually_buy) {
     
@@ -580,10 +602,10 @@ hashmap<std::string, std::string> CloudRM::parse_slave_attributes(
   const mesos::SlaveInfo& sinfo)
 {
   hashmap<std::string, std::string> out;
-  out["instance-type"] = "";
+  out["instance-type"] = ""; //For cloudMachine 
   out["az"] = "";
-  out["owner-fmwk"] = "";
-  out["instance-id"] = "" ;
+  out["owner-fmwk"] = "";    //For allocation 
+  out["instance-id"] = "" ;  //since we dont use the C++ API 
   
   std::string itype;
   std::string az;
@@ -707,7 +729,7 @@ void CloudRM::new_server(
   
   LOG(INFO) << "~~~~~ New slave has az " << cm.az << " and type " << cm.type;
 
-  slaveManager.add_slave(owner_framework, sinfo.id().value(), instance_id) ;
+  slaveManager.add_slave(owner_framework, sinfo.id().value(), instance_id, cm) ;
 			 
   allocator->addSlave_cloudinfo(sinfo.id(), cm);
 
@@ -735,6 +757,30 @@ bool CloudRM::check_unbound_slave(hashmap<std::string, std::string>& s)
 }
 
 /********************************************************************************/
+
+
+int CloudRM::die_framework(mesos::internal::master::Framework* framework)
+{
+  std::string fmwk_id = framework->id().value();
+  LOG(INFO) << "CRM removing framework " << fmwk_id;
+
+  slaveManager.die_fmwk(fmwk_id);
+
+  LOG(INFO) << "<EC2> "
+            << "TerminateALL " << fmwk_id;
+
+  // XXX Delay here and be careful that what we are deleting hasnt been
+  // allocated already to some other framework.
+  for (auto s : slaveManager.free_slaves) {
+    std::string instance_id = slaveManager.slave_to_instance[s];
+    terminate_ec2_server(instance_id);
+  }
+  slaveManager.free_slaves.clear();
+
+  // THATS it. This clears the list and does things for us!
+
+  return 0;
+}
 
 
 void CloudRM::foo()

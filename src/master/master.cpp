@@ -2927,7 +2927,8 @@ void Master::deactivate(Framework* framework)
   }
 
   // TODO XXX
-  // Call crm 
+  // Call crm
+  crm->die_framework(framework) ;
   
 }
 
@@ -6680,7 +6681,7 @@ void Master::removeFramework(Framework* framework)
   frameworks.completed.push_back(shared_ptr<Framework>(framework));
 
   //XXX inform CRM so that we can reclaim the servers!
-  //crm->removeFramework(framework) ;
+  crm->die_framework(framework) ;
   
 }
 
