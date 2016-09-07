@@ -534,6 +534,10 @@ void HierarchicalAllocatorProcess::addSlave_cloudinfo(
   const SlaveID& slaveId,
   const CloudMachine& cm)
 {
+  slaves[slaveId] = Slave();
+  slaves[slaveId].activated = true;
+  //slaves[slaveId].hostname = slaveInfo.hostname();
+
   slaves[slaveId].cloudmachine  = cm ;
   //XXX  maybe the owner framework too? 
 }
@@ -546,6 +550,11 @@ void HierarchicalAllocatorProcess::addSlave(
     const Resources& total,
     const hashmap<FrameworkID, Resources>& used)
 {
+  if(cloud_mode) {
+    LOG(INFO) << "Bypassing addSlave in cloud mode!" ;
+    return ;
+  }
+  
   CHECK(initialized);
   CHECK(!slaves.contains(slaveId));
   CHECK(!paused || expectedAgentCount.isSome());
