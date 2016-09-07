@@ -314,7 +314,7 @@ std::vector<ServerOrder> CloudRM::compute_server_order(
     }
     else {
       LOG(INFO) << "Ordering in market " << cm.type << " : " << in_market.num ;
-	
+ 
       out.push_back(in_market);
     }
   } // end foreachkey
@@ -344,12 +344,17 @@ std::vector<ServerOrder> CloudRM::get_servers(
   std::vector<std::tuple<CloudMachine, double>> portfolio_wts =
     default_portfolios.get_portfolio_wts(placement.alpha);
 
-  //XXX allocate from the free also! 
-  
+  LOG(INFO) << "Portfolio length= " << portfolio_wts.size()
+            << " for alpha= " << placement.alpha;
+
+  // XXX allocate from the free also!
+
   // 2. Translate wts into actual number of servers we need!
   out = compute_server_order(portfolio_wts, req, packing_policy);
 
-    
+  LOG(INFO) << "ServerOrder length= " << out.size()
+            << " for alpha= " << placement.alpha;
+
   return out;
 }
 
@@ -520,6 +525,8 @@ void CloudRM::res_req(
       return ;
     }
   } //end local mode 
+
+  LOG(INFO) << " Starting server order " ;
   
   std::vector<ServerOrder> to_buy =
     get_servers(framework, req, placement, packing_policy);

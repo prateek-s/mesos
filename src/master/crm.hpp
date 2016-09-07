@@ -188,9 +188,9 @@ public:
 					 
 	  if(res_name == res.name() && res.has_scalar()) {
 	    mesos::Value_Scalar val = res.scalar() ;
-	    if(val.has_value()){
+	    if(val.has_value()) {
 	      double dval = val.value() ;
-	      LOG(INFO) << "~~~ Res req of type: "  << dval ;
+	      LOG(INFO) << "~~~ VALUE: "  << dval ;
 	      return dval ;
 	    } //value exists 
 	  } //if CPU and scalar
