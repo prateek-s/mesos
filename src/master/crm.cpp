@@ -276,10 +276,8 @@ ServerOrder CloudRM::get_min_servers(
   else if (packing_policy == "binpack") {
     // How many servers we will need AFTER packing
     int deficit = 0.0;
-
     deficit =
       allocator->packServers(req_cpu, req_mem, cm, packing_policy).get();
-
     // allocator->activateFramework(framework->id());
     order_count = deficit;
   } // IF BINPACK
@@ -287,6 +285,7 @@ ServerOrder CloudRM::get_min_servers(
 
   out.num = order_count;
   out.machine = cm;
+  
   return out;
 }
 
@@ -312,7 +311,10 @@ std::vector<ServerOrder> CloudRM::compute_server_order(
     if (in_market.num == 0) {
       // Server type too small maybe?
       LOG(INFO) << "Cannot meet server order requirement, too small";
-    } else {
+    }
+    else {
+      LOG(INFO) << "Ordering in market " << cm.type << " : " << in_market.num ;
+	
       out.push_back(in_market);
     }
   } // end foreachkey
@@ -359,8 +361,8 @@ std::vector<std::string> CloudRM::actually_buy_servers(
   // Extract the cloud machine information first?
   std::vector<std::string> out ;
   
-  Aws::String keyname = "prateeks"; // only used for launching AMIs
-  Aws::String ami = to_buy.ami.c_str() ;
+  std::string keyname = "prateeks"; // only used for launching AMIs
+  std::string ami = to_buy.ami ;
   
   //int count = to_buy.num ;
 
@@ -371,9 +373,9 @@ std::vector<std::string> CloudRM::actually_buy_servers(
   
   std::string master_ip = master->info().address().ip() ;
   std::string master_port = std::to_string(master->info().address().port()) ;
-  std::string owner_fmwk = to_buy.framework.c_str() ;  
+  std::string owner_fmwk = to_buy.framework ;  
 
-  std::string master_loc = master_ip +":" + master_port ;
+  std::string master_loc = master_ip + ":" + master_port ;
   LOG(INFO) << "------ Master location is " << master_loc ;
   
   char* uc  = (char*)malloc(800) ;
@@ -499,54 +501,43 @@ void CloudRM::res_req(
   //placement.extract_placement_constraint(requests);
 
   std::string fmwk_id = framework->id().value() ;
-  
-  if (local_mode) {
 
+  //Local mode for testing only 
+  if (local_mode) {
     if (free_slaves.empty()) {
       // If no slave exists, add to pending frameworks and exit       
-      LOG(INFO) << "************ START SOME AGENTS FOR FRAMEWORK!" ;
-      
-      pending_frameworks.push_back(fmwk_id) ;
-      
+      LOG(INFO) << "************ START SOME AGENTS FOR FRAMEWORK!" ;      
+      pending_frameworks.push_back(fmwk_id) ;      
       return ;
     }
     else {
       //There are some free slaves! Assign ALL to this framework
       //XXX TODO while loop here for all slaves.
-      mesos::SlaveID slaveid = free_slaves.back() ;
-      
-      free_slaves.pop_back() ;
-      
+      mesos::SlaveID slaveid = free_slaves.back() ;      
+      free_slaves.pop_back() ;      
       // Match this slave with the framework
-      allocator->alloc_slave_to_fmwk(slaveid, fmwk_id) ;
-      
+      allocator->alloc_slave_to_fmwk(slaveid, fmwk_id) ;      
       return ;
     }
-
   } //end local mode 
   
   std::vector<ServerOrder> to_buy =
     get_servers(framework, req, placement, packing_policy);
 
-  //TODO XXX change to true to start burning EC2 money muwahaha
+  finalize_server_order(to_buy, framework);
   
+  //TODO XXX change to true to start burning EC2 money muwahaha
   bool actually_buy = true ;
   
-  if (actually_buy) {
-    
-    for (auto server : to_buy) {
-      
-      std::vector<std::string> instance_ids = actually_buy_servers(server) ;
+  if (actually_buy) {    
+    for (auto serverOrder : to_buy) {      
+      std::vector<std::string> instance_ids = actually_buy_servers(serverOrder) ;
       // We actually dont do anything with instance ids? 
       if (instance_ids.empty()) {
 	LOG(INFO) << "Instance id vec is empty, oops " ;
       }
     }
   }
-  
-  // TODO: tag all these orders with the framework and AMI?
-  // Actually ask amazon for these servers?
-  finalize_server_order(to_buy, framework);
 
   bool ec2_buy = false;
   std::vector<ServerOrder> servers;
@@ -569,8 +560,8 @@ void CloudRM::finalize_server_order(
   std::vector<ServerOrder>& to_buy,
   mesos::internal::master::Framework* framework)
 {
-  std::string frameworkID; //=framework->frameworkID ;
-  std::string ami = "8y4982";
+  std::string frameworkID = framework->id().value() ;
+  std::string ami = "ami-4ae28b5d";
   for (auto order : to_buy) {
     order.framework = frameworkID;
     order.ami = ami;
