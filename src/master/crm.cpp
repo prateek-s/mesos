@@ -402,7 +402,8 @@ std::vector<std::string> CloudRM::actually_buy_servers(
 //  --image-id ami-4f680658  --key-name prateeks --instance-type m3.xlarge
   
   sprintf(uc2, "aws ec2 run-instances --image-id %s --key-name prateeks --instance-type %s --user-data-file file://slave_user_data.txt" , ami.c_str(), to_buy.machine.type.c_str()) ;
-	      
+
+  LOG(INFO) << uc2 ;
 
 //  std::string cmd_str(uc2) ;
 
