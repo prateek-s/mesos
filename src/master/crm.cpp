@@ -72,7 +72,7 @@ int CloudRM::init(mesos::internal::master::Master* master)
   LOG(INFO) << "~~~~~~~ INITIALIZED by master" ;
   allocator = master->get_allocator();
 
-  local_mode = true ;
+  local_mode = false ;
 
   default_portfolios = read_portfolio_wts() ; //lets test this!
   
@@ -163,7 +163,7 @@ Portfolios CloudRM::read_portfolio_wts()
   //This should be its own class!
   Portfolios portfolios ;
   //We are in mesos/build/src when launched  
-  std::string path = "../../portfolios/us-east-1.json";
+  std::string path = "../../portfolios/us-east-med.json";
   //XXX change to ~/portfolios/ instead of hard-coded local path!
   
   std::ifstream t(path);
