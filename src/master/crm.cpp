@@ -380,7 +380,8 @@ std::vector<std::string> CloudRM::actually_buy_servers(
 
   std::string master_loc = master_ip + ":" + master_port ;
   LOG(INFO) << "------ Master location is " << master_loc ;
-  
+  LOG(INFO) << "----- Owner framework is " << owner_fmwk ;
+      
   char* uc  = (char*)malloc(800) ;
   
   sprintf(uc, "#!/bin/bash \n /home/ubuntu/mesos/build/src/mesos-slave --master=\'%s\' --work_dir=/tmp --attributes=\"owner-fmwk:%s\" \n", master_loc.c_str(), owner_fmwk.c_str()); 
@@ -530,7 +531,13 @@ void CloudRM::res_req(
   std::vector<ServerOrder> to_buy =
     get_servers(framework, req, placement, packing_policy);
 
-  finalize_server_order(to_buy, framework);
+  //finalize_server_order(to_buy, framework);
+  std::string ami = "ami-4ae28b5d";
+  for (auto order : to_buy) {
+    order.framework = fmwk_id ;
+    order.ami = ami;
+  }
+
   
   //TODO XXX change to true to start burning EC2 money muwahaha
   bool actually_buy = true ;
