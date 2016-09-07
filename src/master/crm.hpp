@@ -348,7 +348,7 @@ public :
   
   void die_fmwk(std::string fmwk) {
     //Move its slaves to free list
-    for (auto s : dedicated_slaves[fmwk]) {
+    for (auto &s : dedicated_slaves[fmwk]) {
       free_slaves.push_back(s) ;
     }
     

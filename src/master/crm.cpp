@@ -402,7 +402,7 @@ std::vector<std::string> CloudRM::actually_buy_servers(
   char* uc2 = (char*) malloc(800) ;
 //  --image-id ami-4f680658  --key-name prateeks --instance-type m3.xlarge
   
-  sprintf(uc2, "aws ec2 run-instances --image-id %s --key-name prateeks --instance-type %s --user-data-file file://slave_user_data.txt" , ami.c_str(), to_buy.machine.type.c_str()) ;
+  sprintf(uc2, "aws ec2 run-instances --image-id %s --key-name prateeks --instance-type %s --user-data file://slave_user_data.txt" , ami.c_str(), to_buy.machine.type.c_str()) ;
 
   LOG(INFO) << uc2 ;
 
@@ -533,7 +533,7 @@ void CloudRM::res_req(
 
   //finalize_server_order(to_buy, framework);
   std::string ami = "ami-4ae28b5d";
-  for (auto order : to_buy) {
+  for (auto &order : to_buy) {
     order.framework = fmwk_id ;
     order.ami = ami;
   }
@@ -731,13 +731,15 @@ void CloudRM::new_server(
   cm.type = slave_attrs["instance-type"];
 
   
-  LOG(INFO) << "~~~~~ New slave has az " << cm.az << " and type " << cm.type;
+  LOG(INFO) << "~~~~~ New slave has az " << cm.az << " and type "
+	    << cm.type << " owner= "<< owner_framework ;
 
   slaveManager.add_slave(owner_framework, sinfo.id().value(), instance_id, cm) ;
 			 
   allocator->addSlave_cloudinfo(sinfo.id(), cm);
 
   if (packing_policy == "private") {
+    
     allocator->alloc_slave_to_fmwk(sinfo.id(), owner_framework);
 
   } else if (packing_policy == "binpack") {
@@ -768,7 +770,7 @@ int CloudRM::die_framework(mesos::internal::master::Framework* framework)
   std::string fmwk_id = framework->id().value();
   LOG(INFO) << "CRM removing framework " << fmwk_id;
 
-  slaveManager.die_fmwk(fmwk_id);
+  slaveManager.die_fmwk(fmwk_id) ;
 
   LOG(INFO) << "<EC2> "
             << "TerminateALL " << fmwk_id;
@@ -777,6 +779,7 @@ int CloudRM::die_framework(mesos::internal::master::Framework* framework)
   // allocated already to some other framework.
   for (auto s : slaveManager.free_slaves) {
     std::string instance_id = slaveManager.slave_to_instance[s];
+    LOG(INFO) << "Terminating " << instance_id ;
     terminate_ec2_server(instance_id);
   }
   slaveManager.free_slaves.clear();
