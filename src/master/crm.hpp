@@ -117,12 +117,9 @@ public:
   }
 
   
-  void add(double alpha, std::string market, double wt) {
-    auto vec = out[alpha] ;
+  void add(double alpha, std::string market, double wt) {   
+    
     CloudMachine cm ;
-    //TODO PARSING LATER!
-    cm.type = market ;
-    cm.az = "a" ;
 
     std::vector<std::string> ssplit ;
     split(market, '-', ssplit) ;
@@ -130,10 +127,12 @@ public:
     if(ssplit.size() > 1) {
       cm.type = ssplit[0] ;
       cm.az = ssplit[1] ;
+      LOG(INFO) << "Parsed market string " << cm.type << " -  " << cm.az ;      
     }
     
     auto tup = std::make_tuple(cm, wt) ;
-    vec.push_back(tup) ;
+    
+    out[alpha].push_back(tup) ;
   }
 
   //Return the portfolio for the NEAREST alpha!
@@ -150,14 +149,14 @@ public:
     double min_diff = 10000000 ;
     
     foreachkey(const double a , out) {
+      LOG(INFO) << "Trying alpha match " << a ;
       double diff = std::abs(a-alpha) ;
       if (diff < min_diff) {
 	min_diff = diff ;
 	best_alpha = a ;
       }
     }
-
-    
+    LOG(INFO) << "Best alpha is " << best_alpha << " for " << alpha ;
     //XXX FIX 
     return out[best_alpha] ;
   } //END METHOD 

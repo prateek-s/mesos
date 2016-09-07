@@ -214,7 +214,6 @@ protected:
       mems.mutable_scalar()->set_value(mem);  
 
       
-
       mesos::v1::Resource alpha_r;
       alpha_r.set_name("alpha");
       alpha_r.set_type(mesos::v1::Value::SCALAR);
@@ -232,6 +231,10 @@ protected:
       
       //request->CopyFrom(a_request) ; //always the last step? 
       mesos->send(call) ;
+
+      LOG(INFO) << "CPU= " << num_cpus ;
+      LOG(INFO) << "Mem= " << mem ;
+      LOG(INFO) << "Alpha= " << alpha ;
       
       LOG(INFO) << "Resource request SENT to mesos" ;
       

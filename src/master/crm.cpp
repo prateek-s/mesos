@@ -208,9 +208,7 @@ Portfolios CloudRM::read_portfolio_wts()
       std::string market = wobj.find<JSON::String>("market").get().value ;
       double actual_wt = wobj.find<JSON::Number>("wt").get().as<double>();
 
-      LOG(INFO) << market  << " : " << actual_wt ;
-      
-      //std::tuple tup = std::make_tuple(market, actual_wt) ;
+      LOG(INFO) << market  << " : " << actual_wt ;     
       
       portfolios.add(alpha, market, actual_wt) ;
       
