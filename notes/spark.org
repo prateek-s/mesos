@@ -73,7 +73,9 @@ Use javap <classfile> to see if the methods are there in the individual class fi
 
 1. Need to "install" the jar inside the spark project tree first using mvn:
 
-mvn deploy:deploy-file -Durl=file:///home/prateeks/code/flint/sspark/repo/ -Dfile=mesos-1.0.0-shaded-protobuf.jar -DgroupId=org.apache.mesos -DartifactId=mesos -Dpackaging=jar -Dversion=1.0.0
+mvn deploy:deploy-file -Durl=file:///home/prateeks/code/flint/sspark/repo/ -Dfile=mesos-1.0.0-shaded-protobuf.jar -DgroupId=org.apache.mesos -DartifactId=mesos-shaded-protobuf -Dpackaging=jar -Dversion=1.0.0
+
+mvn deploy:deploy-file -Durl=file:///home/ubuntu/sspark/core/repo/ -Dfile=mesos-1.0.0-shaded-protobuf.jar -DgroupId=org.apache.mesos -DartifactId=mesos-shaded-protobuf -Dpackaging=jar -Dversion=1.0.0
 
 
 2. Change pom.xml to use a local file repo 
