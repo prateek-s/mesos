@@ -63,6 +63,15 @@ ec2-run-instances                             \
 
 ** EC2 scripts
 
+aws ec2 create-image --instance-id i-572aea56 --name "exo2"
+{
+    "ImageId": "ami-dbb2c6cc"
+}
+
+Get instance ids 
+aws ec2 describe-instances --query 'Reservations[*].Instances[*].[ImageId, InstanceId]' --output text | grep 4ae | awk '{print $2}' | xargs
+
+
 ubuntu ami: ami-a8137dbf
 ubuntu-ebs ami-4f680658
 aws-ebs-backed ami-6869aa05

@@ -237,13 +237,24 @@ void HierarchicalAllocatorProcess::alloc_slave_to_fmwk(const SlaveID& slaveId, c
     LOG(INFO) << "Framework is not registerd with allocator yet? " << fmwk ;
     return ;
   }
-  
+
+  //XX Put some instrumentation here
+  // Min_cpus is 0.01, which means that much CPU should be surplus
+  // If we allocate entire machine, then thats not true!
   Resources available = slaves[slaveId].total - slaves[slaveId].allocated ;
   //Thats it?
+
+  Option<double> cpus = available.cpus();
+  Option<Bytes> mem = available.mem();  
+  LOG(INFO) << "After allocation resources " ;
+  if(cpus.isSome()) LOG(INFO) << "Remaining CPUs " << cpus.get() ;
+  if(mem.isSome()) LOG(INFO) << "Remaining Mem " << mem.get() ;
+		      
   
   if(!allocatable(available)) {
     LOG(INFO) << "Cannot allocate Resources for slave " << slaveId ;
-    return ;
+    // XXX was return here!!!!
+    // return ;
   }
   
   //Put this into the offer.

@@ -532,7 +532,7 @@ void CloudRM::res_req(
     get_servers(framework, req, placement, packing_policy);
 
   //finalize_server_order(to_buy, framework);
-  std::string ami = "ami-4ae28b5d";
+  std::string ami = "ami-dbb2c6cc";
   for (auto &order : to_buy) {
     order.framework = fmwk_id ;
     order.ami = ami;
