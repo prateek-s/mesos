@@ -232,7 +232,7 @@ hashmap<std::string, std::string> Slave::get_cloud_server_data()
 
   LOG(INFO) << "------------------- URL TO FETCH " << url ;
 
-  goto fail ;
+  //goto fail ;
   //XXX 
   response = process::http::get(url) ; //this is a future. Failing here??
   
