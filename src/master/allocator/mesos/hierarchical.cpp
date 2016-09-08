@@ -545,8 +545,8 @@ void HierarchicalAllocatorProcess::addSlave_cloudinfo(
   const SlaveID& slaveId,
   const CloudMachine& cm)
 {
-  slaves[slaveId] = Slave();
-  slaves[slaveId].activated = true;
+  //slaves[slaveId] = Slave();
+  //slaves[slaveId].activated = true;
   //slaves[slaveId].hostname = slaveInfo.hostname();
 
   slaves[slaveId].cloudmachine  = cm ;

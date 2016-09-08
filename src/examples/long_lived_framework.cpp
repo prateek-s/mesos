@@ -366,7 +366,7 @@ protected:
   }
 
 /******************************************************************************/
-  
+  //XX instrument this better!!!
   void offers(const vector<Offer>& offers)
   {
     CHECK_EQ(SUBSCRIBED, state);
@@ -391,6 +391,7 @@ protected:
 
           agentId = offer.agent_id();
         } else {
+	  LOG(INFO) << "Declining coz Resources dont contain executor+task-resources" ;
           decline(offer);
         }
       } else if (agentId == offer.agent_id()) {
@@ -403,11 +404,13 @@ protected:
 
           launch(offer);
         } else {
+	  LOG(INFO) << "Declining coz Resources dont contain task-resources" ;
           decline(offer);
         }
       } else {
         // We have an active executor but this offer comes from a
         // different agent; decline the offer.
+	LOG(INFO) << "Declining coz of wrong offer agent ";
         decline(offer);
       }
     }
