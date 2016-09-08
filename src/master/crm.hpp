@@ -50,16 +50,17 @@
 
 #include <sstream>
 
-/////////////////// AWS 
-#include <aws/core/Aws.h>
-#include <aws/core/Region.h>
-#include <aws/ec2/model/RunInstancesRequest.h>
-#include <aws/ec2/model/TerminateInstancesRequest.h>
+/////////////////// AWS
 
-#include <aws/ec2/EC2Client.h>
-//#include <aws/client/ClientConfiguration.h>
-#include <aws/core/auth/AWSCredentialsProvider.h>
-#include <aws/ec2/model/Instance.h>
+// #include <aws/core/Aws.h>
+// #include <aws/core/Region.h>
+// #include <aws/ec2/model/RunInstancesRequest.h>
+// #include <aws/ec2/model/TerminateInstancesRequest.h>
+
+// #include <aws/ec2/EC2Client.h>
+// //#include <aws/client/ClientConfiguration.h>
+// #include <aws/core/auth/AWSCredentialsProvider.h>
+// #include <aws/ec2/model/Instance.h>
 
 
 
@@ -388,13 +389,13 @@ public :
   Portfolios default_portfolios ;
   
   /************ AWS STUFF ****************/
-  Aws::SDKOptions options ;
+  // Aws::SDKOptions options ;
   
-  Aws::Auth::AWSCredentials creds ;
+  // Aws::Auth::AWSCredentials creds ;
 
-  Aws::Client::ClientConfiguration cconfig ;
+  // Aws::Client::ClientConfiguration cconfig ;
 
-  Aws::EC2::EC2Client* client ;
+  // Aws::EC2::EC2Client* client ;
 
   
   /****** Policy flags **********/

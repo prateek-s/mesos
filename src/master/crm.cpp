@@ -45,24 +45,24 @@ CloudRM::CloudRM()
 
 /********************************************************************************/
 
-Aws::Auth::AWSCredentials init_aws_stuff(Aws::SDKOptions options)
-{
-  //Based on the above, can ignore all these options
+// Aws::Auth::AWSCredentials init_aws_stuff(Aws::SDKOptions options)
+// {
+//   //Based on the above, can ignore all these options
   
-  Aws::InitAPI(options);
-  //make your SDK calls in here.
-  LOG(INFO) << " AWS library loaded \n" ;
+//   Aws::InitAPI(options);
+//   //make your SDK calls in here.
+//   LOG(INFO) << " AWS library loaded \n" ;
 
-  Aws::Auth::EnvironmentAWSCredentialsProvider envcreds ; //supposedly reads env vars 
+//   Aws::Auth::EnvironmentAWSCredentialsProvider envcreds ; //supposedly reads env vars 
   
-  Aws::Auth::AWSCredentials creds = envcreds.GetAWSCredentials() ;
-  LOG(INFO) << "Credentials loaded too? \n" ;
+//   Aws::Auth::AWSCredentials creds = envcreds.GetAWSCredentials() ;
+//   LOG(INFO) << "Credentials loaded too? \n" ;
   
-  //std::cout << creds.GetAWSAccessKeyId()  << "\n" ;
-  //std::cout << creds.GetAWSSecretKey() << "\n" ;
+//   //std::cout << creds.GetAWSAccessKeyId()  << "\n" ;
+//   //std::cout << creds.GetAWSSecretKey() << "\n" ;
   
-  return creds ;
-}
+//   return creds ;
+// }
 
 /********************************************************************************/
 
@@ -82,15 +82,15 @@ int CloudRM::init(mesos::internal::master::Master* master)
   }
   
   //1. Get credentials 
-  creds = init_aws_stuff(options); //Default options with nothing turned on 
+  //creds = init_aws_stuff(options); //Default options with nothing turned on 
   //2. Initialize the default config
 
-  Aws::Region region = Aws::RegionMapper::GetRegionFromName("us-east-1") ;
+  //Aws::Region region = Aws::RegionMapper::GetRegionFromName("us-east-1") ;
  
-  cconfig.region = region ; //ClientConfig 
+  //cconfig.region = region ; //ClientConfig 
   
   //3. Initialize the client 
-  client = new Aws::EC2::EC2Client(creds, cconfig) ;
+  //client = new Aws::EC2::EC2Client(creds, cconfig) ;
   
   return 1; 
 }
