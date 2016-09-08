@@ -61,16 +61,32 @@ ec2-run-instances                             \
   ami-XXXXXXXX
 
 
-** EC2 scripts
+** Images 
+aws ec2 create-image --instance-id i-572aea56 --name "exo3"
+{
+    "ImageId": "ami-d76116c0"
+}
+
 
 aws ec2 create-image --instance-id i-572aea56 --name "exo2"
 {
     "ImageId": "ami-dbb2c6cc"
 }
 
-Get instance ids 
-aws ec2 describe-instances --query 'Reservations[*].Instances[*].[ImageId, InstanceId]' --output text | grep 4ae | awk '{print $2}' | xargs
 
+
+** EC2 scripts
+
+
+
+Get instance ids :
+#+BEGIN_SRC
+aws ec2 describe-instances --query 'Reservations[*].Instances[*].[ImageId, InstanceId]' --output text | grep 4ae | awk '{print $2}' | xargs
+#+END_SRC
+
+#+BEGIN_SRC
+aws ec2 describe-instances --query 'Reservations[*].Instances[*].[PublicDnsName, InstanceId, KeyName]' --output text
+#+END_SRC
 
 ubuntu ami: ami-a8137dbf
 ubuntu-ebs ami-4f680658
@@ -79,9 +95,11 @@ aws-instance-storage ami-dc6aa9b1
 
 exo1:ami-4ae28b5d
 
+#+BEGIN_SRC
 bin/ec2-run-instances --image-id ami-4f680658 -k prateeks -t m3.xlarge
 
 ssh -i prateeks.pem ubuntu@ec2-54-196-240-119.compute-1.amazonaws.com
+#+END_SRC
 
 git branch -a # to see all remote branches 
 git checkout -b fg origin/fg 

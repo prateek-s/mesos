@@ -532,7 +532,7 @@ void CloudRM::res_req(
     get_servers(framework, req, placement, packing_policy);
 
   //finalize_server_order(to_buy, framework);
-  std::string ami = "ami-dbb2c6cc";
+  std::string ami = "ami-d76116c0";
   for (auto &order : to_buy) {
     order.framework = fmwk_id ;
     order.ami = ami;
@@ -573,12 +573,12 @@ void CloudRM::finalize_server_order(
   std::vector<ServerOrder>& to_buy,
   mesos::internal::master::Framework* framework)
 {
-  std::string frameworkID = framework->id().value() ;
-  std::string ami = "ami-4ae28b5d";
-  for (auto order : to_buy) {
-    order.framework = frameworkID;
-    order.ami = ami;
-  }
+  // std::string frameworkID = framework->id().value() ;
+  // std::string ami = "ami-d76116c0";
+  // for (auto order : to_buy) {
+  //   order.framework = frameworkID;
+  //   order.ami = ami;
+  // }
 }
 
 /********************************************************************************/
@@ -806,5 +806,4 @@ int CloudRM::bar()
 /******************************************************************************/
 /*****************************   END  *****************************************/
 /******************************************************************************/
-
 
