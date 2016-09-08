@@ -411,7 +411,7 @@ protected:
         // We have an active executor but this offer comes from a
         // different agent; decline the offer.
 	LOG(INFO) << "Declining coz of wrong offer agent ";
-        decline(offer);
+        //decline(offer);
       }
     }
   }
