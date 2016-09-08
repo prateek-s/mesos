@@ -735,7 +735,7 @@ void CloudRM::new_server(
 	    << cm.type << " owner= "<< owner_framework ;
 
   slaveManager.add_slave(owner_framework, sinfo.id().value(), instance_id, cm) ;
-			 
+
   allocator->addSlave_cloudinfo(sinfo.id(), cm);
 
   if (packing_policy == "private") {
